@@ -35,7 +35,7 @@ for i = 1:NUM_IMPUTATIONS
     R"imputedsleep = complete(imputed, action = $i)"
     @rget imputedsleep
     data[:Y] = imputedsleep[:Sleep] .+ randn(nrow(imputedsleep)) * NOISE
-    CSV.write("datasets/sleep-$i.csv", data)
+    CSV.write("datasets/sleep-$NOISE-$i.csv", data)
 end
 
 # Impute missing values using mice with create
