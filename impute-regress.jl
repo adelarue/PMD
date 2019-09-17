@@ -33,5 +33,5 @@ function mice(df::DataFrame)
 end
 
 data = CSV.read("datasets/sleep-0.2-1.csv")
-println(first(data, 10))
-println(first(mice(data), 10))
+println(first(data, 5))
+println(first(mice(data), 5))
