@@ -11,7 +11,7 @@ using RCall, DataFrames, CSV
 	Imputes training set alone, then testing set with training set
 """
 function mice(df::DataFrame)
-	result = deepcopy(df)
+	result = copy(df)
 	@rput df
 	R"library(mice)"
 	R"library(dplyr)"
@@ -32,6 +32,21 @@ function mice(df::DataFrame)
 	return result
 end
 
+"""
+	Impute all missing values as zeros
+"""
+function zeroimpute(df::DataFrame)
+	result = copy(df)
+	for i=1:nrow(df), name in names(df)
+		if ismissing(result[i, name])
+			result[i, name] = 0
+		end
+	end
+	return result
+end
+
+# Small test
 data = CSV.read("datasets/sleep-0.2-1.csv")
 println(first(data, 5))
 println(first(mice(data), 5))
+println(first(zeroimpute(data), 5))
