@@ -1,6 +1,6 @@
 ###################################
-### impute-regress.jl
-### Script to impute missing values before performing regression
+### impute.jl
+### Functions/script to impute missing values before performing regression
 ### Authors: Arthur Delarue, Jean Pauphilet, 2019
 ###################################
 
@@ -11,7 +11,7 @@ using RCall, DataFrames, CSV
 	Imputes training set alone, then testing set with training set
 """
 function mice(df::DataFrame)
-	result = copy(df)
+	result = deepcopy(df)
 	@rput df
 	R"library(mice)"
 	R"library(dplyr)"
@@ -36,7 +36,7 @@ end
 	Impute all missing values as zeros
 """
 function zeroimpute(df::DataFrame)
-	result = copy(df)
+	result = deepcopy(df)
 	for i=1:nrow(df), name in names(df)
 		if ismissing(result[i, name])
 			result[i, name] = 0
@@ -45,8 +45,15 @@ function zeroimpute(df::DataFrame)
 	return result
 end
 
-# Small test
-data = CSV.read("datasets/sleep-0.2-1.csv")
-println(first(data, 5))
-println(first(mice(data), 5))
-println(first(zeroimpute(data), 5))
+"""
+	Create the matrix Z such that Z_ij = 1 if X_ij is missing and 0 otherwise
+"""
+function indicatemissing(df::DataFrame)
+	result = DataFrame()
+	for name in names(df)
+		if !(name in [:Y, :Test])
+			result[Symbol("$(name)_missing")] = Int.(ismissing.(df[name]))
+		end
+	end
+	return result
+end

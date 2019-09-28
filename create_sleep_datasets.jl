@@ -7,7 +7,7 @@
 ###################################
 
 using RDatasets, RCall, DataFrames, CSV
-using Random
+using Random, Printf
 
 function nan_to_missing!(df::DataFrame)
 	for name in names(df)
@@ -46,5 +46,6 @@ for i = 1:NUM_IMPUTATIONS
     sleep[:Y] = imputedsleep[:Sleep] .+ randn(nrow(imputedsleep)) * NOISE
     sleep[:Test] = test_points
     # Save the dataset
-    CSV.write("datasets/sleep-$NOISE-$i.csv", sleep)
+    filename = @sprintf("datasets/sleep-%.2f-%02d.csv", NOISE, i)
+    CSV.write(filename, sleep)
 end
