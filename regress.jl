@@ -1,29 +1,41 @@
 ###################################
 ### regress.jl
-### Functions/script to perform linear regression
+### Functions to perform linear regression
 ### Authors: Arthur Delarue, Jean Pauphilet, 2019
 ###################################
 
 using DataFrames, GLMNet
 using Statistics
 
-# To do: add regularization capabilities
 """
 	Perform linear regression on a dataframe
-	Assumes that the dataframe has no missing values
-	Returns a dataframe with a single row, with the same column names as the data
+	Args:
+		- a dataframe with no missing values
+	Parameters:
+		- lasso: true if we use lasso (penalty chosen using cross-validation),
+				 false if we do not regularize
+	Returns:
+		- a dataframe with a single row, with the same column names as the data
 		except Y and Test, and an additional Offset containing the constant term
 """
-function regress(df::DataFrame)
+function regress(df::DataFrame; lasso::Bool=false)
 	cols = setdiff(names(df), [:Test, :Y])
-	X = convert(Array, df[df[:Test] .== 0, cols])
+	X = convert(Matrix, df[df[:Test] .== 0, cols])
 	y = convert(Array, df[df[:Test] .== 0, :Y])
-	model = glmnet(X, y)
 	coefficients = DataFrame()
-	for (i, col) in enumerate(cols)
-		coefficients[col] = [model.betas[i, end]]
+	if lasso
+		cv = glmnetcv(X, y)
+		for (i, col) in enumerate(cols)
+			coefficients[col] = [cv.path.betas[i, argmin(cv.meanloss)]]
+		end
+		coefficients[:Offset] = cv.path.a0[argmin(cv.meanloss)]
+	else
+		path = glmnet(X, y)
+		for (i, col) in enumerate(cols)
+			coefficients[col] = [path.betas[i, end]]
+		end
+		coefficients[:Offset] = path.a0[end]
 	end
-	coefficients[:Offset] = model.a0[end]
 	return coefficients
 end
 

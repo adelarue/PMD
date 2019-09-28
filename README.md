@@ -15,6 +15,6 @@ Conventions: all datasets must have a column called `Test` which is 1 if the row
 
 ## Imputation and regression
 
-- `impute.jl` defines functions to impute missing values using MICE, and to impute missing values with zeros (so far).
+- `impute.jl` defines functions to impute missing values using MICE, and to impute missing values with zeros.
 - `regress.jl` defines functions to perform linear regression and evaluate fit quality.
-
+- `augment.jl` defines functions to add missingness-related features to the data.
