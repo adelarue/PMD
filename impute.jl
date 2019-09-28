@@ -1,6 +1,6 @@
 ###################################
 ### impute.jl
-### Functions/script to impute missing values before performing regression
+### Functions to impute missing values before performing regression
 ### Authors: Arthur Delarue, Jean Pauphilet, 2019
 ###################################
 
@@ -18,13 +18,13 @@ function mice(df::DataFrame)
 	R"train = select(subset(as.data.frame(df), Test==0), -c(Test, Y))"
 	# for some reason, sometimes columns are lists
 	R"train = t(apply(train, 1, unlist))"
-	R"imputed = mice(as.data.frame(train), m=1)"
+	R"imputed = mice(as.data.frame(train), m=1, printFlag=F)"
 	R"imputedtrain = complete(imputed, action=1)"
 	@rget imputedtrain
 	R"trainplus = select(as.data.frame(df), -c(Test, Y))"
 	# for some reason, sometimes columns are lists
 	R"trainplus = t(apply(trainplus, 1, unlist))"
-	R"imputedplus = mice(as.data.frame(trainplus), m=1)"
+	R"imputedplus = mice(as.data.frame(trainplus), m=1, printFlag=F)"
 	R"imputedtest = select(subset(mutate(complete(imputedplus, action=1), Test=df$Test), Test==1), -Test)"
 	@rget imputedtest
 	result[result.Test .== 0, setdiff(names(result), [:Test, :Y])] = imputedtrain
@@ -40,19 +40,6 @@ function zeroimpute(df::DataFrame)
 	for i=1:nrow(df), name in names(df)
 		if ismissing(result[i, name])
 			result[i, name] = 0
-		end
-	end
-	return result
-end
-
-"""
-	Create the matrix Z such that Z_ij = 1 if X_ij is missing and 0 otherwise
-"""
-function indicatemissing(df::DataFrame)
-	result = DataFrame()
-	for name in names(df)
-		if !(name in [:Y, :Test])
-			result[Symbol("$(name)_missing")] = Int.(ismissing.(df[name]))
 		end
 	end
 	return result
