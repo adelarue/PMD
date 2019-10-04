@@ -6,7 +6,7 @@
 ### Authors: Arthur Delarue, Jean Pauphilet, 2019
 ###################################
 
-using RDatasets, RCall, DataFrames, CSV
+using RDatasets, RCall, DataFrames, CSV, UCIData
 using Random, Printf
 
 function nan_to_missing!(df::DataFrame)
@@ -20,32 +20,59 @@ function nan_to_missing!(df::DataFrame)
 	end
 end
 
+function create_data(df, df_name; NUM_IMPUTATIONS = 10, TEST_FRACTION=.3)
+	if !isdir("datasets/"*df_name*"/")
+		mkdir("datasets/"*df_name*"/")
+	end
+	R"library(mice)"
+	R"imputed = mice($df, m = $NUM_IMPUTATIONS, method='cart')"
+		# @rget sleep
+	nan_to_missing!(df)
+	# Train-test split
+	num_test_points = floor(Int, nrow(df) * TEST_FRACTION)
+	test_points = shuffle(vcat(zeros(Int, nrow(df) - num_test_points), ones(Int, num_test_points)))
+
+	# Get dependent variable, then hide the missing values once again
+	for i = 1:NUM_IMPUTATIONS
+		if !isdir("datasets/"*df_name*"/$i/")
+			mkdir("datasets/"*df_name*"/$i/")
+		end
+
+		# Get the i-th imputed dataset from mice + cart
+	    R"imputeddf= complete(imputed, action = $i)"
+	    @rget imputeddf
+	    # compute the dependent variable
+	    df[:Test] = test_points
+		imputeddf[:Test] = test_points
+	    # Save the dataset
+		path = "datasets/"*df_name*"/$i/"
+	    CSV.write(path*"X_missing.csv", df)
+		CSV.write(path*"X_full.csv", imputeddf)
+	end
+end
+
 Random.seed!(1515)
+
 NUM_IMPUTATIONS = 20
-NOISE = 0.2
 TEST_FRACTION = 0.3
 
-# Get dataset, and impute it a bunch of times using CART
-R"library(VIM)"
-R"data(sleep, package='VIM')"
-R"sleep = as.data.frame(scale(sleep))"
-R"library(mice)"
-R"imputed = mice(sleep, m = $NUM_IMPUTATIONS, method='cart')"
-@rget sleep
-nan_to_missing!(sleep)
-# Train-test split
-num_test_points = Int(floor(nrow(sleep) * TEST_FRACTION))
-test_points = shuffle(vcat(zeros(Int, nrow(sleep) - num_test_points), ones(Int, num_test_points)))
+# # Get dataset, and impute it a bunch of times using CART
+# R"library(VIM)"
+# R"data(sleep, package='VIM')"
+# R"sleep = as.data.frame(scale(sleep))"
+#
+# @rget sleep
+#
+# create_data(sleep, "sleep"; NUM_IMPUTATIONS = NUM_IMPUTATIONS, TEST_FRACTION = TEST_FRACTION)
 
-# Get dependent variable, then hide the missing values once again
-for i = 1:NUM_IMPUTATIONS
-	# Get the i-th imputed dataset from mice + cart
-    R"imputedsleep = complete(imputed, action = $i)"
-    @rget imputedsleep
-    # compute the dependent variable
-    sleep[:Y] = imputedsleep[:Sleep] .+ randn(nrow(imputedsleep)) * NOISE
-    sleep[:Test] = test_points
-    # Save the dataset
-    filename = @sprintf("datasets/sleep-%.2f-%02d.csv", NOISE, i)
-    CSV.write(filename, sleep)
+for n in UCIData.list_datasets("classification")
+	df = UCIData.dataset(n)
+	if any(.!completecases(df))
+		for k in [:id, :target]
+			if k ∈ names(df)
+				deletecols!(df, k)
+			end
+		end
+		create_data(df, n; NUM_IMPUTATIONS = NUM_IMPUTATIONS, TEST_FRACTION = TEST_FRACTION)
+	end
 end
