@@ -10,8 +10,8 @@
 function indicatemissing(df::DataFrame)
 	result = DataFrame()
 	for name in names(df)
-		if !(name in [:Y, :Test])
-			result[Symbol("$(name)_missing")] = Int.(ismissing.(df[name]))
+		if !startswith(String(name), "C") && !(name in [:Y, :Test]) #if not categorical nor Test/Y
+			result[:,Symbol("$(name)_missing")] = (Int.(ismissing.(df[name])))
 		end
 	end
 	return result

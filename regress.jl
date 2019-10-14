@@ -18,15 +18,15 @@ using Statistics
 		- a dataframe with a single row, with the same column names as the data
 		except Y and Test, and an additional Offset containing the constant term
 """
-function regress(df::DataFrame; lasso::Bool=false)
-	cols = setdiff(names(df), [:Test, :Y])
+function regress(Y::Array{Float64}, df::DataFrame; lasso::Bool=false)
+	cols = setdiff(names(df), [:Test])
 	X = convert(Matrix, df[df[:Test] .== 0, cols])
-	y = convert(Array, df[df[:Test] .== 0, :Y])
+	y = convert(Array, Y[df[:Test] .== 0])
 	coefficients = DataFrame()
 	if lasso
 		cv = glmnetcv(X, y)
 		for (i, col) in enumerate(cols)
-			coefficients[col] = [cv.path.betas[i, argmin(cv.meanloss)]]
+			coefficients[col] = ([cv.path.betas[i, argmin(cv.meanloss)]])
 		end
 		coefficients[:Offset] = cv.path.a0[argmin(cv.meanloss)]
 	else
@@ -43,9 +43,9 @@ end
 	Predict the dependent variable given a regression model
 """
 function predict(df::DataFrame, model::DataFrame)
-	prediction = model[1, :Offset] * ones(nrow(df))
+	prediction = model[1, :Offset] .* ones(nrow(df))
 	for name in setdiff(names(model), [:Offset])
-		prediction .+= df[name] .* model[1, name]
+		prediction .+= (model[1, name]*df[:,name])
 	end
 	return prediction
 end
@@ -53,12 +53,13 @@ end
 """
 	Evaluate the fit quality of a linear model on a dataset
 """
-function evaluate(df::DataFrame, model::DataFrame)
-	trainmean = Statistics.mean(df[df[:Test] .== 0, :Y])
-	SST = sum((df[df[:Test] .== 0, :Y] .- trainmean) .^ 2)
-	OSSST = sum((df[df[:Test] .== 1, :Y] .- trainmean) .^ 2)
+function evaluate(Y::Array{Float64}, df::DataFrame, model::DataFrame)
+	trainmean = Statistics.mean(Y[df[:,:Test] .== 0])
+	SST = sum((Y[df[:,:Test] .== 0] .- trainmean) .^ 2)
+	OSSST = sum((Y[df[:,:Test] .== 1] .- trainmean) .^ 2)
+
 	prediction = predict(df, model)
-	R2 = 1 - sum((df[df[:Test] .== 0, :Y] - prediction[df[:Test] .== 0]) .^ 2)/SST
-	OSR2 = 1 - sum((df[df[:Test] .== 1, :Y] - prediction[df[:Test] .== 1]) .^ 2)/OSSST
+	R2 = 1 - sum((Y[df[:,:Test] .== 0] .- prediction[df[:,:Test] .== 0]) .^ 2)/SST
+	OSR2 = 1 - sum((Y[df[:,:Test] .== 1] .- prediction[df[:,:Test] .== 1]) .^ 2)/OSSST
 	return R2, OSR2
 end
