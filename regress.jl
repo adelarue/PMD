@@ -24,7 +24,7 @@ function regress(Y::Array{Float64}, df::DataFrame; lasso::Bool=false)
 	y = convert(Array, Y[df[:Test] .== 0])
 	coefficients = DataFrame()
 	if lasso
-		cv = glmnetcv(X, y)
+		cv = glmnetcv(X, y, alpha=.8)
 		for (i, col) in enumerate(cols)
 			coefficients[col] = ([cv.path.betas[i, argmin(cv.meanloss)]])
 		end
