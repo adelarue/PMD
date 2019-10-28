@@ -4,6 +4,8 @@
 ### Authors: Arthur Delarue, Jean Pauphilet, 2019
 ###################################
 
+using DataFrames, CSV
+
 """
 	Count number of columns with at least one missing value
 """
@@ -15,6 +17,11 @@ function count_missing_columns(df::DataFrame)
 		end
 	end
 	return counter
+end
+
+function count_missing_columns(datasetname::AbstractString)
+	df = CSV.read("../datasets/$datasetname/1/X_missing.csv")
+	return count_missing_columns(df)
 end
 
 """
@@ -30,3 +37,15 @@ function missing_percentage(df::DataFrame)
 	return counter / (nrow(df) * count_missing_columns(df)) * 100.0
 end
 
+function missing_percentage(datasetname::AbstractString)
+	df = CSV.read("../datasets/$datasetname/1/X_missing.csv")
+	return missing_percentage(df)
+end
+
+"""
+	Given a dataset name, return the dataset size
+"""
+function size(datasetname::AbstractString)
+	df = CSV.read("../datasets/$datasetname/1/X_missing.csv")
+	return size(df)
+end
