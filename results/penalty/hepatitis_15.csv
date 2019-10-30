@@ -1,0 +1,76 @@
+dataset,copynum,penalty,iter,method,osr2
+hepatitis,15,1,1,Impute then regress,0.8004066622384906
+hepatitis,15,1,1,Augmented,0.856152964779621
+hepatitis,15,1,1,Augmented Affine,0.7500813776328472
+hepatitis,15,1,2,Impute then regress,0.8009939028756725
+hepatitis,15,1,2,Augmented,0.6656060955999643
+hepatitis,15,1,2,Augmented Affine,0.8548789099441423
+hepatitis,15,1,3,Impute then regress,0.7812554656213435
+hepatitis,15,1,3,Augmented,0.8149374305275363
+hepatitis,15,1,3,Augmented Affine,0.7710362887344949
+hepatitis,15,1,4,Impute then regress,0.9108178707485476
+hepatitis,15,1,4,Augmented,0.886823994660332
+hepatitis,15,1,4,Augmented Affine,0.8642383525209735
+hepatitis,15,1,5,Impute then regress,0.8257313556481243
+hepatitis,15,1,5,Augmented,0.7160825979088519
+hepatitis,15,1,5,Augmented Affine,0.6215825546985769
+hepatitis,15,2,1,Impute then regress,0.7470811241390387
+hepatitis,15,2,1,Augmented,0.7530725386926405
+hepatitis,15,2,1,Augmented Affine,0.7884795326478997
+hepatitis,15,2,2,Impute then regress,0.8083270947027132
+hepatitis,15,2,2,Augmented,0.2803903738730087
+hepatitis,15,2,2,Augmented Affine,0.5861997085403262
+hepatitis,15,2,3,Impute then regress,0.8283864328286121
+hepatitis,15,2,3,Augmented,0.3877568374341762
+hepatitis,15,2,3,Augmented Affine,0.16740604368555656
+hepatitis,15,2,4,Impute then regress,0.8581088321656192
+hepatitis,15,2,4,Augmented,0.5503350307408788
+hepatitis,15,2,4,Augmented Affine,0.6508700956681841
+hepatitis,15,2,5,Impute then regress,0.8281502188236927
+hepatitis,15,2,5,Augmented,-1.186282039940286
+hepatitis,15,2,5,Augmented Affine,-0.9514609247066848
+hepatitis,15,4,1,Impute then regress,0.7778765355485803
+hepatitis,15,4,1,Augmented,0.7970750143109767
+hepatitis,15,4,1,Augmented Affine,0.7879203148376223
+hepatitis,15,4,2,Impute then regress,0.8065541597866233
+hepatitis,15,4,2,Augmented,0.017862567372018856
+hepatitis,15,4,2,Augmented Affine,0.3407841492489724
+hepatitis,15,4,3,Impute then regress,0.7436401621647437
+hepatitis,15,4,3,Augmented,0.6317215175163495
+hepatitis,15,4,3,Augmented Affine,0.4502312288848199
+hepatitis,15,4,4,Impute then regress,0.7989892601127588
+hepatitis,15,4,4,Augmented,0.6101092695669228
+hepatitis,15,4,4,Augmented Affine,0.30830032384161365
+hepatitis,15,4,5,Impute then regress,0.5830267938027142
+hepatitis,15,4,5,Augmented,-1.3549781442019242
+hepatitis,15,4,5,Augmented Affine,-1.6428008938143428
+hepatitis,15,8,1,Impute then regress,0.763951516093381
+hepatitis,15,8,1,Augmented,-1.174211063823961
+hepatitis,15,8,1,Augmented Affine,-1.1866156537392487
+hepatitis,15,8,2,Impute then regress,0.6866442689175455
+hepatitis,15,8,2,Augmented,-1.1662466063755872
+hepatitis,15,8,2,Augmented Affine,-1.2060566049607018
+hepatitis,15,8,3,Impute then regress,0.6657715345760855
+hepatitis,15,8,3,Augmented,0.654230350962448
+hepatitis,15,8,3,Augmented Affine,0.6442438617673252
+hepatitis,15,8,4,Impute then regress,0.7689551071165086
+hepatitis,15,8,4,Augmented,0.35203444052895005
+hepatitis,15,8,4,Augmented Affine,0.49619088909651576
+hepatitis,15,8,5,Impute then regress,0.6971076548077889
+hepatitis,15,8,5,Augmented,0.24295560030552044
+hepatitis,15,8,5,Augmented Affine,-0.014710629598110536
+hepatitis,15,16,1,Impute then regress,0.8531623592291449
+hepatitis,15,16,1,Augmented,0.7452395432933112
+hepatitis,15,16,1,Augmented Affine,0.7920004843819142
+hepatitis,15,16,2,Impute then regress,0.7303122898272711
+hepatitis,15,16,2,Augmented,0.5870812093759121
+hepatitis,15,16,2,Augmented Affine,0.5755050097392738
+hepatitis,15,16,3,Impute then regress,0.6475843799313165
+hepatitis,15,16,3,Augmented,0.3198931017894946
+hepatitis,15,16,3,Augmented Affine,0.32104814733536413
+hepatitis,15,16,4,Impute then regress,0.7964914504949224
+hepatitis,15,16,4,Augmented,0.754848540058283
+hepatitis,15,16,4,Augmented Affine,0.7321239736723231
+hepatitis,15,16,5,Impute then regress,0.7653410533590512
+hepatitis,15,16,5,Augmented,0.40458968266599094
+hepatitis,15,16,5,Augmented Affine,0.6272799767699375

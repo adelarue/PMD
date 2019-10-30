@@ -1,0 +1,76 @@
+dataset,copynum,penalty,iter,method,osr2
+auto-mpg,14,1,1,Impute then regress,0.9354020590927156
+auto-mpg,14,1,1,Augmented,0.9356343311318484
+auto-mpg,14,1,1,Augmented Affine,0.9344828692046893
+auto-mpg,14,1,2,Impute then regress,0.9393111770241903
+auto-mpg,14,1,2,Augmented,0.9393595080996653
+auto-mpg,14,1,2,Augmented Affine,0.9392192215919605
+auto-mpg,14,1,3,Impute then regress,0.9155819999534898
+auto-mpg,14,1,3,Augmented,0.9148805652363368
+auto-mpg,14,1,3,Augmented Affine,0.9155917623351822
+auto-mpg,14,1,4,Impute then regress,0.936776160075719
+auto-mpg,14,1,4,Augmented,0.936112793275492
+auto-mpg,14,1,4,Augmented Affine,0.9368560898762587
+auto-mpg,14,1,5,Impute then regress,0.9338638116694882
+auto-mpg,14,1,5,Augmented,0.9327894218666813
+auto-mpg,14,1,5,Augmented Affine,0.9331603932150776
+auto-mpg,14,2,1,Impute then regress,0.9327119008161955
+auto-mpg,14,2,1,Augmented,0.9327475899188814
+auto-mpg,14,2,1,Augmented Affine,0.9329742373217309
+auto-mpg,14,2,2,Impute then regress,0.9283648047117553
+auto-mpg,14,2,2,Augmented,0.9287299673493377
+auto-mpg,14,2,2,Augmented Affine,0.9279707090263338
+auto-mpg,14,2,3,Impute then regress,0.837081927909638
+auto-mpg,14,2,3,Augmented,0.8384078097125699
+auto-mpg,14,2,3,Augmented Affine,0.8377296239562442
+auto-mpg,14,2,4,Impute then regress,0.93020796672735
+auto-mpg,14,2,4,Augmented,0.9304707762701065
+auto-mpg,14,2,4,Augmented Affine,0.9307588094349012
+auto-mpg,14,2,5,Impute then regress,0.8787179037061071
+auto-mpg,14,2,5,Augmented,0.8785644179636221
+auto-mpg,14,2,5,Augmented Affine,0.8801386933338124
+auto-mpg,14,4,1,Impute then regress,0.94596086819233
+auto-mpg,14,4,1,Augmented,0.9463794717047562
+auto-mpg,14,4,1,Augmented Affine,0.9468944815345531
+auto-mpg,14,4,2,Impute then regress,0.9283633081109527
+auto-mpg,14,4,2,Augmented,0.9273236022537197
+auto-mpg,14,4,2,Augmented Affine,0.927769071352767
+auto-mpg,14,4,3,Impute then regress,0.9384302539460372
+auto-mpg,14,4,3,Augmented,0.938937137903821
+auto-mpg,14,4,3,Augmented Affine,0.9388812966061899
+auto-mpg,14,4,4,Impute then regress,0.9418506249840081
+auto-mpg,14,4,4,Augmented,0.9418356166905624
+auto-mpg,14,4,4,Augmented Affine,0.9418407749921364
+auto-mpg,14,4,5,Impute then regress,0.9341284083407841
+auto-mpg,14,4,5,Augmented,0.933387535711924
+auto-mpg,14,4,5,Augmented Affine,0.9337006307418941
+auto-mpg,14,8,1,Impute then regress,0.9337164481263599
+auto-mpg,14,8,1,Augmented,0.9337414370167088
+auto-mpg,14,8,1,Augmented Affine,0.9338813671832312
+auto-mpg,14,8,2,Impute then regress,0.8282777637422453
+auto-mpg,14,8,2,Augmented,0.8304445503461498
+auto-mpg,14,8,2,Augmented Affine,0.8293173303980484
+auto-mpg,14,8,3,Impute then regress,0.9392287153406284
+auto-mpg,14,8,3,Augmented,0.9391592696199904
+auto-mpg,14,8,3,Augmented Affine,0.9391673547143967
+auto-mpg,14,8,4,Impute then regress,0.928361570018314
+auto-mpg,14,8,4,Augmented,0.9285655142693595
+auto-mpg,14,8,4,Augmented Affine,0.9283297812489832
+auto-mpg,14,8,5,Impute then regress,0.9392834431730743
+auto-mpg,14,8,5,Augmented,0.9380642083872127
+auto-mpg,14,8,5,Augmented Affine,0.9380642083872128
+auto-mpg,14,16,1,Impute then regress,0.9378819223155785
+auto-mpg,14,16,1,Augmented,0.9375982886902224
+auto-mpg,14,16,1,Augmented Affine,0.93660108107227
+auto-mpg,14,16,2,Impute then regress,0.929192993594677
+auto-mpg,14,16,2,Augmented,0.929357191110091
+auto-mpg,14,16,2,Augmented Affine,0.9290684342807147
+auto-mpg,14,16,3,Impute then regress,0.9343309801327675
+auto-mpg,14,16,3,Augmented,0.9342747397196464
+auto-mpg,14,16,3,Augmented Affine,0.9342445212900001
+auto-mpg,14,16,4,Impute then regress,0.8985485491044487
+auto-mpg,14,16,4,Augmented,0.8974686078493402
+auto-mpg,14,16,4,Augmented Affine,0.8975599466984574
+auto-mpg,14,16,5,Impute then regress,0.9308510174816138
+auto-mpg,14,16,5,Augmented,0.9309410971270725
+auto-mpg,14,16,5,Augmented Affine,0.9309645827957918

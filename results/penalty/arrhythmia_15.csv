@@ -1,0 +1,76 @@
+dataset,copynum,penalty,iter,method,osr2
+arrhythmia,15,1,1,Impute then regress,0.6310141145237398
+arrhythmia,15,1,1,Augmented,0.678431337260071
+arrhythmia,15,1,1,Augmented Affine,0.6391683751618435
+arrhythmia,15,1,2,Impute then regress,0.6343490333819396
+arrhythmia,15,1,2,Augmented,0.657669069710521
+arrhythmia,15,1,2,Augmented Affine,0.6375683870316766
+arrhythmia,15,1,3,Impute then regress,0.5707271503882851
+arrhythmia,15,1,3,Augmented,0.5903442270623502
+arrhythmia,15,1,3,Augmented Affine,0.5314016898316982
+arrhythmia,15,1,4,Impute then regress,0.5186671592199984
+arrhythmia,15,1,4,Augmented,0.5228263997214946
+arrhythmia,15,1,4,Augmented Affine,0.45392470802759355
+arrhythmia,15,1,5,Impute then regress,0.7911605116012985
+arrhythmia,15,1,5,Augmented,0.6039139281474815
+arrhythmia,15,1,5,Augmented Affine,0.7022258170731273
+arrhythmia,15,2,1,Impute then regress,0.7064719712751917
+arrhythmia,15,2,1,Augmented,0.7226825706720605
+arrhythmia,15,2,1,Augmented Affine,0.7133916763277316
+arrhythmia,15,2,2,Impute then regress,0.5400671249971427
+arrhythmia,15,2,2,Augmented,0.5406232152882695
+arrhythmia,15,2,2,Augmented Affine,0.48939088826949295
+arrhythmia,15,2,3,Impute then regress,0.49096210694668074
+arrhythmia,15,2,3,Augmented,0.4819674671253581
+arrhythmia,15,2,3,Augmented Affine,0.4738439633196938
+arrhythmia,15,2,4,Impute then regress,0.278303500922488
+arrhythmia,15,2,4,Augmented,0.27878248346702905
+arrhythmia,15,2,4,Augmented Affine,0.6796090924679006
+arrhythmia,15,2,5,Impute then regress,0.45866604591660576
+arrhythmia,15,2,5,Augmented,0.42546345994362256
+arrhythmia,15,2,5,Augmented Affine,0.4976873336386368
+arrhythmia,15,4,1,Impute then regress,0.6577730006677767
+arrhythmia,15,4,1,Augmented,0.6505518846583056
+arrhythmia,15,4,1,Augmented Affine,0.6520742682487853
+arrhythmia,15,4,2,Impute then regress,0.48264930753473567
+arrhythmia,15,4,2,Augmented,0.5025059576066648
+arrhythmia,15,4,2,Augmented Affine,0.5132491624669671
+arrhythmia,15,4,3,Impute then regress,0.7018904177192101
+arrhythmia,15,4,3,Augmented,0.7017845515588821
+arrhythmia,15,4,3,Augmented Affine,0.6885955717519192
+arrhythmia,15,4,4,Impute then regress,0.6122017719800549
+arrhythmia,15,4,4,Augmented,0.6206074891950427
+arrhythmia,15,4,4,Augmented Affine,0.5783238871430627
+arrhythmia,15,4,5,Impute then regress,0.5269624577413264
+arrhythmia,15,4,5,Augmented,0.5151224397664345
+arrhythmia,15,4,5,Augmented Affine,0.5621525338840605
+arrhythmia,15,8,1,Impute then regress,0.6368762490455686
+arrhythmia,15,8,1,Augmented,0.6641088164325357
+arrhythmia,15,8,1,Augmented Affine,0.6656651128656632
+arrhythmia,15,8,2,Impute then regress,0.7115340973096816
+arrhythmia,15,8,2,Augmented,0.7254065325794019
+arrhythmia,15,8,2,Augmented Affine,0.7236980173007375
+arrhythmia,15,8,3,Impute then regress,0.7533041188548214
+arrhythmia,15,8,3,Augmented,0.7733502275946115
+arrhythmia,15,8,3,Augmented Affine,0.7733502567097408
+arrhythmia,15,8,4,Impute then regress,0.7104825149815328
+arrhythmia,15,8,4,Augmented,0.7227486614142379
+arrhythmia,15,8,4,Augmented Affine,0.7375463595813496
+arrhythmia,15,8,5,Impute then regress,0.7132850340645822
+arrhythmia,15,8,5,Augmented,0.7200260299225475
+arrhythmia,15,8,5,Augmented Affine,0.7200260299225474
+arrhythmia,15,16,1,Impute then regress,0.6965920693870615
+arrhythmia,15,16,1,Augmented,0.6698583133902707
+arrhythmia,15,16,1,Augmented Affine,0.6768774751036494
+arrhythmia,15,16,2,Impute then regress,0.6780398665156291
+arrhythmia,15,16,2,Augmented,0.6848327016450928
+arrhythmia,15,16,2,Augmented Affine,0.6886831357018055
+arrhythmia,15,16,3,Impute then regress,0.7517781417846718
+arrhythmia,15,16,3,Augmented,0.7656049011389378
+arrhythmia,15,16,3,Augmented Affine,0.7654765069510705
+arrhythmia,15,16,4,Impute then regress,0.5482204475760103
+arrhythmia,15,16,4,Augmented,0.6435170671178018
+arrhythmia,15,16,4,Augmented Affine,0.6009207577357606
+arrhythmia,15,16,5,Impute then regress,0.7289964952303591
+arrhythmia,15,16,5,Augmented,0.7095044764500635
+arrhythmia,15,16,5,Augmented Affine,0.7095044764500631

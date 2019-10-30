@@ -1,0 +1,76 @@
+dataset,copynum,penalty,iter,method,osr2
+mammographic-mass,3,1,1,Impute then regress,0.8858029032021575
+mammographic-mass,3,1,1,Augmented,0.9327755750609855
+mammographic-mass,3,1,1,Augmented Affine,0.9335459327063028
+mammographic-mass,3,1,2,Impute then regress,0.952444612107566
+mammographic-mass,3,1,2,Augmented,0.9496451440744507
+mammographic-mass,3,1,2,Augmented Affine,0.9506506443204825
+mammographic-mass,3,1,3,Impute then regress,0.9306889071764393
+mammographic-mass,3,1,3,Augmented,0.9474486130677625
+mammographic-mass,3,1,3,Augmented Affine,0.9501417384227853
+mammographic-mass,3,1,4,Impute then regress,0.955450503806531
+mammographic-mass,3,1,4,Augmented,0.9619872037539657
+mammographic-mass,3,1,4,Augmented Affine,0.9620050537804978
+mammographic-mass,3,1,5,Impute then regress,0.9527016262052178
+mammographic-mass,3,1,5,Augmented,0.938281723517872
+mammographic-mass,3,1,5,Augmented Affine,0.9398086815400858
+mammographic-mass,3,2,1,Impute then regress,0.8873349750929596
+mammographic-mass,3,2,1,Augmented,0.9411993996868802
+mammographic-mass,3,2,1,Augmented Affine,0.9416999675089416
+mammographic-mass,3,2,2,Impute then regress,0.9060001442200647
+mammographic-mass,3,2,2,Augmented,0.91711606032166
+mammographic-mass,3,2,2,Augmented Affine,0.9156921504493301
+mammographic-mass,3,2,3,Impute then regress,0.9508703909435199
+mammographic-mass,3,2,3,Augmented,0.9477378148510245
+mammographic-mass,3,2,3,Augmented Affine,0.9482191357353826
+mammographic-mass,3,2,4,Impute then regress,0.9561018905449767
+mammographic-mass,3,2,4,Augmented,0.9640085089048002
+mammographic-mass,3,2,4,Augmented Affine,0.9632833980846154
+mammographic-mass,3,2,5,Impute then regress,0.9766171375239424
+mammographic-mass,3,2,5,Augmented,0.9749980213996882
+mammographic-mass,3,2,5,Augmented Affine,0.975157873576842
+mammographic-mass,3,4,1,Impute then regress,0.9190411069213329
+mammographic-mass,3,4,1,Augmented,0.9217530987242548
+mammographic-mass,3,4,1,Augmented Affine,0.924204514821017
+mammographic-mass,3,4,2,Impute then regress,0.9758240726786231
+mammographic-mass,3,4,2,Augmented,0.9764564544843746
+mammographic-mass,3,4,2,Augmented Affine,0.9765020710926537
+mammographic-mass,3,4,3,Impute then regress,0.9512886820350597
+mammographic-mass,3,4,3,Augmented,0.9577864095741109
+mammographic-mass,3,4,3,Augmented Affine,0.9612753180092539
+mammographic-mass,3,4,4,Impute then regress,0.925031671399025
+mammographic-mass,3,4,4,Augmented,0.9070070446947204
+mammographic-mass,3,4,4,Augmented Affine,0.9115579568291157
+mammographic-mass,3,4,5,Impute then regress,0.925579613725386
+mammographic-mass,3,4,5,Augmented,0.9184862953784085
+mammographic-mass,3,4,5,Augmented Affine,0.9221368400912839
+mammographic-mass,3,8,1,Impute then regress,0.9378994346304017
+mammographic-mass,3,8,1,Augmented,0.9607805618887766
+mammographic-mass,3,8,1,Augmented Affine,0.9608257342495347
+mammographic-mass,3,8,2,Impute then regress,0.9697384452316568
+mammographic-mass,3,8,2,Augmented,0.9716722560581329
+mammographic-mass,3,8,2,Augmented Affine,0.9719216316060533
+mammographic-mass,3,8,3,Impute then regress,0.8744913244594678
+mammographic-mass,3,8,3,Augmented,0.9158462021264283
+mammographic-mass,3,8,3,Augmented Affine,0.9170070612232755
+mammographic-mass,3,8,4,Impute then regress,0.9229755598486699
+mammographic-mass,3,8,4,Augmented,0.9403373575151401
+mammographic-mass,3,8,4,Augmented Affine,0.9418248800554189
+mammographic-mass,3,8,5,Impute then regress,0.9553173183111126
+mammographic-mass,3,8,5,Augmented,0.961599974174577
+mammographic-mass,3,8,5,Augmented Affine,0.9631666792120113
+mammographic-mass,3,16,1,Impute then regress,0.9008203323347015
+mammographic-mass,3,16,1,Augmented,0.8916085692944004
+mammographic-mass,3,16,1,Augmented Affine,0.8942513198574978
+mammographic-mass,3,16,2,Impute then regress,0.9193586404160761
+mammographic-mass,3,16,2,Augmented,0.9285653233449089
+mammographic-mass,3,16,2,Augmented Affine,0.9307657175811299
+mammographic-mass,3,16,3,Impute then regress,0.9426967845248991
+mammographic-mass,3,16,3,Augmented,0.9420417544613254
+mammographic-mass,3,16,3,Augmented Affine,0.9440063071397866
+mammographic-mass,3,16,4,Impute then regress,0.9153382602451448
+mammographic-mass,3,16,4,Augmented,0.9203387940586758
+mammographic-mass,3,16,4,Augmented Affine,0.9221831596908766
+mammographic-mass,3,16,5,Impute then regress,0.9088205659892035
+mammographic-mass,3,16,5,Augmented,0.9295948881130278
+mammographic-mass,3,16,5,Augmented Affine,0.9288435920008833

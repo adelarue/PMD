@@ -1,0 +1,76 @@
+dataset,copynum,penalty,iter,method,osr2
+heart-disease-va,17,1,1,Impute then regress,0.6992956050599041
+heart-disease-va,17,1,1,Augmented,0.7831470609289427
+heart-disease-va,17,1,1,Augmented Affine,0.7492032885243884
+heart-disease-va,17,1,2,Impute then regress,0.8690219932548674
+heart-disease-va,17,1,2,Augmented,0.8490077541800781
+heart-disease-va,17,1,2,Augmented Affine,0.8710920050382005
+heart-disease-va,17,1,3,Impute then regress,0.4146008992093333
+heart-disease-va,17,1,3,Augmented,0.5273988164362913
+heart-disease-va,17,1,3,Augmented Affine,0.43989628433743133
+heart-disease-va,17,1,4,Impute then regress,0.8462261377229339
+heart-disease-va,17,1,4,Augmented,0.9113636513495149
+heart-disease-va,17,1,4,Augmented Affine,0.8499483862261339
+heart-disease-va,17,1,5,Impute then regress,0.7416112407016813
+heart-disease-va,17,1,5,Augmented,0.7779493132470467
+heart-disease-va,17,1,5,Augmented Affine,0.7242945137402267
+heart-disease-va,17,2,1,Impute then regress,0.8767580725151985
+heart-disease-va,17,2,1,Augmented,0.9039368024932822
+heart-disease-va,17,2,1,Augmented Affine,0.9052152216056408
+heart-disease-va,17,2,2,Impute then regress,0.6344740417555579
+heart-disease-va,17,2,2,Augmented,0.7580423071726593
+heart-disease-va,17,2,2,Augmented Affine,0.27408661171337845
+heart-disease-va,17,2,3,Impute then regress,0.8497249133051743
+heart-disease-va,17,2,3,Augmented,0.9059696861217956
+heart-disease-va,17,2,3,Augmented Affine,0.8966247940089493
+heart-disease-va,17,2,4,Impute then regress,0.48382774149179575
+heart-disease-va,17,2,4,Augmented,0.6277803599575851
+heart-disease-va,17,2,4,Augmented Affine,0.599852429314186
+heart-disease-va,17,2,5,Impute then regress,0.4786960328341907
+heart-disease-va,17,2,5,Augmented,0.6713991735301037
+heart-disease-va,17,2,5,Augmented Affine,0.5859472732618216
+heart-disease-va,17,4,1,Impute then regress,0.7643133759947914
+heart-disease-va,17,4,1,Augmented,0.8290454917730289
+heart-disease-va,17,4,1,Augmented Affine,0.8315676812791142
+heart-disease-va,17,4,2,Impute then regress,0.8218302146704891
+heart-disease-va,17,4,2,Augmented,0.8554913954784079
+heart-disease-va,17,4,2,Augmented Affine,0.801706930529382
+heart-disease-va,17,4,3,Impute then regress,0.7900550514969917
+heart-disease-va,17,4,3,Augmented,0.770900762398538
+heart-disease-va,17,4,3,Augmented Affine,0.758469567669185
+heart-disease-va,17,4,4,Impute then regress,0.7314621315425307
+heart-disease-va,17,4,4,Augmented,0.8211980850116758
+heart-disease-va,17,4,4,Augmented Affine,0.7760297403221973
+heart-disease-va,17,4,5,Impute then regress,0.524478122820389
+heart-disease-va,17,4,5,Augmented,0.7097610914668611
+heart-disease-va,17,4,5,Augmented Affine,0.6337690570098646
+heart-disease-va,17,8,1,Impute then regress,0.8970155445145753
+heart-disease-va,17,8,1,Augmented,0.9008232140077314
+heart-disease-va,17,8,1,Augmented Affine,0.8906147355389843
+heart-disease-va,17,8,2,Impute then regress,0.7157234097341459
+heart-disease-va,17,8,2,Augmented,0.8232563700347246
+heart-disease-va,17,8,2,Augmented Affine,0.8506604514090126
+heart-disease-va,17,8,3,Impute then regress,0.8135632822850238
+heart-disease-va,17,8,3,Augmented,0.8517254107863398
+heart-disease-va,17,8,3,Augmented Affine,0.8460133678237135
+heart-disease-va,17,8,4,Impute then regress,0.5886822889859488
+heart-disease-va,17,8,4,Augmented,0.6806119473969805
+heart-disease-va,17,8,4,Augmented Affine,0.6261905835808899
+heart-disease-va,17,8,5,Impute then regress,0.9045779443976498
+heart-disease-va,17,8,5,Augmented,0.9252575583569587
+heart-disease-va,17,8,5,Augmented Affine,0.9179372467843081
+heart-disease-va,17,16,1,Impute then regress,0.6167786966238002
+heart-disease-va,17,16,1,Augmented,0.7209190329491043
+heart-disease-va,17,16,1,Augmented Affine,0.6616164575136132
+heart-disease-va,17,16,2,Impute then regress,0.9047577115979004
+heart-disease-va,17,16,2,Augmented,0.918678198176267
+heart-disease-va,17,16,2,Augmented Affine,0.9157531326951343
+heart-disease-va,17,16,3,Impute then regress,0.8869770875184257
+heart-disease-va,17,16,3,Augmented,0.9201654148445279
+heart-disease-va,17,16,3,Augmented Affine,0.8952768385114885
+heart-disease-va,17,16,4,Impute then regress,0.5010883131084494
+heart-disease-va,17,16,4,Augmented,0.1311149663925686
+heart-disease-va,17,16,4,Augmented Affine,0.4634231663670061
+heart-disease-va,17,16,5,Impute then regress,0.502330954875291
+heart-disease-va,17,16,5,Augmented,0.6541770450971843
+heart-disease-va,17,16,5,Augmented Affine,0.6344089786871363

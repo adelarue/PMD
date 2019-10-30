@@ -1,0 +1,76 @@
+dataset,copynum,penalty,iter,method,osr2
+heart-disease-switzerland,11,1,1,Impute then regress,0.8760847650613349
+heart-disease-switzerland,11,1,1,Augmented,0.8919859542301996
+heart-disease-switzerland,11,1,1,Augmented Affine,0.905902155440924
+heart-disease-switzerland,11,1,2,Impute then regress,0.9363731318731707
+heart-disease-switzerland,11,1,2,Augmented,0.9179840364374486
+heart-disease-switzerland,11,1,2,Augmented Affine,0.9162943183693902
+heart-disease-switzerland,11,1,3,Impute then regress,0.9066438341313032
+heart-disease-switzerland,11,1,3,Augmented,0.9050721946286852
+heart-disease-switzerland,11,1,3,Augmented Affine,0.8902333019080939
+heart-disease-switzerland,11,1,4,Impute then regress,0.8156929076343744
+heart-disease-switzerland,11,1,4,Augmented,0.8612477739260949
+heart-disease-switzerland,11,1,4,Augmented Affine,0.876494767506513
+heart-disease-switzerland,11,1,5,Impute then regress,0.9113249178604937
+heart-disease-switzerland,11,1,5,Augmented,0.9204916102418603
+heart-disease-switzerland,11,1,5,Augmented Affine,0.9246184347657488
+heart-disease-switzerland,11,2,1,Impute then regress,0.918536449411564
+heart-disease-switzerland,11,2,1,Augmented,0.9146315430624042
+heart-disease-switzerland,11,2,1,Augmented Affine,0.9171233456016535
+heart-disease-switzerland,11,2,2,Impute then regress,0.8758842315619616
+heart-disease-switzerland,11,2,2,Augmented,0.8681709228735458
+heart-disease-switzerland,11,2,2,Augmented Affine,0.8546828337905966
+heart-disease-switzerland,11,2,3,Impute then regress,0.9478089473404029
+heart-disease-switzerland,11,2,3,Augmented,0.9467293678774291
+heart-disease-switzerland,11,2,3,Augmented Affine,0.9444244580661494
+heart-disease-switzerland,11,2,4,Impute then regress,0.928554003907088
+heart-disease-switzerland,11,2,4,Augmented,0.9397587680460839
+heart-disease-switzerland,11,2,4,Augmented Affine,0.9398750892915442
+heart-disease-switzerland,11,2,5,Impute then regress,0.9229804384424596
+heart-disease-switzerland,11,2,5,Augmented,0.9174677202369952
+heart-disease-switzerland,11,2,5,Augmented Affine,0.9229454870036621
+heart-disease-switzerland,11,4,1,Impute then regress,0.9123401772951687
+heart-disease-switzerland,11,4,1,Augmented,0.9141707352672758
+heart-disease-switzerland,11,4,1,Augmented Affine,0.9033598782270974
+heart-disease-switzerland,11,4,2,Impute then regress,0.914803193723858
+heart-disease-switzerland,11,4,2,Augmented,0.8448814964730325
+heart-disease-switzerland,11,4,2,Augmented Affine,0.850116911715696
+heart-disease-switzerland,11,4,3,Impute then regress,0.9523044011672896
+heart-disease-switzerland,11,4,3,Augmented,0.9514536014287741
+heart-disease-switzerland,11,4,3,Augmented Affine,0.9516235877466911
+heart-disease-switzerland,11,4,4,Impute then regress,0.8817243228119799
+heart-disease-switzerland,11,4,4,Augmented,0.8891249853315295
+heart-disease-switzerland,11,4,4,Augmented Affine,0.8864699969795315
+heart-disease-switzerland,11,4,5,Impute then regress,0.9311709184574092
+heart-disease-switzerland,11,4,5,Augmented,0.9083080792815558
+heart-disease-switzerland,11,4,5,Augmented Affine,0.9082533662009061
+heart-disease-switzerland,11,8,1,Impute then regress,0.891891920495043
+heart-disease-switzerland,11,8,1,Augmented,0.8882352894033737
+heart-disease-switzerland,11,8,1,Augmented Affine,0.8895252144538981
+heart-disease-switzerland,11,8,2,Impute then regress,0.8736872749576039
+heart-disease-switzerland,11,8,2,Augmented,0.908458397220464
+heart-disease-switzerland,11,8,2,Augmented Affine,0.9044374135361184
+heart-disease-switzerland,11,8,3,Impute then regress,0.3942212682157594
+heart-disease-switzerland,11,8,3,Augmented,0.5991618891039752
+heart-disease-switzerland,11,8,3,Augmented Affine,0.543913681259826
+heart-disease-switzerland,11,8,4,Impute then regress,0.9439805861215887
+heart-disease-switzerland,11,8,4,Augmented,0.935271066427499
+heart-disease-switzerland,11,8,4,Augmented Affine,0.9267242240372049
+heart-disease-switzerland,11,8,5,Impute then regress,0.9197383713933385
+heart-disease-switzerland,11,8,5,Augmented,0.925857512338482
+heart-disease-switzerland,11,8,5,Augmented Affine,0.9172371720190718
+heart-disease-switzerland,11,16,1,Impute then regress,0.36247517508745497
+heart-disease-switzerland,11,16,1,Augmented,0.4042153159197981
+heart-disease-switzerland,11,16,1,Augmented Affine,0.32347161892986265
+heart-disease-switzerland,11,16,2,Impute then regress,0.8777253596185244
+heart-disease-switzerland,11,16,2,Augmented,0.8363698096434404
+heart-disease-switzerland,11,16,2,Augmented Affine,0.7739277089685817
+heart-disease-switzerland,11,16,3,Impute then regress,0.8753403277066042
+heart-disease-switzerland,11,16,3,Augmented,0.8980477431774411
+heart-disease-switzerland,11,16,3,Augmented Affine,0.8858802057171001
+heart-disease-switzerland,11,16,4,Impute then regress,0.5825815884463383
+heart-disease-switzerland,11,16,4,Augmented,0.6011287525128741
+heart-disease-switzerland,11,16,4,Augmented Affine,0.6057307921117895
+heart-disease-switzerland,11,16,5,Impute then regress,0.9078873225732641
+heart-disease-switzerland,11,16,5,Augmented,0.9118650020608269
+heart-disease-switzerland,11,16,5,Augmented Affine,0.912493069550398

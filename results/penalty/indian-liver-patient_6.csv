@@ -1,0 +1,76 @@
+dataset,copynum,penalty,iter,method,osr2
+indian-liver-patient,6,1,1,Impute then regress,0.9366073640466541
+indian-liver-patient,6,1,1,Augmented,0.9366736287798448
+indian-liver-patient,6,1,1,Augmented Affine,0.9368873935739331
+indian-liver-patient,6,1,2,Impute then regress,0.9493254107843475
+indian-liver-patient,6,1,2,Augmented,0.9497876923048005
+indian-liver-patient,6,1,2,Augmented Affine,0.9505741972791006
+indian-liver-patient,6,1,3,Impute then regress,0.9468749156714944
+indian-liver-patient,6,1,3,Augmented,0.9469904018764548
+indian-liver-patient,6,1,3,Augmented Affine,0.9469904018764548
+indian-liver-patient,6,1,4,Impute then regress,0.9419290131806475
+indian-liver-patient,6,1,4,Augmented,0.9419885622727653
+indian-liver-patient,6,1,4,Augmented Affine,0.9422719815901179
+indian-liver-patient,6,1,5,Impute then regress,0.9467881600738434
+indian-liver-patient,6,1,5,Augmented,0.946787101305282
+indian-liver-patient,6,1,5,Augmented Affine,0.9467776884162244
+indian-liver-patient,6,2,1,Impute then regress,0.9064574781759657
+indian-liver-patient,6,2,1,Augmented,0.906860894090591
+indian-liver-patient,6,2,1,Augmented Affine,0.9067394520335778
+indian-liver-patient,6,2,2,Impute then regress,0.9169328114667851
+indian-liver-patient,6,2,2,Augmented,0.9158068001309817
+indian-liver-patient,6,2,2,Augmented Affine,0.9157293907989065
+indian-liver-patient,6,2,3,Impute then regress,0.9266188998800515
+indian-liver-patient,6,2,3,Augmented,0.9262303197317465
+indian-liver-patient,6,2,3,Augmented Affine,0.9267594776574867
+indian-liver-patient,6,2,4,Impute then regress,0.8982124571710415
+indian-liver-patient,6,2,4,Augmented,0.8977818357915419
+indian-liver-patient,6,2,4,Augmented Affine,0.9113030622446051
+indian-liver-patient,6,2,5,Impute then regress,0.9227247724271648
+indian-liver-patient,6,2,5,Augmented,0.9227065521355555
+indian-liver-patient,6,2,5,Augmented Affine,0.9227406236494593
+indian-liver-patient,6,4,1,Impute then regress,0.9319530310593767
+indian-liver-patient,6,4,1,Augmented,0.9314230543718124
+indian-liver-patient,6,4,1,Augmented Affine,0.9322605964180003
+indian-liver-patient,6,4,2,Impute then regress,0.9407141288470225
+indian-liver-patient,6,4,2,Augmented,0.940780933442665
+indian-liver-patient,6,4,2,Augmented Affine,0.9406879418639763
+indian-liver-patient,6,4,3,Impute then regress,0.9369332381470018
+indian-liver-patient,6,4,3,Augmented,0.9370923701247228
+indian-liver-patient,6,4,3,Augmented Affine,0.9370740786009999
+indian-liver-patient,6,4,4,Impute then regress,0.9253089281404775
+indian-liver-patient,6,4,4,Augmented,0.925417044535237
+indian-liver-patient,6,4,4,Augmented Affine,0.9256114018938664
+indian-liver-patient,6,4,5,Impute then regress,0.9443437347358472
+indian-liver-patient,6,4,5,Augmented,0.944216583233776
+indian-liver-patient,6,4,5,Augmented Affine,0.9442716694621843
+indian-liver-patient,6,8,1,Impute then regress,0.9474899723916927
+indian-liver-patient,6,8,1,Augmented,0.947658385508149
+indian-liver-patient,6,8,1,Augmented Affine,0.9476446287020512
+indian-liver-patient,6,8,2,Impute then regress,0.915562545039835
+indian-liver-patient,6,8,2,Augmented,0.9166917416330569
+indian-liver-patient,6,8,2,Augmented Affine,0.9164240303016901
+indian-liver-patient,6,8,3,Impute then regress,0.928469827375088
+indian-liver-patient,6,8,3,Augmented,0.9316736743414095
+indian-liver-patient,6,8,3,Augmented Affine,0.9344112435166965
+indian-liver-patient,6,8,4,Impute then regress,0.9116040402965544
+indian-liver-patient,6,8,4,Augmented,0.9081474975866755
+indian-liver-patient,6,8,4,Augmented Affine,0.9101798162148165
+indian-liver-patient,6,8,5,Impute then regress,0.9176856074848294
+indian-liver-patient,6,8,5,Augmented,0.9171023553071923
+indian-liver-patient,6,8,5,Augmented Affine,0.9198211464892075
+indian-liver-patient,6,16,1,Impute then regress,0.9336537665434338
+indian-liver-patient,6,16,1,Augmented,0.9325070521360539
+indian-liver-patient,6,16,1,Augmented Affine,0.9328236215973057
+indian-liver-patient,6,16,2,Impute then regress,0.8713723467098919
+indian-liver-patient,6,16,2,Augmented,0.8658918089410008
+indian-liver-patient,6,16,2,Augmented Affine,0.8689201476638839
+indian-liver-patient,6,16,3,Impute then regress,0.9092902241271494
+indian-liver-patient,6,16,3,Augmented,0.90974834360055
+indian-liver-patient,6,16,3,Augmented Affine,0.9102197889435795
+indian-liver-patient,6,16,4,Impute then regress,0.9543967648539033
+indian-liver-patient,6,16,4,Augmented,0.9539346139762663
+indian-liver-patient,6,16,4,Augmented Affine,0.95381119380611
+indian-liver-patient,6,16,5,Impute then regress,0.9377469010251743
+indian-liver-patient,6,16,5,Augmented,0.9364508494363604
+indian-liver-patient,6,16,5,Augmented Affine,0.9360566017071836

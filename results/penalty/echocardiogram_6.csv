@@ -1,0 +1,76 @@
+dataset,copynum,penalty,iter,method,osr2
+echocardiogram,6,1,1,Impute then regress,0.8766877847454236
+echocardiogram,6,1,1,Augmented,0.8258241613376129
+echocardiogram,6,1,1,Augmented Affine,0.6029305417302913
+echocardiogram,6,1,2,Impute then regress,0.531070995949171
+echocardiogram,6,1,2,Augmented,0.7889248739809398
+echocardiogram,6,1,2,Augmented Affine,0.7416685915282645
+echocardiogram,6,1,3,Impute then regress,0.9230160967551063
+echocardiogram,6,1,3,Augmented,0.8811647676767476
+echocardiogram,6,1,3,Augmented Affine,0.9043483171165502
+echocardiogram,6,1,4,Impute then regress,0.836286378174678
+echocardiogram,6,1,4,Augmented,0.8394337391169493
+echocardiogram,6,1,4,Augmented Affine,0.8043637546565874
+echocardiogram,6,1,5,Impute then regress,0.8788104823978717
+echocardiogram,6,1,5,Augmented,0.9019916114594037
+echocardiogram,6,1,5,Augmented Affine,0.8374876791585883
+echocardiogram,6,2,1,Impute then regress,0.7234950521483725
+echocardiogram,6,2,1,Augmented,0.6571801170343144
+echocardiogram,6,2,1,Augmented Affine,0.6302778932041593
+echocardiogram,6,2,2,Impute then regress,0.8994440783251434
+echocardiogram,6,2,2,Augmented,0.826553276686264
+echocardiogram,6,2,2,Augmented Affine,0.8358833311668901
+echocardiogram,6,2,3,Impute then regress,0.7973026142577336
+echocardiogram,6,2,3,Augmented,0.9195266419064612
+echocardiogram,6,2,3,Augmented Affine,0.8601053269326266
+echocardiogram,6,2,4,Impute then regress,0.9005307487251262
+echocardiogram,6,2,4,Augmented,0.8798344442322314
+echocardiogram,6,2,4,Augmented Affine,0.7650171233013383
+echocardiogram,6,2,5,Impute then regress,0.854065499591399
+echocardiogram,6,2,5,Augmented,0.8579147499810315
+echocardiogram,6,2,5,Augmented Affine,0.785141713991092
+echocardiogram,6,4,1,Impute then regress,0.909348390349896
+echocardiogram,6,4,1,Augmented,0.8694223674582096
+echocardiogram,6,4,1,Augmented Affine,0.7655975724393328
+echocardiogram,6,4,2,Impute then regress,0.8637802702427451
+echocardiogram,6,4,2,Augmented,0.7079249903494177
+echocardiogram,6,4,2,Augmented Affine,0.8598807238656934
+echocardiogram,6,4,3,Impute then regress,0.9177892517148813
+echocardiogram,6,4,3,Augmented,0.8983470491921633
+echocardiogram,6,4,3,Augmented Affine,0.8175426485210684
+echocardiogram,6,4,4,Impute then regress,0.9011802390914713
+echocardiogram,6,4,4,Augmented,0.8352153446687426
+echocardiogram,6,4,4,Augmented Affine,0.7699918190612511
+echocardiogram,6,4,5,Impute then regress,0.7511347517964457
+echocardiogram,6,4,5,Augmented,0.8008584219152071
+echocardiogram,6,4,5,Augmented Affine,0.8124335123107791
+echocardiogram,6,8,1,Impute then regress,0.8253529264298143
+echocardiogram,6,8,1,Augmented,0.8502746925500466
+echocardiogram,6,8,1,Augmented Affine,0.8511428034029627
+echocardiogram,6,8,2,Impute then regress,0.8995806907366506
+echocardiogram,6,8,2,Augmented,0.8666043328128055
+echocardiogram,6,8,2,Augmented Affine,0.837934223035601
+echocardiogram,6,8,3,Impute then regress,0.7027478101916593
+echocardiogram,6,8,3,Augmented,0.8276511084094521
+echocardiogram,6,8,3,Augmented Affine,0.5395362770657122
+echocardiogram,6,8,4,Impute then regress,0.7485862663411809
+echocardiogram,6,8,4,Augmented,0.7758230739159621
+echocardiogram,6,8,4,Augmented Affine,0.7618168076543571
+echocardiogram,6,8,5,Impute then regress,0.8376481557520592
+echocardiogram,6,8,5,Augmented,0.8148661891367892
+echocardiogram,6,8,5,Augmented Affine,0.9181851141205584
+echocardiogram,6,16,1,Impute then regress,0.8534364153723071
+echocardiogram,6,16,1,Augmented,0.8985190208577225
+echocardiogram,6,16,1,Augmented Affine,0.7212138084630135
+echocardiogram,6,16,2,Impute then regress,0.7885555796188823
+echocardiogram,6,16,2,Augmented,0.7878774903755666
+echocardiogram,6,16,2,Augmented Affine,0.794350150685767
+echocardiogram,6,16,3,Impute then regress,0.8844866656935337
+echocardiogram,6,16,3,Augmented,0.9063403785310227
+echocardiogram,6,16,3,Augmented Affine,0.8450665488806649
+echocardiogram,6,16,4,Impute then regress,0.8092914413826051
+echocardiogram,6,16,4,Augmented,0.7265205701520678
+echocardiogram,6,16,4,Augmented Affine,0.7662855532422027
+echocardiogram,6,16,5,Impute then regress,0.9397950795602865
+echocardiogram,6,16,5,Augmented,0.9360625514440567
+echocardiogram,6,16,5,Augmented Affine,0.8803286691595258
