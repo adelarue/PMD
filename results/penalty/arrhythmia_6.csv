@@ -1,0 +1,76 @@
+dataset,copynum,penalty,iter,method,osr2
+arrhythmia,6,1,1,Impute then regress,0.7214966812974863
+arrhythmia,6,1,1,Augmented,0.7081295830454684
+arrhythmia,6,1,1,Augmented Affine,0.6186651053234126
+arrhythmia,6,1,2,Impute then regress,0.7139794974782705
+arrhythmia,6,1,2,Augmented,0.667997039096932
+arrhythmia,6,1,2,Augmented Affine,0.6343283351253737
+arrhythmia,6,1,3,Impute then regress,0.5947627671194075
+arrhythmia,6,1,3,Augmented,0.5476425996400134
+arrhythmia,6,1,3,Augmented Affine,0.5193194703656729
+arrhythmia,6,1,4,Impute then regress,0.7658085532456419
+arrhythmia,6,1,4,Augmented,0.7481967060745041
+arrhythmia,6,1,4,Augmented Affine,0.7430301854852613
+arrhythmia,6,1,5,Impute then regress,0.5631888275481013
+arrhythmia,6,1,5,Augmented,0.5735213362564258
+arrhythmia,6,1,5,Augmented Affine,0.4136510704491897
+arrhythmia,6,2,1,Impute then regress,0.6282630954727937
+arrhythmia,6,2,1,Augmented,0.6557277048348169
+arrhythmia,6,2,1,Augmented Affine,0.6181956996330595
+arrhythmia,6,2,2,Impute then regress,0.7515695847330947
+arrhythmia,6,2,2,Augmented,0.7539804319962591
+arrhythmia,6,2,2,Augmented Affine,0.7070741450679053
+arrhythmia,6,2,3,Impute then regress,0.7865831055910337
+arrhythmia,6,2,3,Augmented,0.7853436033865981
+arrhythmia,6,2,3,Augmented Affine,0.7873476973076614
+arrhythmia,6,2,4,Impute then regress,0.5461679942690785
+arrhythmia,6,2,4,Augmented,0.5708380216765533
+arrhythmia,6,2,4,Augmented Affine,0.43657087369549685
+arrhythmia,6,2,5,Impute then regress,0.6152907517799953
+arrhythmia,6,2,5,Augmented,0.6189992111071849
+arrhythmia,6,2,5,Augmented Affine,0.6039843192243128
+arrhythmia,6,4,1,Impute then regress,0.6161899301591369
+arrhythmia,6,4,1,Augmented,0.615569287641667
+arrhythmia,6,4,1,Augmented Affine,0.5655330221961801
+arrhythmia,6,4,2,Impute then regress,0.5029330628453232
+arrhythmia,6,4,2,Augmented,0.5394619108506113
+arrhythmia,6,4,2,Augmented Affine,0.5291246242326397
+arrhythmia,6,4,3,Impute then regress,0.7864127898104505
+arrhythmia,6,4,3,Augmented,0.7456468714716973
+arrhythmia,6,4,3,Augmented Affine,0.6989300270428831
+arrhythmia,6,4,4,Impute then regress,0.6958391861570414
+arrhythmia,6,4,4,Augmented,0.665938354226224
+arrhythmia,6,4,4,Augmented Affine,0.5884889284870713
+arrhythmia,6,4,5,Impute then regress,0.7445483533823261
+arrhythmia,6,4,5,Augmented,0.7258765103616778
+arrhythmia,6,4,5,Augmented Affine,0.714411809472854
+arrhythmia,6,8,1,Impute then regress,0.6655206893732772
+arrhythmia,6,8,1,Augmented,0.6581292609240761
+arrhythmia,6,8,1,Augmented Affine,0.686427469110472
+arrhythmia,6,8,2,Impute then regress,0.7455065064807376
+arrhythmia,6,8,2,Augmented,0.7362494423055022
+arrhythmia,6,8,2,Augmented Affine,0.7641690164002197
+arrhythmia,6,8,3,Impute then regress,0.6847453866570627
+arrhythmia,6,8,3,Augmented,0.6514941106694314
+arrhythmia,6,8,3,Augmented Affine,0.6506223017213826
+arrhythmia,6,8,4,Impute then regress,0.25216557363110415
+arrhythmia,6,8,4,Augmented,0.34907778864943373
+arrhythmia,6,8,4,Augmented Affine,0.35915802245455697
+arrhythmia,6,8,5,Impute then regress,0.7175029401557437
+arrhythmia,6,8,5,Augmented,0.7370620356092078
+arrhythmia,6,8,5,Augmented Affine,0.7350657376770846
+arrhythmia,6,16,1,Impute then regress,0.7864242167680853
+arrhythmia,6,16,1,Augmented,0.8022440602932425
+arrhythmia,6,16,1,Augmented Affine,0.7877003981819208
+arrhythmia,6,16,2,Impute then regress,0.6310227859445119
+arrhythmia,6,16,2,Augmented,0.6861818873526344
+arrhythmia,6,16,2,Augmented Affine,0.609890608073296
+arrhythmia,6,16,3,Impute then regress,0.6612256344896561
+arrhythmia,6,16,3,Augmented,0.6758523616404033
+arrhythmia,6,16,3,Augmented Affine,0.6758523616404026
+arrhythmia,6,16,4,Impute then regress,0.6131911607297936
+arrhythmia,6,16,4,Augmented,0.6122833473691864
+arrhythmia,6,16,4,Augmented Affine,0.6076546561823235
+arrhythmia,6,16,5,Impute then regress,0.6688783912194487
+arrhythmia,6,16,5,Augmented,0.7756796365929912
+arrhythmia,6,16,5,Augmented Affine,0.7756796365929919

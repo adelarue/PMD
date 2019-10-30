@@ -1,0 +1,76 @@
+dataset,copynum,penalty,iter,method,osr2
+credit-approval,7,1,1,Impute then regress,0.9384001219070921
+credit-approval,7,1,1,Augmented,0.9331582375609858
+credit-approval,7,1,1,Augmented Affine,0.928242111294693
+credit-approval,7,1,2,Impute then regress,0.9123751468390582
+credit-approval,7,1,2,Augmented,0.917566629066283
+credit-approval,7,1,2,Augmented Affine,0.9162743046847661
+credit-approval,7,1,3,Impute then regress,0.8966426006470108
+credit-approval,7,1,3,Augmented,0.8990362940583727
+credit-approval,7,1,3,Augmented Affine,0.8951350829686464
+credit-approval,7,1,4,Impute then regress,0.9124976441863885
+credit-approval,7,1,4,Augmented,0.9168662771367652
+credit-approval,7,1,4,Augmented Affine,0.9146190203376738
+credit-approval,7,1,5,Impute then regress,0.9025829500973666
+credit-approval,7,1,5,Augmented,0.9204087491835587
+credit-approval,7,1,5,Augmented Affine,0.9196459749169976
+credit-approval,7,2,1,Impute then regress,0.9258923152293174
+credit-approval,7,2,1,Augmented,0.9255089144282956
+credit-approval,7,2,1,Augmented Affine,0.9254935996096656
+credit-approval,7,2,2,Impute then regress,0.940826630241895
+credit-approval,7,2,2,Augmented,0.940107345507777
+credit-approval,7,2,2,Augmented Affine,0.9386469429701123
+credit-approval,7,2,3,Impute then regress,0.9050666009942065
+credit-approval,7,2,3,Augmented,0.903818984232031
+credit-approval,7,2,3,Augmented Affine,0.9038742497290713
+credit-approval,7,2,4,Impute then regress,0.9534511049909161
+credit-approval,7,2,4,Augmented,0.9494453252404843
+credit-approval,7,2,4,Augmented Affine,0.9481935144249817
+credit-approval,7,2,5,Impute then regress,0.9417777033273713
+credit-approval,7,2,5,Augmented,0.9425703213387143
+credit-approval,7,2,5,Augmented Affine,0.9409443228598451
+credit-approval,7,4,1,Impute then regress,0.9283438704904573
+credit-approval,7,4,1,Augmented,0.928403155105643
+credit-approval,7,4,1,Augmented Affine,0.9215687261222781
+credit-approval,7,4,2,Impute then regress,0.9151837990757107
+credit-approval,7,4,2,Augmented,0.9182224538101482
+credit-approval,7,4,2,Augmented Affine,0.9138311246761728
+credit-approval,7,4,3,Impute then regress,0.9183624289994249
+credit-approval,7,4,3,Augmented,0.9116647273461232
+credit-approval,7,4,3,Augmented Affine,0.9090018890791347
+credit-approval,7,4,4,Impute then regress,0.9061900816829211
+credit-approval,7,4,4,Augmented,0.900017478868456
+credit-approval,7,4,4,Augmented Affine,0.8954239579111354
+credit-approval,7,4,5,Impute then regress,0.9289702447403918
+credit-approval,7,4,5,Augmented,0.929921489854627
+credit-approval,7,4,5,Augmented Affine,0.9297752256492866
+credit-approval,7,8,1,Impute then regress,0.9277247091112583
+credit-approval,7,8,1,Augmented,0.9383214373074109
+credit-approval,7,8,1,Augmented Affine,0.9348625921950041
+credit-approval,7,8,2,Impute then regress,0.8475258079973017
+credit-approval,7,8,2,Augmented,0.853269303101901
+credit-approval,7,8,2,Augmented Affine,0.847242514992492
+credit-approval,7,8,3,Impute then regress,0.856948840286605
+credit-approval,7,8,3,Augmented,0.8758518183613379
+credit-approval,7,8,3,Augmented Affine,0.876887722144781
+credit-approval,7,8,4,Impute then regress,0.9170453258111583
+credit-approval,7,8,4,Augmented,0.928562555368631
+credit-approval,7,8,4,Augmented Affine,0.9297743150084087
+credit-approval,7,8,5,Impute then regress,0.9422563999202725
+credit-approval,7,8,5,Augmented,0.9416687727340061
+credit-approval,7,8,5,Augmented Affine,0.9418544013663673
+credit-approval,7,16,1,Impute then regress,0.9134844398466199
+credit-approval,7,16,1,Augmented,0.9329595470673738
+credit-approval,7,16,1,Augmented Affine,0.9329595470673738
+credit-approval,7,16,2,Impute then regress,0.9227288590987368
+credit-approval,7,16,2,Augmented,0.9285780839651763
+credit-approval,7,16,2,Augmented Affine,0.9276131114478621
+credit-approval,7,16,3,Impute then regress,0.9187881151198494
+credit-approval,7,16,3,Augmented,0.9190503868982492
+credit-approval,7,16,3,Augmented Affine,0.920457599726257
+credit-approval,7,16,4,Impute then regress,0.9410395428908189
+credit-approval,7,16,4,Augmented,0.9409253201659462
+credit-approval,7,16,4,Augmented Affine,0.9409253201659462
+credit-approval,7,16,5,Impute then regress,0.8742499294316939
+credit-approval,7,16,5,Augmented,0.8841667885658326
+credit-approval,7,16,5,Augmented Affine,0.8713676961397077

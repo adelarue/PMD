@@ -1,0 +1,76 @@
+dataset,copynum,penalty,iter,method,osr2
+communities-and-crime,7,1,1,Impute then regress,0.9077995953095993
+communities-and-crime,7,1,1,Augmented,0.9132122105085918
+communities-and-crime,7,1,1,Augmented Affine,0.9020033045057044
+communities-and-crime,7,1,2,Impute then regress,0.811964495216025
+communities-and-crime,7,1,2,Augmented,0.8240748461932051
+communities-and-crime,7,1,2,Augmented Affine,0.8105559397299155
+communities-and-crime,7,1,3,Impute then regress,0.5568065219373366
+communities-and-crime,7,1,3,Augmented,0.5916914422376844
+communities-and-crime,7,1,3,Augmented Affine,0.5860350566693435
+communities-and-crime,7,1,4,Impute then regress,0.5826347586977492
+communities-and-crime,7,1,4,Augmented,0.6293742544929786
+communities-and-crime,7,1,4,Augmented Affine,0.6292244221433072
+communities-and-crime,7,1,5,Impute then regress,0.7973678151304222
+communities-and-crime,7,1,5,Augmented,0.8191860192198569
+communities-and-crime,7,1,5,Augmented Affine,0.7991672633128843
+communities-and-crime,7,2,1,Impute then regress,0.8974304061702771
+communities-and-crime,7,2,1,Augmented,0.9021494640486198
+communities-and-crime,7,2,1,Augmented Affine,0.8983431082919953
+communities-and-crime,7,2,2,Impute then regress,0.7800911295769756
+communities-and-crime,7,2,2,Augmented,0.8007057032178121
+communities-and-crime,7,2,2,Augmented Affine,0.7890706541564153
+communities-and-crime,7,2,3,Impute then regress,0.7968891863449581
+communities-and-crime,7,2,3,Augmented,0.7992408520551927
+communities-and-crime,7,2,3,Augmented Affine,0.7994543673057062
+communities-and-crime,7,2,4,Impute then regress,0.8449575026748664
+communities-and-crime,7,2,4,Augmented,0.8568543908592556
+communities-and-crime,7,2,4,Augmented Affine,0.8525760723077229
+communities-and-crime,7,2,5,Impute then regress,0.8823093674038832
+communities-and-crime,7,2,5,Augmented,0.8860328360882769
+communities-and-crime,7,2,5,Augmented Affine,0.8775952075423125
+communities-and-crime,7,4,1,Impute then regress,0.7201886772127342
+communities-and-crime,7,4,1,Augmented,0.7391400817776798
+communities-and-crime,7,4,1,Augmented Affine,0.7373267450792161
+communities-and-crime,7,4,2,Impute then regress,0.7134475210191362
+communities-and-crime,7,4,2,Augmented,0.7559608862200553
+communities-and-crime,7,4,2,Augmented Affine,0.7525287815876242
+communities-and-crime,7,4,3,Impute then regress,0.7556979888451503
+communities-and-crime,7,4,3,Augmented,0.771389335871976
+communities-and-crime,7,4,3,Augmented Affine,0.7717389676352381
+communities-and-crime,7,4,4,Impute then regress,0.8874407606517597
+communities-and-crime,7,4,4,Augmented,0.8954835523055374
+communities-and-crime,7,4,4,Augmented Affine,0.8929330985113302
+communities-and-crime,7,4,5,Impute then regress,0.5297096476795019
+communities-and-crime,7,4,5,Augmented,0.580471443386434
+communities-and-crime,7,4,5,Augmented Affine,0.5724051726148962
+communities-and-crime,7,8,1,Impute then regress,0.8121549396276369
+communities-and-crime,7,8,1,Augmented,0.8298238184505788
+communities-and-crime,7,8,1,Augmented Affine,0.8187389788008002
+communities-and-crime,7,8,2,Impute then regress,0.8474720336355872
+communities-and-crime,7,8,2,Augmented,0.8628727787112329
+communities-and-crime,7,8,2,Augmented Affine,0.8537363773976223
+communities-and-crime,7,8,3,Impute then regress,0.8886201184871769
+communities-and-crime,7,8,3,Augmented,0.8947593675157351
+communities-and-crime,7,8,3,Augmented Affine,0.8875595596907929
+communities-and-crime,7,8,4,Impute then regress,0.80151584761031
+communities-and-crime,7,8,4,Augmented,0.8171471121011881
+communities-and-crime,7,8,4,Augmented Affine,0.8068870425391783
+communities-and-crime,7,8,5,Impute then regress,0.7829335280879351
+communities-and-crime,7,8,5,Augmented,0.8041184219706052
+communities-and-crime,7,8,5,Augmented Affine,0.7939319761132005
+communities-and-crime,7,16,1,Impute then regress,0.89371200160581
+communities-and-crime,7,16,1,Augmented,0.9022010068877675
+communities-and-crime,7,16,1,Augmented Affine,0.8939858083158313
+communities-and-crime,7,16,2,Impute then regress,0.8470789680112341
+communities-and-crime,7,16,2,Augmented,0.8631681944767058
+communities-and-crime,7,16,2,Augmented Affine,0.8426702285014389
+communities-and-crime,7,16,3,Impute then regress,0.8426732409191634
+communities-and-crime,7,16,3,Augmented,0.8561292609246376
+communities-and-crime,7,16,3,Augmented Affine,0.842067534300019
+communities-and-crime,7,16,4,Impute then regress,0.8119320878229062
+communities-and-crime,7,16,4,Augmented,0.8282245849241698
+communities-and-crime,7,16,4,Augmented Affine,0.8204443538406574
+communities-and-crime,7,16,5,Impute then regress,0.8343533156158496
+communities-and-crime,7,16,5,Augmented,0.8515354956716772
+communities-and-crime,7,16,5,Augmented Affine,0.8461729989783972

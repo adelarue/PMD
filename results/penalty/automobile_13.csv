@@ -1,0 +1,76 @@
+dataset,copynum,penalty,iter,method,osr2
+automobile,13,1,1,Impute then regress,0.8698078971169503
+automobile,13,1,1,Augmented,0.8701295731088698
+automobile,13,1,1,Augmented Affine,0.8990251133313831
+automobile,13,1,2,Impute then regress,0.9276585474178636
+automobile,13,1,2,Augmented,0.9321210062771106
+automobile,13,1,2,Augmented Affine,0.9291596569231992
+automobile,13,1,3,Impute then regress,0.9342665559180734
+automobile,13,1,3,Augmented,0.9256714791071139
+automobile,13,1,3,Augmented Affine,0.9416009184288923
+automobile,13,1,4,Impute then regress,0.864011363670679
+automobile,13,1,4,Augmented,0.890101903156451
+automobile,13,1,4,Augmented Affine,0.9188036637083665
+automobile,13,1,5,Impute then regress,0.8652989403028418
+automobile,13,1,5,Augmented,0.8950392526571743
+automobile,13,1,5,Augmented Affine,0.8901748628588283
+automobile,13,2,1,Impute then regress,0.9156800303075233
+automobile,13,2,1,Augmented,0.9006380364678146
+automobile,13,2,1,Augmented Affine,0.9319217350922299
+automobile,13,2,2,Impute then regress,0.9472059759316845
+automobile,13,2,2,Augmented,0.9514379518738653
+automobile,13,2,2,Augmented Affine,0.9323836005789928
+automobile,13,2,3,Impute then regress,0.9337892507910966
+automobile,13,2,3,Augmented,0.913864692825659
+automobile,13,2,3,Augmented Affine,0.9282931944079006
+automobile,13,2,4,Impute then regress,0.823123992975526
+automobile,13,2,4,Augmented,0.8584317049418708
+automobile,13,2,4,Augmented Affine,0.8371854140430488
+automobile,13,2,5,Impute then regress,0.8670639145698245
+automobile,13,2,5,Augmented,0.9093047594008572
+automobile,13,2,5,Augmented Affine,0.9019070327960139
+automobile,13,4,1,Impute then regress,0.8964377477745353
+automobile,13,4,1,Augmented,0.9148249098685017
+automobile,13,4,1,Augmented Affine,0.911128122762532
+automobile,13,4,2,Impute then regress,0.9089089029597757
+automobile,13,4,2,Augmented,0.9268355981601976
+automobile,13,4,2,Augmented Affine,0.9301125635559081
+automobile,13,4,3,Impute then regress,0.8506662526402883
+automobile,13,4,3,Augmented,0.8579985708474829
+automobile,13,4,3,Augmented Affine,0.8783015919438151
+automobile,13,4,4,Impute then regress,0.9126470294492911
+automobile,13,4,4,Augmented,0.9056748241448209
+automobile,13,4,4,Augmented Affine,0.908614335771844
+automobile,13,4,5,Impute then regress,0.7163277915018608
+automobile,13,4,5,Augmented,0.7579554313848085
+automobile,13,4,5,Augmented Affine,0.7921669623736802
+automobile,13,8,1,Impute then regress,0.8234750114431773
+automobile,13,8,1,Augmented,0.9028605272764684
+automobile,13,8,1,Augmented Affine,0.9275668800705135
+automobile,13,8,2,Impute then regress,0.9198121225728899
+automobile,13,8,2,Augmented,0.9207672013539756
+automobile,13,8,2,Augmented Affine,0.9178897273946519
+automobile,13,8,3,Impute then regress,0.923808216878243
+automobile,13,8,3,Augmented,0.9281321721935735
+automobile,13,8,3,Augmented Affine,0.9253665110664442
+automobile,13,8,4,Impute then regress,0.8959791811210657
+automobile,13,8,4,Augmented,0.9402232872831765
+automobile,13,8,4,Augmented Affine,0.9367587583490168
+automobile,13,8,5,Impute then regress,0.8230967919760116
+automobile,13,8,5,Augmented,0.8771917208205237
+automobile,13,8,5,Augmented Affine,0.8790048530570995
+automobile,13,16,1,Impute then regress,0.8866879126834706
+automobile,13,16,1,Augmented,0.9098204454146577
+automobile,13,16,1,Augmented Affine,0.9088552265796328
+automobile,13,16,2,Impute then regress,0.9096816512706947
+automobile,13,16,2,Augmented,0.9133211073925249
+automobile,13,16,2,Augmented Affine,0.7401961450980826
+automobile,13,16,3,Impute then regress,0.9052680688896214
+automobile,13,16,3,Augmented,0.9122858716720428
+automobile,13,16,3,Augmented Affine,0.9335861633639138
+automobile,13,16,4,Impute then regress,0.9096201475542951
+automobile,13,16,4,Augmented,0.9223435081075982
+automobile,13,16,4,Augmented Affine,0.9305921143145328
+automobile,13,16,5,Impute then regress,0.7355915917109761
+automobile,13,16,5,Augmented,0.7375230568118796
+automobile,13,16,5,Augmented Affine,0.7954125151130303

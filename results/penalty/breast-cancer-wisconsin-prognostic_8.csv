@@ -1,0 +1,76 @@
+dataset,copynum,penalty,iter,method,osr2
+breast-cancer-wisconsin-prognostic,8,1,1,Impute then regress,0.9371442544347587
+breast-cancer-wisconsin-prognostic,8,1,1,Augmented,0.9394319398300668
+breast-cancer-wisconsin-prognostic,8,1,1,Augmented Affine,0.9413733506893468
+breast-cancer-wisconsin-prognostic,8,1,2,Impute then regress,0.8558742047507791
+breast-cancer-wisconsin-prognostic,8,1,2,Augmented,0.8577118197726411
+breast-cancer-wisconsin-prognostic,8,1,2,Augmented Affine,0.85986954214546
+breast-cancer-wisconsin-prognostic,8,1,3,Impute then regress,0.9076965516197569
+breast-cancer-wisconsin-prognostic,8,1,3,Augmented,0.9077416394367473
+breast-cancer-wisconsin-prognostic,8,1,3,Augmented Affine,0.911637218433903
+breast-cancer-wisconsin-prognostic,8,1,4,Impute then regress,0.9274887193174052
+breast-cancer-wisconsin-prognostic,8,1,4,Augmented,0.9267123510803748
+breast-cancer-wisconsin-prognostic,8,1,4,Augmented Affine,0.9286000710611529
+breast-cancer-wisconsin-prognostic,8,1,5,Impute then regress,0.9208787878413429
+breast-cancer-wisconsin-prognostic,8,1,5,Augmented,0.921770027801052
+breast-cancer-wisconsin-prognostic,8,1,5,Augmented Affine,0.9175932147748381
+breast-cancer-wisconsin-prognostic,8,2,1,Impute then regress,0.9364084008497672
+breast-cancer-wisconsin-prognostic,8,2,1,Augmented,0.9383744849244802
+breast-cancer-wisconsin-prognostic,8,2,1,Augmented Affine,0.9383433451236289
+breast-cancer-wisconsin-prognostic,8,2,2,Impute then regress,0.9314008396501003
+breast-cancer-wisconsin-prognostic,8,2,2,Augmented,0.9294309561193519
+breast-cancer-wisconsin-prognostic,8,2,2,Augmented Affine,0.9299514628653662
+breast-cancer-wisconsin-prognostic,8,2,3,Impute then regress,0.9244076000034238
+breast-cancer-wisconsin-prognostic,8,2,3,Augmented,0.9246995792386369
+breast-cancer-wisconsin-prognostic,8,2,3,Augmented Affine,0.9246140088556177
+breast-cancer-wisconsin-prognostic,8,2,4,Impute then regress,0.9197154552272034
+breast-cancer-wisconsin-prognostic,8,2,4,Augmented,0.919663662905624
+breast-cancer-wisconsin-prognostic,8,2,4,Augmented Affine,0.9195035521429432
+breast-cancer-wisconsin-prognostic,8,2,5,Impute then regress,0.8823747634639988
+breast-cancer-wisconsin-prognostic,8,2,5,Augmented,0.8825331095127186
+breast-cancer-wisconsin-prognostic,8,2,5,Augmented Affine,0.8849919635670045
+breast-cancer-wisconsin-prognostic,8,4,1,Impute then regress,0.8977542946579584
+breast-cancer-wisconsin-prognostic,8,4,1,Augmented,0.8970808864631442
+breast-cancer-wisconsin-prognostic,8,4,1,Augmented Affine,0.897272175462279
+breast-cancer-wisconsin-prognostic,8,4,2,Impute then regress,0.8707570120232864
+breast-cancer-wisconsin-prognostic,8,4,2,Augmented,0.8692307322864068
+breast-cancer-wisconsin-prognostic,8,4,2,Augmented Affine,0.8701586365364784
+breast-cancer-wisconsin-prognostic,8,4,3,Impute then regress,0.8969615284659861
+breast-cancer-wisconsin-prognostic,8,4,3,Augmented,0.8949256263768188
+breast-cancer-wisconsin-prognostic,8,4,3,Augmented Affine,0.8916722665544897
+breast-cancer-wisconsin-prognostic,8,4,4,Impute then regress,0.9299305714118558
+breast-cancer-wisconsin-prognostic,8,4,4,Augmented,0.9345737007006684
+breast-cancer-wisconsin-prognostic,8,4,4,Augmented Affine,0.9335138641125773
+breast-cancer-wisconsin-prognostic,8,4,5,Impute then regress,0.9290043660644784
+breast-cancer-wisconsin-prognostic,8,4,5,Augmented,0.929297381531636
+breast-cancer-wisconsin-prognostic,8,4,5,Augmented Affine,0.9293972056436148
+breast-cancer-wisconsin-prognostic,8,8,1,Impute then regress,0.9008152004688821
+breast-cancer-wisconsin-prognostic,8,8,1,Augmented,0.9010919064393069
+breast-cancer-wisconsin-prognostic,8,8,1,Augmented Affine,0.9010188941052562
+breast-cancer-wisconsin-prognostic,8,8,2,Impute then regress,0.934061151791872
+breast-cancer-wisconsin-prognostic,8,8,2,Augmented,0.9276633329341479
+breast-cancer-wisconsin-prognostic,8,8,2,Augmented Affine,0.9308540163048762
+breast-cancer-wisconsin-prognostic,8,8,3,Impute then regress,0.9380906081393112
+breast-cancer-wisconsin-prognostic,8,8,3,Augmented,0.9380226045752483
+breast-cancer-wisconsin-prognostic,8,8,3,Augmented Affine,0.9376745440881852
+breast-cancer-wisconsin-prognostic,8,8,4,Impute then regress,0.8877285109361376
+breast-cancer-wisconsin-prognostic,8,8,4,Augmented,0.887728510936136
+breast-cancer-wisconsin-prognostic,8,8,4,Augmented Affine,0.8886958204251157
+breast-cancer-wisconsin-prognostic,8,8,5,Impute then regress,0.9058820703902035
+breast-cancer-wisconsin-prognostic,8,8,5,Augmented,0.9024437823448583
+breast-cancer-wisconsin-prognostic,8,8,5,Augmented Affine,0.8993814388866841
+breast-cancer-wisconsin-prognostic,8,16,1,Impute then regress,0.8491419682645037
+breast-cancer-wisconsin-prognostic,8,16,1,Augmented,0.8529479412165945
+breast-cancer-wisconsin-prognostic,8,16,1,Augmented Affine,0.8529336385651205
+breast-cancer-wisconsin-prognostic,8,16,2,Impute then regress,0.9262974281560323
+breast-cancer-wisconsin-prognostic,8,16,2,Augmented,0.925626462985877
+breast-cancer-wisconsin-prognostic,8,16,2,Augmented Affine,0.92677425450824
+breast-cancer-wisconsin-prognostic,8,16,3,Impute then regress,0.9242421855469142
+breast-cancer-wisconsin-prognostic,8,16,3,Augmented,0.924242185546915
+breast-cancer-wisconsin-prognostic,8,16,3,Augmented Affine,0.9247631191838107
+breast-cancer-wisconsin-prognostic,8,16,4,Impute then regress,0.9197643728548893
+breast-cancer-wisconsin-prognostic,8,16,4,Augmented,0.9214084444656077
+breast-cancer-wisconsin-prognostic,8,16,4,Augmented Affine,0.9214084444656069
+breast-cancer-wisconsin-prognostic,8,16,5,Impute then regress,0.9019280843790299
+breast-cancer-wisconsin-prognostic,8,16,5,Augmented,0.8971610968894864
+breast-cancer-wisconsin-prognostic,8,16,5,Augmented Affine,0.9008755023761676

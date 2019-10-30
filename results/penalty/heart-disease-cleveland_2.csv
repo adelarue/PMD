@@ -1,0 +1,76 @@
+dataset,copynum,penalty,iter,method,osr2
+heart-disease-cleveland,2,1,1,Impute then regress,0.9460320506792831
+heart-disease-cleveland,2,1,1,Augmented,0.9460054283707896
+heart-disease-cleveland,2,1,1,Augmented Affine,0.944944579226672
+heart-disease-cleveland,2,1,2,Impute then regress,0.924181507578666
+heart-disease-cleveland,2,1,2,Augmented,0.9255007014490486
+heart-disease-cleveland,2,1,2,Augmented Affine,0.9256653093252518
+heart-disease-cleveland,2,1,3,Impute then regress,0.9308255990144734
+heart-disease-cleveland,2,1,3,Augmented,0.930304400368896
+heart-disease-cleveland,2,1,3,Augmented Affine,0.9290814979727138
+heart-disease-cleveland,2,1,4,Impute then regress,0.9254479136591081
+heart-disease-cleveland,2,1,4,Augmented,0.9254034413780998
+heart-disease-cleveland,2,1,4,Augmented Affine,0.9253051518835497
+heart-disease-cleveland,2,1,5,Impute then regress,0.9300038676052809
+heart-disease-cleveland,2,1,5,Augmented,0.9295965288422279
+heart-disease-cleveland,2,1,5,Augmented Affine,0.9287591498939494
+heart-disease-cleveland,2,2,1,Impute then regress,0.9434945919318767
+heart-disease-cleveland,2,2,1,Augmented,0.9427563681358785
+heart-disease-cleveland,2,2,1,Augmented Affine,0.9445677232898447
+heart-disease-cleveland,2,2,2,Impute then regress,0.9378433201818487
+heart-disease-cleveland,2,2,2,Augmented,0.937918851271917
+heart-disease-cleveland,2,2,2,Augmented Affine,0.9373135440729272
+heart-disease-cleveland,2,2,3,Impute then regress,0.9532831853412962
+heart-disease-cleveland,2,2,3,Augmented,0.9537287499093252
+heart-disease-cleveland,2,2,3,Augmented Affine,0.9524468089088984
+heart-disease-cleveland,2,2,4,Impute then regress,0.9412463769140642
+heart-disease-cleveland,2,2,4,Augmented,0.9427139757539158
+heart-disease-cleveland,2,2,4,Augmented Affine,0.9453107710560527
+heart-disease-cleveland,2,2,5,Impute then regress,0.9381448307747569
+heart-disease-cleveland,2,2,5,Augmented,0.9373421959383386
+heart-disease-cleveland,2,2,5,Augmented Affine,0.9372047891902772
+heart-disease-cleveland,2,4,1,Impute then regress,0.9138010479784453
+heart-disease-cleveland,2,4,1,Augmented,0.9137430595708717
+heart-disease-cleveland,2,4,1,Augmented Affine,0.913910756464063
+heart-disease-cleveland,2,4,2,Impute then regress,0.9356314070862307
+heart-disease-cleveland,2,4,2,Augmented,0.9302445499226756
+heart-disease-cleveland,2,4,2,Augmented Affine,0.9366206713297306
+heart-disease-cleveland,2,4,3,Impute then regress,0.9406629850975594
+heart-disease-cleveland,2,4,3,Augmented,0.9405327063458406
+heart-disease-cleveland,2,4,3,Augmented Affine,0.9404761802086015
+heart-disease-cleveland,2,4,4,Impute then regress,0.9339534601475553
+heart-disease-cleveland,2,4,4,Augmented,0.9336597865195597
+heart-disease-cleveland,2,4,4,Augmented Affine,0.9336597865195598
+heart-disease-cleveland,2,4,5,Impute then regress,0.9120257243317859
+heart-disease-cleveland,2,4,5,Augmented,0.9106676983820294
+heart-disease-cleveland,2,4,5,Augmented Affine,0.9133750133855777
+heart-disease-cleveland,2,8,1,Impute then regress,0.9110458117502499
+heart-disease-cleveland,2,8,1,Augmented,0.9105380001878104
+heart-disease-cleveland,2,8,1,Augmented Affine,0.9114631208069451
+heart-disease-cleveland,2,8,2,Impute then regress,0.923313390550113
+heart-disease-cleveland,2,8,2,Augmented,0.923313390550113
+heart-disease-cleveland,2,8,2,Augmented Affine,0.9244189205541109
+heart-disease-cleveland,2,8,3,Impute then regress,0.9360362800415992
+heart-disease-cleveland,2,8,3,Augmented,0.9353505847114288
+heart-disease-cleveland,2,8,3,Augmented Affine,0.9391423733043152
+heart-disease-cleveland,2,8,4,Impute then regress,0.9466366956357681
+heart-disease-cleveland,2,8,4,Augmented,0.9465506082009246
+heart-disease-cleveland,2,8,4,Augmented Affine,0.9457452518212017
+heart-disease-cleveland,2,8,5,Impute then regress,0.9323699607311681
+heart-disease-cleveland,2,8,5,Augmented,0.9332829848911799
+heart-disease-cleveland,2,8,5,Augmented Affine,0.9325043691478305
+heart-disease-cleveland,2,16,1,Impute then regress,0.9384621024251443
+heart-disease-cleveland,2,16,1,Augmented,0.9393289873993675
+heart-disease-cleveland,2,16,1,Augmented Affine,0.936528450274405
+heart-disease-cleveland,2,16,2,Impute then regress,0.92952167875109
+heart-disease-cleveland,2,16,2,Augmented,0.9296466402227016
+heart-disease-cleveland,2,16,2,Augmented Affine,0.9291860756566843
+heart-disease-cleveland,2,16,3,Impute then regress,0.9082766518818137
+heart-disease-cleveland,2,16,3,Augmented,0.9081388882900627
+heart-disease-cleveland,2,16,3,Augmented Affine,0.9097004774225342
+heart-disease-cleveland,2,16,4,Impute then regress,0.9327122965352379
+heart-disease-cleveland,2,16,4,Augmented,0.9326664381130064
+heart-disease-cleveland,2,16,4,Augmented Affine,0.9326664381130064
+heart-disease-cleveland,2,16,5,Impute then regress,0.9232075168655506
+heart-disease-cleveland,2,16,5,Augmented,0.9225436757936738
+heart-disease-cleveland,2,16,5,Augmented Affine,0.9224229023711966

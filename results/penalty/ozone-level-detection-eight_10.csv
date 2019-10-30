@@ -1,0 +1,76 @@
+dataset,copynum,penalty,iter,method,osr2
+ozone-level-detection-eight,10,1,1,Impute then regress,0.7980215626804232
+ozone-level-detection-eight,10,1,1,Augmented,0.8806016120499705
+ozone-level-detection-eight,10,1,1,Augmented Affine,0.8692410133724137
+ozone-level-detection-eight,10,1,2,Impute then regress,0.6573556282769719
+ozone-level-detection-eight,10,1,2,Augmented,0.8397959405281398
+ozone-level-detection-eight,10,1,2,Augmented Affine,0.8060056388374863
+ozone-level-detection-eight,10,1,3,Impute then regress,0.7485209237353798
+ozone-level-detection-eight,10,1,3,Augmented,0.8653109755572311
+ozone-level-detection-eight,10,1,3,Augmented Affine,0.8325523415435916
+ozone-level-detection-eight,10,1,4,Impute then regress,0.8309538237714184
+ozone-level-detection-eight,10,1,4,Augmented,0.8954653759740381
+ozone-level-detection-eight,10,1,4,Augmented Affine,0.8793500747143959
+ozone-level-detection-eight,10,1,5,Impute then regress,0.7869185212100422
+ozone-level-detection-eight,10,1,5,Augmented,0.9022990205428524
+ozone-level-detection-eight,10,1,5,Augmented Affine,0.878697413904272
+ozone-level-detection-eight,10,2,1,Impute then regress,0.7770200065252696
+ozone-level-detection-eight,10,2,1,Augmented,0.8713155750913804
+ozone-level-detection-eight,10,2,1,Augmented Affine,0.849088476805537
+ozone-level-detection-eight,10,2,2,Impute then regress,0.852533756043397
+ozone-level-detection-eight,10,2,2,Augmented,0.8840123883519806
+ozone-level-detection-eight,10,2,2,Augmented Affine,0.8569197408065441
+ozone-level-detection-eight,10,2,3,Impute then regress,0.7306866151293614
+ozone-level-detection-eight,10,2,3,Augmented,0.88340047036277
+ozone-level-detection-eight,10,2,3,Augmented Affine,0.8722638679967374
+ozone-level-detection-eight,10,2,4,Impute then regress,0.8101677665944096
+ozone-level-detection-eight,10,2,4,Augmented,0.8851606011775821
+ozone-level-detection-eight,10,2,4,Augmented Affine,0.8780403496689269
+ozone-level-detection-eight,10,2,5,Impute then regress,0.775363954355348
+ozone-level-detection-eight,10,2,5,Augmented,0.8398425914141224
+ozone-level-detection-eight,10,2,5,Augmented Affine,0.8173655859382569
+ozone-level-detection-eight,10,4,1,Impute then regress,0.8255474695539751
+ozone-level-detection-eight,10,4,1,Augmented,0.8972457992997321
+ozone-level-detection-eight,10,4,1,Augmented Affine,0.8830230906832621
+ozone-level-detection-eight,10,4,2,Impute then regress,0.8156316029063884
+ozone-level-detection-eight,10,4,2,Augmented,0.9016897130459998
+ozone-level-detection-eight,10,4,2,Augmented Affine,0.8610300546977533
+ozone-level-detection-eight,10,4,3,Impute then regress,0.8460904317083171
+ozone-level-detection-eight,10,4,3,Augmented,0.8811637602305473
+ozone-level-detection-eight,10,4,3,Augmented Affine,0.8432538825354652
+ozone-level-detection-eight,10,4,4,Impute then regress,0.7020441787324851
+ozone-level-detection-eight,10,4,4,Augmented,0.8620591887438741
+ozone-level-detection-eight,10,4,4,Augmented Affine,0.850270610250593
+ozone-level-detection-eight,10,4,5,Impute then regress,0.8733662585716179
+ozone-level-detection-eight,10,4,5,Augmented,0.8960055923241717
+ozone-level-detection-eight,10,4,5,Augmented Affine,0.8833502888297913
+ozone-level-detection-eight,10,8,1,Impute then regress,0.8023907154041652
+ozone-level-detection-eight,10,8,1,Augmented,0.8518304913818714
+ozone-level-detection-eight,10,8,1,Augmented Affine,0.8272811485160061
+ozone-level-detection-eight,10,8,2,Impute then regress,0.6090162732029432
+ozone-level-detection-eight,10,8,2,Augmented,0.8556631670949717
+ozone-level-detection-eight,10,8,2,Augmented Affine,0.7966001370219475
+ozone-level-detection-eight,10,8,3,Impute then regress,0.5979379812920727
+ozone-level-detection-eight,10,8,3,Augmented,0.8744423834800618
+ozone-level-detection-eight,10,8,3,Augmented Affine,0.8276515053622899
+ozone-level-detection-eight,10,8,4,Impute then regress,0.7656335389862159
+ozone-level-detection-eight,10,8,4,Augmented,0.8505053594514485
+ozone-level-detection-eight,10,8,4,Augmented Affine,0.8269094489266927
+ozone-level-detection-eight,10,8,5,Impute then regress,0.7638504882091891
+ozone-level-detection-eight,10,8,5,Augmented,0.8555897053924386
+ozone-level-detection-eight,10,8,5,Augmented Affine,0.8044284517157549
+ozone-level-detection-eight,10,16,1,Impute then regress,0.7002685821345548
+ozone-level-detection-eight,10,16,1,Augmented,0.8586590624752354
+ozone-level-detection-eight,10,16,1,Augmented Affine,0.7743580955035667
+ozone-level-detection-eight,10,16,2,Impute then regress,0.8458174551846338
+ozone-level-detection-eight,10,16,2,Augmented,0.9049796806661498
+ozone-level-detection-eight,10,16,2,Augmented Affine,0.802838740634906
+ozone-level-detection-eight,10,16,3,Impute then regress,0.6909253397545905
+ozone-level-detection-eight,10,16,3,Augmented,0.8808585616573389
+ozone-level-detection-eight,10,16,3,Augmented Affine,0.8124143246775967
+ozone-level-detection-eight,10,16,4,Impute then regress,0.798981196597654
+ozone-level-detection-eight,10,16,4,Augmented,0.8808723466537057
+ozone-level-detection-eight,10,16,4,Augmented Affine,0.8473581195520701
+ozone-level-detection-eight,10,16,5,Impute then regress,0.735739309368069
+ozone-level-detection-eight,10,16,5,Augmented,0.8676988534973697
+ozone-level-detection-eight,10,16,5,Augmented Affine,0.8012726935586315

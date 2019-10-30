@@ -1,0 +1,76 @@
+dataset,copynum,penalty,iter,method,osr2
+thyroid-disease-dis,1,1,1,Impute then regress,0.8575049527538747
+thyroid-disease-dis,1,1,1,Augmented,0.8698027766568737
+thyroid-disease-dis,1,1,1,Augmented Affine,0.8692252278283565
+thyroid-disease-dis,1,1,2,Impute then regress,0.8736760438611815
+thyroid-disease-dis,1,1,2,Augmented,0.8918876329803698
+thyroid-disease-dis,1,1,2,Augmented Affine,0.892653697900037
+thyroid-disease-dis,1,1,3,Impute then regress,0.7957205202824169
+thyroid-disease-dis,1,1,3,Augmented,0.8955645282040939
+thyroid-disease-dis,1,1,3,Augmented Affine,0.8982531110140022
+thyroid-disease-dis,1,1,4,Impute then regress,0.8617580200265708
+thyroid-disease-dis,1,1,4,Augmented,0.87072229661932
+thyroid-disease-dis,1,1,4,Augmented Affine,0.8714417735894504
+thyroid-disease-dis,1,1,5,Impute then regress,0.8257376132276257
+thyroid-disease-dis,1,1,5,Augmented,0.8973944579244233
+thyroid-disease-dis,1,1,5,Augmented Affine,0.8988922253249929
+thyroid-disease-dis,1,2,1,Impute then regress,0.8887952798617655
+thyroid-disease-dis,1,2,1,Augmented,0.9098829005285266
+thyroid-disease-dis,1,2,1,Augmented Affine,0.908997252878859
+thyroid-disease-dis,1,2,2,Impute then regress,0.7812677912711666
+thyroid-disease-dis,1,2,2,Augmented,0.8071091885983921
+thyroid-disease-dis,1,2,2,Augmented Affine,0.813709860057653
+thyroid-disease-dis,1,2,3,Impute then regress,0.7509419084473501
+thyroid-disease-dis,1,2,3,Augmented,0.7860338731150741
+thyroid-disease-dis,1,2,3,Augmented Affine,0.7795726944886423
+thyroid-disease-dis,1,2,4,Impute then regress,0.75393232541368
+thyroid-disease-dis,1,2,4,Augmented,0.8177962158606518
+thyroid-disease-dis,1,2,4,Augmented Affine,0.8273872937850609
+thyroid-disease-dis,1,2,5,Impute then regress,0.7273314130363129
+thyroid-disease-dis,1,2,5,Augmented,0.7958027253178955
+thyroid-disease-dis,1,2,5,Augmented Affine,0.8086894231006718
+thyroid-disease-dis,1,4,1,Impute then regress,0.8253059293473264
+thyroid-disease-dis,1,4,1,Augmented,0.8678944280071217
+thyroid-disease-dis,1,4,1,Augmented Affine,0.8701397675129435
+thyroid-disease-dis,1,4,2,Impute then regress,0.767275704715775
+thyroid-disease-dis,1,4,2,Augmented,0.8210436824023889
+thyroid-disease-dis,1,4,2,Augmented Affine,0.8194553469553381
+thyroid-disease-dis,1,4,3,Impute then regress,0.7433603291581312
+thyroid-disease-dis,1,4,3,Augmented,0.7991443123827437
+thyroid-disease-dis,1,4,3,Augmented Affine,0.7997256828412072
+thyroid-disease-dis,1,4,4,Impute then regress,0.7689998436271258
+thyroid-disease-dis,1,4,4,Augmented,0.7936187837414279
+thyroid-disease-dis,1,4,4,Augmented Affine,0.7967019499994686
+thyroid-disease-dis,1,4,5,Impute then regress,0.791138974191655
+thyroid-disease-dis,1,4,5,Augmented,0.8339277589471524
+thyroid-disease-dis,1,4,5,Augmented Affine,0.8358243545136848
+thyroid-disease-dis,1,8,1,Impute then regress,0.6899220003340336
+thyroid-disease-dis,1,8,1,Augmented,0.7848558829987279
+thyroid-disease-dis,1,8,1,Augmented Affine,0.7955566942975396
+thyroid-disease-dis,1,8,2,Impute then regress,0.8103157391131643
+thyroid-disease-dis,1,8,2,Augmented,0.8579595276572136
+thyroid-disease-dis,1,8,2,Augmented Affine,0.8574004483159142
+thyroid-disease-dis,1,8,3,Impute then regress,0.8170016484245219
+thyroid-disease-dis,1,8,3,Augmented,0.8258578213989536
+thyroid-disease-dis,1,8,3,Augmented Affine,0.8330440159984327
+thyroid-disease-dis,1,8,4,Impute then regress,0.6952387465055406
+thyroid-disease-dis,1,8,4,Augmented,0.7984977285176195
+thyroid-disease-dis,1,8,4,Augmented Affine,0.789185989240798
+thyroid-disease-dis,1,8,5,Impute then regress,0.656908279450405
+thyroid-disease-dis,1,8,5,Augmented,0.7070326570927469
+thyroid-disease-dis,1,8,5,Augmented Affine,0.7574380001650705
+thyroid-disease-dis,1,16,1,Impute then regress,0.7262310714263501
+thyroid-disease-dis,1,16,1,Augmented,0.7799200751338358
+thyroid-disease-dis,1,16,1,Augmented Affine,0.7813621006660665
+thyroid-disease-dis,1,16,2,Impute then regress,0.768774657429175
+thyroid-disease-dis,1,16,2,Augmented,0.8287432522133661
+thyroid-disease-dis,1,16,2,Augmented Affine,0.8288658395789765
+thyroid-disease-dis,1,16,3,Impute then regress,0.8547570746051324
+thyroid-disease-dis,1,16,3,Augmented,0.8870961098211458
+thyroid-disease-dis,1,16,3,Augmented Affine,0.888057162488002
+thyroid-disease-dis,1,16,4,Impute then regress,0.8062251025600103
+thyroid-disease-dis,1,16,4,Augmented,0.8584380402435894
+thyroid-disease-dis,1,16,4,Augmented Affine,0.8644324870966735
+thyroid-disease-dis,1,16,5,Impute then regress,0.8132743480028737
+thyroid-disease-dis,1,16,5,Augmented,0.8806293936789161
+thyroid-disease-dis,1,16,5,Augmented Affine,0.8830439010717422

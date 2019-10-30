@@ -1,0 +1,76 @@
+dataset,copynum,penalty,iter,method,osr2
+heart-disease-hungarian,14,1,1,Impute then regress,0.9258379800645143
+heart-disease-hungarian,14,1,1,Augmented,0.9350911148784771
+heart-disease-hungarian,14,1,1,Augmented Affine,0.937170309653622
+heart-disease-hungarian,14,1,2,Impute then regress,0.9335573897469621
+heart-disease-hungarian,14,1,2,Augmented,0.9340996800250945
+heart-disease-hungarian,14,1,2,Augmented Affine,0.9271756499832733
+heart-disease-hungarian,14,1,3,Impute then regress,0.924020934740414
+heart-disease-hungarian,14,1,3,Augmented,0.9134775918946098
+heart-disease-hungarian,14,1,3,Augmented Affine,0.9097738627506251
+heart-disease-hungarian,14,1,4,Impute then regress,0.8860196473424208
+heart-disease-hungarian,14,1,4,Augmented,0.9508694372679075
+heart-disease-hungarian,14,1,4,Augmented Affine,0.9499986261268027
+heart-disease-hungarian,14,1,5,Impute then regress,0.9043529706059888
+heart-disease-hungarian,14,1,5,Augmented,0.9156688695076005
+heart-disease-hungarian,14,1,5,Augmented Affine,0.9016377731812382
+heart-disease-hungarian,14,2,1,Impute then regress,0.9234707946114293
+heart-disease-hungarian,14,2,1,Augmented,0.9303560715736818
+heart-disease-hungarian,14,2,1,Augmented Affine,0.9275053019818403
+heart-disease-hungarian,14,2,2,Impute then regress,0.9285256402848451
+heart-disease-hungarian,14,2,2,Augmented,0.9306974528757862
+heart-disease-hungarian,14,2,2,Augmented Affine,0.9319008911871334
+heart-disease-hungarian,14,2,3,Impute then regress,0.948526532529966
+heart-disease-hungarian,14,2,3,Augmented,0.9474510593262806
+heart-disease-hungarian,14,2,3,Augmented Affine,0.9483673097711781
+heart-disease-hungarian,14,2,4,Impute then regress,0.8962648260404151
+heart-disease-hungarian,14,2,4,Augmented,0.9275872030286234
+heart-disease-hungarian,14,2,4,Augmented Affine,0.9253443811265175
+heart-disease-hungarian,14,2,5,Impute then regress,0.9435165853380059
+heart-disease-hungarian,14,2,5,Augmented,0.9431775652552824
+heart-disease-hungarian,14,2,5,Augmented Affine,0.9413990941943762
+heart-disease-hungarian,14,4,1,Impute then regress,0.9090757017923189
+heart-disease-hungarian,14,4,1,Augmented,0.9134272054002339
+heart-disease-hungarian,14,4,1,Augmented Affine,0.9131593570049904
+heart-disease-hungarian,14,4,2,Impute then regress,0.8391910631732575
+heart-disease-hungarian,14,4,2,Augmented,0.9008118959217907
+heart-disease-hungarian,14,4,2,Augmented Affine,0.8929937705644496
+heart-disease-hungarian,14,4,3,Impute then regress,0.9461814172730071
+heart-disease-hungarian,14,4,3,Augmented,0.9474871369258058
+heart-disease-hungarian,14,4,3,Augmented Affine,0.9479869989249926
+heart-disease-hungarian,14,4,4,Impute then regress,0.9248303583811756
+heart-disease-hungarian,14,4,4,Augmented,0.9284620581155031
+heart-disease-hungarian,14,4,4,Augmented Affine,0.9282694291443078
+heart-disease-hungarian,14,4,5,Impute then regress,0.9007241592986748
+heart-disease-hungarian,14,4,5,Augmented,0.9314084154062081
+heart-disease-hungarian,14,4,5,Augmented Affine,0.9296470208397059
+heart-disease-hungarian,14,8,1,Impute then regress,0.8180059278860257
+heart-disease-hungarian,14,8,1,Augmented,0.871211997583242
+heart-disease-hungarian,14,8,1,Augmented Affine,0.8822590174615252
+heart-disease-hungarian,14,8,2,Impute then regress,0.8829076926076207
+heart-disease-hungarian,14,8,2,Augmented,0.8723106302546049
+heart-disease-hungarian,14,8,2,Augmented Affine,0.8627621136813279
+heart-disease-hungarian,14,8,3,Impute then regress,0.9348207429944323
+heart-disease-hungarian,14,8,3,Augmented,0.9388977427004698
+heart-disease-hungarian,14,8,3,Augmented Affine,0.9390080879737225
+heart-disease-hungarian,14,8,4,Impute then regress,0.9375439556837188
+heart-disease-hungarian,14,8,4,Augmented,0.933783879445536
+heart-disease-hungarian,14,8,4,Augmented Affine,0.9335161783778209
+heart-disease-hungarian,14,8,5,Impute then regress,0.9289224268855371
+heart-disease-hungarian,14,8,5,Augmented,0.9340617837753272
+heart-disease-hungarian,14,8,5,Augmented Affine,0.9343562618263717
+heart-disease-hungarian,14,16,1,Impute then regress,0.879972846114469
+heart-disease-hungarian,14,16,1,Augmented,0.9037368992977988
+heart-disease-hungarian,14,16,1,Augmented Affine,0.8957308721231475
+heart-disease-hungarian,14,16,2,Impute then regress,0.9371396835239355
+heart-disease-hungarian,14,16,2,Augmented,0.93414560168428
+heart-disease-hungarian,14,16,2,Augmented Affine,0.9340058388352678
+heart-disease-hungarian,14,16,3,Impute then regress,0.9451247780894372
+heart-disease-hungarian,14,16,3,Augmented,0.9456083386921932
+heart-disease-hungarian,14,16,3,Augmented Affine,0.9457510373540844
+heart-disease-hungarian,14,16,4,Impute then regress,0.9154446537084466
+heart-disease-hungarian,14,16,4,Augmented,0.9168810355493263
+heart-disease-hungarian,14,16,4,Augmented Affine,0.9200750301142363
+heart-disease-hungarian,14,16,5,Impute then regress,0.9336431148369816
+heart-disease-hungarian,14,16,5,Augmented,0.9375128313115108
+heart-disease-hungarian,14,16,5,Augmented Affine,0.9372442642425008

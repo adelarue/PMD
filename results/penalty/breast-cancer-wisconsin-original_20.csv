@@ -1,0 +1,76 @@
+dataset,copynum,penalty,iter,method,osr2
+breast-cancer-wisconsin-original,20,1,1,Impute then regress,0.9125050750826482
+breast-cancer-wisconsin-original,20,1,1,Augmented,0.8998547846378084
+breast-cancer-wisconsin-original,20,1,1,Augmented Affine,0.9044892573853945
+breast-cancer-wisconsin-original,20,1,2,Impute then regress,0.935452556858361
+breast-cancer-wisconsin-original,20,1,2,Augmented,0.9313851906673065
+breast-cancer-wisconsin-original,20,1,2,Augmented Affine,0.9354252957673775
+breast-cancer-wisconsin-original,20,1,3,Impute then regress,0.9406961150363796
+breast-cancer-wisconsin-original,20,1,3,Augmented,0.9398477911633492
+breast-cancer-wisconsin-original,20,1,3,Augmented Affine,0.9393340648396608
+breast-cancer-wisconsin-original,20,1,4,Impute then regress,0.9457170535267885
+breast-cancer-wisconsin-original,20,1,4,Augmented,0.9456607311092866
+breast-cancer-wisconsin-original,20,1,4,Augmented Affine,0.9458188977002792
+breast-cancer-wisconsin-original,20,1,5,Impute then regress,0.8954664081420092
+breast-cancer-wisconsin-original,20,1,5,Augmented,0.8955752270949491
+breast-cancer-wisconsin-original,20,1,5,Augmented Affine,0.8959131137517957
+breast-cancer-wisconsin-original,20,2,1,Impute then regress,0.9408011076726958
+breast-cancer-wisconsin-original,20,2,1,Augmented,0.9407167027538568
+breast-cancer-wisconsin-original,20,2,1,Augmented Affine,0.9408736086972128
+breast-cancer-wisconsin-original,20,2,2,Impute then regress,0.9285492970634033
+breast-cancer-wisconsin-original,20,2,2,Augmented,0.9288508397948056
+breast-cancer-wisconsin-original,20,2,2,Augmented Affine,0.9281304952520227
+breast-cancer-wisconsin-original,20,2,3,Impute then regress,0.9448302538846574
+breast-cancer-wisconsin-original,20,2,3,Augmented,0.9452702795457222
+breast-cancer-wisconsin-original,20,2,3,Augmented Affine,0.944764571770378
+breast-cancer-wisconsin-original,20,2,4,Impute then regress,0.9504196230304369
+breast-cancer-wisconsin-original,20,2,4,Augmented,0.9503341273712395
+breast-cancer-wisconsin-original,20,2,4,Augmented Affine,0.9503946708999669
+breast-cancer-wisconsin-original,20,2,5,Impute then regress,0.9451603280978254
+breast-cancer-wisconsin-original,20,2,5,Augmented,0.942279253535231
+breast-cancer-wisconsin-original,20,2,5,Augmented Affine,0.945959939497077
+breast-cancer-wisconsin-original,20,4,1,Impute then regress,0.9228580467877475
+breast-cancer-wisconsin-original,20,4,1,Augmented,0.9229052368751743
+breast-cancer-wisconsin-original,20,4,1,Augmented Affine,0.9228775783401147
+breast-cancer-wisconsin-original,20,4,2,Impute then regress,0.9258079324079264
+breast-cancer-wisconsin-original,20,4,2,Augmented,0.9258464865360141
+breast-cancer-wisconsin-original,20,4,2,Augmented Affine,0.9259211755657207
+breast-cancer-wisconsin-original,20,4,3,Impute then regress,0.9273449046541912
+breast-cancer-wisconsin-original,20,4,3,Augmented,0.9275033825796166
+breast-cancer-wisconsin-original,20,4,3,Augmented Affine,0.9275373390943672
+breast-cancer-wisconsin-original,20,4,4,Impute then regress,0.9448590896446487
+breast-cancer-wisconsin-original,20,4,4,Augmented,0.9448270430145741
+breast-cancer-wisconsin-original,20,4,4,Augmented Affine,0.9447136578531133
+breast-cancer-wisconsin-original,20,4,5,Impute then regress,0.9485518694874212
+breast-cancer-wisconsin-original,20,4,5,Augmented,0.9481859731100096
+breast-cancer-wisconsin-original,20,4,5,Augmented Affine,0.9486174623032865
+breast-cancer-wisconsin-original,20,8,1,Impute then regress,0.9450576552894552
+breast-cancer-wisconsin-original,20,8,1,Augmented,0.9445248097576736
+breast-cancer-wisconsin-original,20,8,1,Augmented Affine,0.9444091654983338
+breast-cancer-wisconsin-original,20,8,2,Impute then regress,0.9425967907634071
+breast-cancer-wisconsin-original,20,8,2,Augmented,0.9419093406164643
+breast-cancer-wisconsin-original,20,8,2,Augmented Affine,0.9418984058204241
+breast-cancer-wisconsin-original,20,8,3,Impute then regress,0.9375451688103107
+breast-cancer-wisconsin-original,20,8,3,Augmented,0.9379394019367366
+breast-cancer-wisconsin-original,20,8,3,Augmented Affine,0.9378907889724467
+breast-cancer-wisconsin-original,20,8,4,Impute then regress,0.9287915906325518
+breast-cancer-wisconsin-original,20,8,4,Augmented,0.9295776361092808
+breast-cancer-wisconsin-original,20,8,4,Augmented Affine,0.9279673789205355
+breast-cancer-wisconsin-original,20,8,5,Impute then regress,0.9579833447514462
+breast-cancer-wisconsin-original,20,8,5,Augmented,0.9579709681956851
+breast-cancer-wisconsin-original,20,8,5,Augmented Affine,0.958216554046594
+breast-cancer-wisconsin-original,20,16,1,Impute then regress,0.934993020081353
+breast-cancer-wisconsin-original,20,16,1,Augmented,0.9356182634254714
+breast-cancer-wisconsin-original,20,16,1,Augmented Affine,0.9364177317419249
+breast-cancer-wisconsin-original,20,16,2,Impute then regress,0.9541526847644562
+breast-cancer-wisconsin-original,20,16,2,Augmented,0.9540305974844512
+breast-cancer-wisconsin-original,20,16,2,Augmented Affine,0.9536770209227174
+breast-cancer-wisconsin-original,20,16,3,Impute then regress,0.9429686103883059
+breast-cancer-wisconsin-original,20,16,3,Augmented,0.9434271895470456
+breast-cancer-wisconsin-original,20,16,3,Augmented Affine,0.9432760146916365
+breast-cancer-wisconsin-original,20,16,4,Impute then regress,0.9083913615707839
+breast-cancer-wisconsin-original,20,16,4,Augmented,0.9090162075290953
+breast-cancer-wisconsin-original,20,16,4,Augmented Affine,0.908904272888094
+breast-cancer-wisconsin-original,20,16,5,Impute then regress,0.9434745444003283
+breast-cancer-wisconsin-original,20,16,5,Augmented,0.9434725110006696
+breast-cancer-wisconsin-original,20,16,5,Augmented Affine,0.943567325553454

@@ -1,0 +1,76 @@
+dataset,copynum,penalty,iter,method,osr2
+sleep,2,1,1,Impute then regress,0.812527061349556
+sleep,2,1,1,Augmented,NaN
+sleep,2,1,1,Augmented Affine,NaN
+sleep,2,1,2,Impute then regress,0.8872707174758707
+sleep,2,1,2,Augmented,NaN
+sleep,2,1,2,Augmented Affine,NaN
+sleep,2,1,3,Impute then regress,0.863163175875191
+sleep,2,1,3,Augmented,NaN
+sleep,2,1,3,Augmented Affine,NaN
+sleep,2,1,4,Impute then regress,0.6902332487108805
+sleep,2,1,4,Augmented,NaN
+sleep,2,1,4,Augmented Affine,NaN
+sleep,2,1,5,Impute then regress,0.8728852897261781
+sleep,2,1,5,Augmented,NaN
+sleep,2,1,5,Augmented Affine,NaN
+sleep,2,2,1,Impute then regress,0.949323599177541
+sleep,2,2,1,Augmented,NaN
+sleep,2,2,1,Augmented Affine,NaN
+sleep,2,2,2,Impute then regress,0.9279554004390166
+sleep,2,2,2,Augmented,NaN
+sleep,2,2,2,Augmented Affine,NaN
+sleep,2,2,3,Impute then regress,0.6707736525182124
+sleep,2,2,3,Augmented,NaN
+sleep,2,2,3,Augmented Affine,NaN
+sleep,2,2,4,Impute then regress,0.851469825628534
+sleep,2,2,4,Augmented,NaN
+sleep,2,2,4,Augmented Affine,NaN
+sleep,2,2,5,Impute then regress,0.8396936632986001
+sleep,2,2,5,Augmented,NaN
+sleep,2,2,5,Augmented Affine,NaN
+sleep,2,4,1,Impute then regress,0.8179194812987103
+sleep,2,4,1,Augmented,NaN
+sleep,2,4,1,Augmented Affine,NaN
+sleep,2,4,2,Impute then regress,0.8870071892520914
+sleep,2,4,2,Augmented,NaN
+sleep,2,4,2,Augmented Affine,NaN
+sleep,2,4,3,Impute then regress,0.35520958431715866
+sleep,2,4,3,Augmented,NaN
+sleep,2,4,3,Augmented Affine,NaN
+sleep,2,4,4,Impute then regress,0.8546596344983326
+sleep,2,4,4,Augmented,NaN
+sleep,2,4,4,Augmented Affine,NaN
+sleep,2,4,5,Impute then regress,0.7519203536811566
+sleep,2,4,5,Augmented,NaN
+sleep,2,4,5,Augmented Affine,NaN
+sleep,2,8,1,Impute then regress,-0.11409462551532257
+sleep,2,8,1,Augmented,NaN
+sleep,2,8,1,Augmented Affine,NaN
+sleep,2,8,2,Impute then regress,0.8905199484997226
+sleep,2,8,2,Augmented,NaN
+sleep,2,8,2,Augmented Affine,NaN
+sleep,2,8,3,Impute then regress,0.84912649926309
+sleep,2,8,3,Augmented,NaN
+sleep,2,8,3,Augmented Affine,NaN
+sleep,2,8,4,Impute then regress,0.7149392022157227
+sleep,2,8,4,Augmented,NaN
+sleep,2,8,4,Augmented Affine,NaN
+sleep,2,8,5,Impute then regress,0.640158934690864
+sleep,2,8,5,Augmented,NaN
+sleep,2,8,5,Augmented Affine,NaN
+sleep,2,16,1,Impute then regress,-0.23672883711630188
+sleep,2,16,1,Augmented,NaN
+sleep,2,16,1,Augmented Affine,NaN
+sleep,2,16,2,Impute then regress,0.8714800263790019
+sleep,2,16,2,Augmented,NaN
+sleep,2,16,2,Augmented Affine,NaN
+sleep,2,16,3,Impute then regress,0.9115472100864567
+sleep,2,16,3,Augmented,NaN
+sleep,2,16,3,Augmented Affine,NaN
+sleep,2,16,4,Impute then regress,0.4799853387324923
+sleep,2,16,4,Augmented,NaN
+sleep,2,16,4,Augmented Affine,NaN
+sleep,2,16,5,Impute then regress,0.7798549473629999
+sleep,2,16,5,Augmented,NaN
+sleep,2,16,5,Augmented Affine,NaN

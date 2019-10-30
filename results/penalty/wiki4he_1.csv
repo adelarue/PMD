@@ -1,0 +1,76 @@
+dataset,copynum,penalty,iter,method,osr2
+wiki4he,1,1,1,Impute then regress,0.8920587459196745
+wiki4he,1,1,1,Augmented,0.9007870595490753
+wiki4he,1,1,1,Augmented Affine,0.8814065353648045
+wiki4he,1,1,2,Impute then regress,0.92574671697594
+wiki4he,1,1,2,Augmented,0.9057594268852737
+wiki4he,1,1,2,Augmented Affine,0.8826033517762031
+wiki4he,1,1,3,Impute then regress,0.8616607440594892
+wiki4he,1,1,3,Augmented,0.8682662146645166
+wiki4he,1,1,3,Augmented Affine,0.8506427947532804
+wiki4he,1,1,4,Impute then regress,0.9129357862314782
+wiki4he,1,1,4,Augmented,0.9197742835541286
+wiki4he,1,1,4,Augmented Affine,0.9087915352743403
+wiki4he,1,1,5,Impute then regress,0.9032590536886714
+wiki4he,1,1,5,Augmented,0.8988776513705287
+wiki4he,1,1,5,Augmented Affine,0.8601326824930792
+wiki4he,1,2,1,Impute then regress,0.9259794567695081
+wiki4he,1,2,1,Augmented,0.9163008042331736
+wiki4he,1,2,1,Augmented Affine,0.8602676549433889
+wiki4he,1,2,2,Impute then regress,0.882736477415683
+wiki4he,1,2,2,Augmented,0.9054441111953382
+wiki4he,1,2,2,Augmented Affine,0.8911222532522185
+wiki4he,1,2,3,Impute then regress,0.9262454639424124
+wiki4he,1,2,3,Augmented,0.911020396165864
+wiki4he,1,2,3,Augmented Affine,0.9094189698254285
+wiki4he,1,2,4,Impute then regress,0.8858054894080793
+wiki4he,1,2,4,Augmented,0.9002419740784917
+wiki4he,1,2,4,Augmented Affine,0.8866720405130369
+wiki4he,1,2,5,Impute then regress,0.9247808923819094
+wiki4he,1,2,5,Augmented,0.9143626588429297
+wiki4he,1,2,5,Augmented Affine,0.8913498514349143
+wiki4he,1,4,1,Impute then regress,0.8944587757919903
+wiki4he,1,4,1,Augmented,0.8771826126427081
+wiki4he,1,4,1,Augmented Affine,0.8997520382617588
+wiki4he,1,4,2,Impute then regress,0.9090293718686385
+wiki4he,1,4,2,Augmented,0.9092123886884159
+wiki4he,1,4,2,Augmented Affine,0.8856686895346355
+wiki4he,1,4,3,Impute then regress,0.8971339676662402
+wiki4he,1,4,3,Augmented,0.8975223315073312
+wiki4he,1,4,3,Augmented Affine,0.8730909146959469
+wiki4he,1,4,4,Impute then regress,0.8197060177182084
+wiki4he,1,4,4,Augmented,0.8474488653959407
+wiki4he,1,4,4,Augmented Affine,0.8625993939870535
+wiki4he,1,4,5,Impute then regress,0.9115194465631478
+wiki4he,1,4,5,Augmented,0.8997193847445742
+wiki4he,1,4,5,Augmented Affine,0.892343666796449
+wiki4he,1,8,1,Impute then regress,0.9056960435371768
+wiki4he,1,8,1,Augmented,0.89232711226618
+wiki4he,1,8,1,Augmented Affine,0.8563292425766201
+wiki4he,1,8,2,Impute then regress,0.8967025755967735
+wiki4he,1,8,2,Augmented,0.8989437747105198
+wiki4he,1,8,2,Augmented Affine,0.8646344175865905
+wiki4he,1,8,3,Impute then regress,0.9072179462965513
+wiki4he,1,8,3,Augmented,0.9100148339616456
+wiki4he,1,8,3,Augmented Affine,0.8838253673466959
+wiki4he,1,8,4,Impute then regress,0.8946663276369057
+wiki4he,1,8,4,Augmented,0.9017368217643531
+wiki4he,1,8,4,Augmented Affine,0.8429031292370914
+wiki4he,1,8,5,Impute then regress,0.910373704079789
+wiki4he,1,8,5,Augmented,0.9030038722422431
+wiki4he,1,8,5,Augmented Affine,0.8817654758666682
+wiki4he,1,16,1,Impute then regress,0.8904071172449695
+wiki4he,1,16,1,Augmented,0.8766220874978963
+wiki4he,1,16,1,Augmented Affine,0.8201344948361389
+wiki4he,1,16,2,Impute then regress,0.9022239978936151
+wiki4he,1,16,2,Augmented,0.8988038141272611
+wiki4he,1,16,2,Augmented Affine,0.8149019609469791
+wiki4he,1,16,3,Impute then regress,0.9139738539207684
+wiki4he,1,16,3,Augmented,0.9096886987510346
+wiki4he,1,16,3,Augmented Affine,0.8262458922284475
+wiki4he,1,16,4,Impute then regress,0.895440013063927
+wiki4he,1,16,4,Augmented,0.9086099938250418
+wiki4he,1,16,4,Augmented Affine,0.8175734428943305
+wiki4he,1,16,5,Impute then regress,0.8993732517014033
+wiki4he,1,16,5,Augmented,0.8965605712558152
+wiki4he,1,16,5,Augmented Affine,0.8382833059366092

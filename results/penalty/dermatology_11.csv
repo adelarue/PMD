@@ -1,0 +1,76 @@
+dataset,copynum,penalty,iter,method,osr2
+dermatology,11,1,1,Impute then regress,0.9055570013012761
+dermatology,11,1,1,Augmented,0.9189496398208856
+dermatology,11,1,1,Augmented Affine,0.9143939673195073
+dermatology,11,1,2,Impute then regress,0.935082110895226
+dermatology,11,1,2,Augmented,0.934350139038048
+dermatology,11,1,2,Augmented Affine,0.9347684098355946
+dermatology,11,1,3,Impute then regress,0.9321161205412336
+dermatology,11,1,3,Augmented,0.9343976879815603
+dermatology,11,1,3,Augmented Affine,0.9357762199271505
+dermatology,11,1,4,Impute then regress,0.9351164165733397
+dermatology,11,1,4,Augmented,0.9350476506538956
+dermatology,11,1,4,Augmented Affine,0.9344987009245536
+dermatology,11,1,5,Impute then regress,0.9259838386891838
+dermatology,11,1,5,Augmented,0.9264197957763807
+dermatology,11,1,5,Augmented Affine,0.9251198576304536
+dermatology,11,2,1,Impute then regress,0.9458297493657095
+dermatology,11,2,1,Augmented,0.9498295023998464
+dermatology,11,2,1,Augmented Affine,0.9499223831171437
+dermatology,11,2,2,Impute then regress,0.9316341575761516
+dermatology,11,2,2,Augmented,0.9333704774004299
+dermatology,11,2,2,Augmented Affine,0.9334182289278828
+dermatology,11,2,3,Impute then regress,0.9436467969850628
+dermatology,11,2,3,Augmented,0.9384689647494147
+dermatology,11,2,3,Augmented Affine,0.9369466612704098
+dermatology,11,2,4,Impute then regress,0.9343806916468621
+dermatology,11,2,4,Augmented,0.9343521443280647
+dermatology,11,2,4,Augmented Affine,0.933620403422278
+dermatology,11,2,5,Impute then regress,0.9159005067454555
+dermatology,11,2,5,Augmented,0.9168878318551528
+dermatology,11,2,5,Augmented Affine,0.9169467697183539
+dermatology,11,4,1,Impute then regress,0.9295144031796543
+dermatology,11,4,1,Augmented,0.9316003357559215
+dermatology,11,4,1,Augmented Affine,0.931611702126072
+dermatology,11,4,2,Impute then regress,0.9405156473356775
+dermatology,11,4,2,Augmented,0.9399804032914322
+dermatology,11,4,2,Augmented Affine,0.940715443806591
+dermatology,11,4,3,Impute then regress,0.9164018917996934
+dermatology,11,4,3,Augmented,0.9261760129067413
+dermatology,11,4,3,Augmented Affine,0.9264114675783465
+dermatology,11,4,4,Impute then regress,0.9422953392102265
+dermatology,11,4,4,Augmented,0.9424541517134128
+dermatology,11,4,4,Augmented Affine,0.9425911187738094
+dermatology,11,4,5,Impute then regress,0.9354248046434671
+dermatology,11,4,5,Augmented,0.9351122203944937
+dermatology,11,4,5,Augmented Affine,0.9298710622506929
+dermatology,11,8,1,Impute then regress,0.9315896230362007
+dermatology,11,8,1,Augmented,0.9311348718137424
+dermatology,11,8,1,Augmented Affine,0.9319203730805053
+dermatology,11,8,2,Impute then regress,0.946488565596571
+dermatology,11,8,2,Augmented,0.9438833588309998
+dermatology,11,8,2,Augmented Affine,0.9428767355763392
+dermatology,11,8,3,Impute then regress,0.9057959765162222
+dermatology,11,8,3,Augmented,0.9189624994786822
+dermatology,11,8,3,Augmented Affine,0.90821766390697
+dermatology,11,8,4,Impute then regress,0.9496438935112967
+dermatology,11,8,4,Augmented,0.9526763696656683
+dermatology,11,8,4,Augmented Affine,0.9527969853111402
+dermatology,11,8,5,Impute then regress,0.9438698665455865
+dermatology,11,8,5,Augmented,0.9439591791940974
+dermatology,11,8,5,Augmented Affine,0.9440708663535479
+dermatology,11,16,1,Impute then regress,0.9162484413246368
+dermatology,11,16,1,Augmented,0.9194041004244313
+dermatology,11,16,1,Augmented Affine,0.9192804381553783
+dermatology,11,16,2,Impute then regress,0.9277649203512242
+dermatology,11,16,2,Augmented,0.9304737859279445
+dermatology,11,16,2,Augmented Affine,0.9277494108567533
+dermatology,11,16,3,Impute then regress,0.9318539761968461
+dermatology,11,16,3,Augmented,0.9376665904379724
+dermatology,11,16,3,Augmented Affine,0.9387026047857572
+dermatology,11,16,4,Impute then regress,0.9211218289964607
+dermatology,11,16,4,Augmented,0.9212279298859924
+dermatology,11,16,4,Augmented Affine,0.9214662234513609
+dermatology,11,16,5,Impute then regress,0.9161782418136517
+dermatology,11,16,5,Augmented,0.916674438168107
+dermatology,11,16,5,Augmented Affine,0.9166607543425881

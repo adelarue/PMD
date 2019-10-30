@@ -1,0 +1,76 @@
+dataset,copynum,penalty,iter,method,osr2
+trains,18,1,1,Impute then regress,0.8447296580077396
+trains,18,1,1,Augmented,0.6105366211800887
+trains,18,1,1,Augmented Affine,0.5057833840143167
+trains,18,1,2,Impute then regress,0
+trains,18,1,2,Augmented,0
+trains,18,1,2,Augmented Affine,0
+trains,18,1,3,Impute then regress,0.16501625385444818
+trains,18,1,3,Augmented,0
+trains,18,1,3,Augmented Affine,-0.2106135583992932
+trains,18,1,4,Impute then regress,0.3410191342836043
+trains,18,1,4,Augmented,0.4267471730691802
+trains,18,1,4,Augmented Affine,0.4267471730691802
+trains,18,1,5,Impute then regress,0
+trains,18,1,5,Augmented,-0.22846092868510448
+trains,18,1,5,Augmented Affine,-0.015532714311754958
+trains,18,2,1,Impute then regress,0.9634644111666322
+trains,18,2,1,Augmented,0.6537423741066464
+trains,18,2,1,Augmented Affine,0
+trains,18,2,2,Impute then regress,0
+trains,18,2,2,Augmented,0
+trains,18,2,2,Augmented Affine,0
+trains,18,2,3,Impute then regress,0
+trains,18,2,3,Augmented,0
+trains,18,2,3,Augmented Affine,-1.165351802015416
+trains,18,2,4,Impute then regress,0
+trains,18,2,4,Augmented,0
+trains,18,2,4,Augmented Affine,0
+trains,18,2,5,Impute then regress,0.03383781399917041
+trains,18,2,5,Augmented,-0.1398860839033098
+trains,18,2,5,Augmented Affine,-0.13988608390331003
+trains,18,4,1,Impute then regress,-2220446049250313e-31
+trains,18,4,1,Augmented,-2220446049250313e-31
+trains,18,4,1,Augmented Affine,-0.24839438654955615
+trains,18,4,2,Impute then regress,-0.5600586195142228
+trains,18,4,2,Augmented,-2.736159586427062
+trains,18,4,2,Augmented Affine,-1.9427075388582877
+trains,18,4,3,Impute then regress,-0.1384924139226944
+trains,18,4,3,Augmented,-0.11751067769848667
+trains,18,4,3,Augmented Affine,-0.07958932854757728
+trains,18,4,4,Impute then regress,11102230246251565e-32
+trains,18,4,4,Augmented,0.08884009442387575
+trains,18,4,4,Augmented Affine,0.32384056240284487
+trains,18,4,5,Impute then regress,0.09308089033569922
+trains,18,4,5,Augmented,0.12414672326292608
+trains,18,4,5,Augmented Affine,0.12414672326292442
+trains,18,8,1,Impute then regress,0.16619439735299846
+trains,18,8,1,Augmented,0.5156660767732082
+trains,18,8,1,Augmented Affine,0.33739408450807207
+trains,18,8,2,Impute then regress,2220446049250313e-31
+trains,18,8,2,Augmented,2220446049250313e-31
+trains,18,8,2,Augmented Affine,2220446049250313e-31
+trains,18,8,3,Impute then regress,0
+trains,18,8,3,Augmented,0
+trains,18,8,3,Augmented Affine,0
+trains,18,8,4,Impute then regress,0.10641740240188324
+trains,18,8,4,Augmented,0.3483934614292087
+trains,18,8,4,Augmented Affine,0.10682906194335962
+trains,18,8,5,Impute then regress,0.03134594769818544
+trains,18,8,5,Augmented,0
+trains,18,8,5,Augmented Affine,0.6325474095819115
+trains,18,16,1,Impute then regress,0.5603751083428611
+trains,18,16,1,Augmented,0.49485027389207525
+trains,18,16,1,Augmented Affine,0.4948502738920747
+trains,18,16,2,Impute then regress,0.758645115943898
+trains,18,16,2,Augmented,0.24587664166677214
+trains,18,16,2,Augmented Affine,0
+trains,18,16,3,Impute then regress,-0.6163083791399002
+trains,18,16,3,Augmented,-0.5712704493238752
+trains,18,16,3,Augmented Affine,-0.5712704493238812
+trains,18,16,4,Impute then regress,2220446049250313e-31
+trains,18,16,4,Augmented,0.25290254807576085
+trains,18,16,4,Augmented Affine,0.2529025480757696
+trains,18,16,5,Impute then regress,-1.5926865642449943
+trains,18,16,5,Augmented,2220446049250313e-31
+trains,18,16,5,Augmented Affine,-1.7608216211607246
