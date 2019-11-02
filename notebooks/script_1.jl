@@ -23,7 +23,7 @@ end
 
 SNR = 4
 
-for dname in ["thyroid-disease-thyroid-0387"] #dataset_list[1:end]
+for dname in ["sleep"] #dataset_list[1:end]
     @show dname
     for i in 1:20
         @show i
