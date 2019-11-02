@@ -3,6 +3,7 @@ using Random, Statistics, CSV, DataFrames, LinearAlgebra
 include("../impute.jl")
 include("../regress.jl")
 include("../augment.jl")
+include("../count.jl")
 
 dataset_list = [d for d in split.(read(`ls ../datasets/`, String), "\n") if length(d) > 0]
 
@@ -38,7 +39,7 @@ for dname in dataset_list[1:end]
         for iter = 1:5
             try
             @show iter
-            n,p = size(X_full)
+            n,p = Base.size(X_full)
             wtrue = softthresholding.(randn(p))
             btrue = rand(1)
 
@@ -52,7 +53,7 @@ for dname in dataset_list[1:end]
 
             Y = Matrix{Float64}(X_normalize)*wtrue .+ btrue
 
-            noise = randn(size(X_full,1))
+            noise = randn(Base.size(X_full,1))
             noise .*= norm(Y)/norm(noise)/SNR
             Y .+= noise
 
