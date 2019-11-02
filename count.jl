@@ -45,7 +45,7 @@ end
 """
 	Given a dataset name, return the dataset size
 """
-function size(datasetname::AbstractString)
+function size(datasetname::AbstractString) #Note from Jean: My install of julia gets confused of this renaming of size.
 	df = CSV.read("../datasets/$datasetname/1/X_missing.csv")
-	return size(df)
+	return Base.size(df)
 end
