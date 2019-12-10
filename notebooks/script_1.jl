@@ -23,13 +23,13 @@ end
 
 SNR = 4
 
-for dname in dataset_list[1:end]
+for dname in ["sleep"] #dataset_list[1:end]
     @show dname
     for i in 1:20
         @show i
-        results_table = DataFrame(dataset=[], copynum=[], iter=[], method=[], osr2=[])
+        results_table = DataFrame(dataset=[], copynum=[], penalty=[], iter=[], method=[], osr2=[])
 
-        X_missing = DataFrame(CSV.read("../datasets/"*dname*"/$i/X_missing.csv"))
+        X_missing = DataFrame(CSV.read("../datasets/"*dname*"/$i/X_missing.csv", missingstrings=["", "NaN"]))
         X_full = DataFrame(CSV.read("../datasets/"*dname*"/$i/X_full.csv"))
 
         cols = [d for d in names(X_full) if !any(ismissing.(X_full[:,d]))]
@@ -57,32 +57,35 @@ for dname in dataset_list[1:end]
             noise .*= norm(Y)/norm(noise)/SNR
             Y .+= noise
 
-            #Method 1: Impute then regress
-            X_imputed = mice(X_missing);
+            for penalty in [2^i for i in 0:4]
+                @show penalty
+                #Method 1: Impute then regress
+                X_imputed = mice(X_missing);
 
-            linear = regress(Y, X_imputed, lasso=true)
+                linear = regress(Y, X_imputed, lasso=true, alpha=0.8)
 
-            R2, OSR2 = evaluate(Y, X_imputed, linear)
+                R2, OSR2 = evaluate(Y, X_imputed, linear)
 
-            push!(results_table, [dname, i, iter, "Impute then regress", OSR2])
+                push!(results_table, [dname, i, penalty, iter, "Impute then regress", OSR2])
 
-            #Method 2: Augment with missing indicator
-            X_augmented = hcat(zeroimpute(X_missing), indicatemissing(X_missing))
-            linear2 = regress(Y, X_augmented, lasso=true)
+                #Method 2: Augment with missing indicator
+                X_augmented = hcat(zeroimpute(X_missing), indicatemissing(X_missing, removezerocols=true))
+                linear2 = regress(Y, X_augmented, lasso=true, alpha=0.8, missing_penalty=penalty)
 
-            R2, OSR2 = evaluate(Y, X_augmented, linear2)
+                R2, OSR2 = evaluate(Y, X_augmented, linear2)
 
-            push!(results_table, [dname, i, iter, "Augmented", OSR2])
+                push!(results_table, [dname, i, penalty, iter, "Augmented", OSR2])
 
-            #Method 3: Affine Adjustables
-            X_affine = augmentaffine(X_missing)
-            linear3 = regress(Y, X_affine, lasso=true)
+                #Method 3: Affine Adjustables
+                X_affine = augmentaffine(X_missing, removezerocols=true)
+                linear3 = regress(Y, X_affine, lasso=true, alpha=0.8, missing_penalty=penalty)
 
-            R2, OSR2 = evaluate(Y, X_affine, linear3)
+                R2, OSR2 = evaluate(Y, X_affine, linear3)
 
-            push!(results_table, [dname, i, iter, "Augmented Affine", OSR2])
+                push!(results_table, [dname, i, penalty, iter, "Augmented Affine", OSR2])
 
-            CSV.write("../results/"*dname*"_$i.csv", results_table)
+                CSV.write("../results/penalty/"*dname*"_$i.csv", results_table)
+            end
             catch
                 ()
             end
