@@ -33,7 +33,7 @@ for dname in dataset_list[1:end]
         @show i
         results_table = DataFrame(dataset=[], copynum=[], penalty=[], iter=[], method=[], osr2=[])
 
-        X_missing = DataFrame(CSV.read("../datasets/"*dname*"/$i/X_missing.csv"))
+        X_missing = DataFrame(CSV.read("../datasets/"*dname*"/$i/X_missing.csv", missingstrings=["", "NaN"]))
         X_full = DataFrame(CSV.read("../datasets/"*dname*"/$i/X_full.csv"))
 
         cols = [d for d in names(X_full) if !any(ismissing.(X_full[:,d]))]
