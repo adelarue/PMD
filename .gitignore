@@ -2,3 +2,8 @@
 notebooks/.ipynb_checkpoints
 datasets/
 results/
+
+*.aux
+*.log
+*.synctex.gz
+*.pdf
