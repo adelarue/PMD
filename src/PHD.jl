@@ -7,7 +7,7 @@ module PHD
 using DataFrames, CSV
 using RCall
 using GLMNet
-using Statistics
+using Statistics, LinearAlgebra
 
 include("count.jl")
 include("impute.jl")

@@ -17,11 +17,10 @@
 """
 function standardize(data::DataFrame; separate_test::Bool = true)
 	@assert count_missing_columns(data) == 0
-	truenames = setdiff(names(data_for_stats), [:Test])
+	truenames = setdiff(names(data), [:Test])
+	data_for_stats = data
 	if separate_test
 		data_for_stats = filter(row -> row[:Test] == 0, data)
-	else
-		data_for_stats = data
 	end
 	μ = [mean(data_for_stats[!, name]) for name in truenames]
 	σ = [std(data_for_stats[!, name]) for name in truenames]
@@ -50,7 +49,7 @@ end
 """
 function linear_y(data::DataFrame; soft_threshold::Real=0.1, SNR::Real=4)
 	@assert soft_threshold >= 0.0
-	n, p = size(data)
+	n, p = Base.size(data)
 	# sample coefficients
 	wtrue = softthresholding.(randn(p), λ=soft_threshold)
 	btrue = rand(1)
@@ -58,7 +57,7 @@ function linear_y(data::DataFrame; soft_threshold::Real=0.1, SNR::Real=4)
 	test_index = findfirst(names(data) .== :Test)
 	wtrue[test_index] = 0.
 	# standardize and generate Y
-	newdata = standardize(data)
+	newdata = standardize(data, separate_test = false)
 	Y = Matrix{Float64}(newdata) * wtrue .+ btrue
 	# add noise
 	noise = randn(nrow(newdata))

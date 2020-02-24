@@ -21,8 +21,8 @@
 function regress(Y::Array{Float64}, df::DataFrame;
 				 lasso::Bool=false, alpha::Real=0.8, missing_penalty::Real=1.0)
 	cols = setdiff(names(df), [:Test])
-	X = convert(Matrix, df[df[:Test] .== 0, cols])
-	y = convert(Array, Y[df[:Test] .== 0])
+	X = convert(Matrix, df[df[!, :Test] .== 0, cols])
+	y = convert(Array, Y[df[!, :Test] .== 0])
 	coefficients = DataFrame()
 	if lasso
 		penalty_factor = ones(length(cols))
