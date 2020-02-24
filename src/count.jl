@@ -4,8 +4,6 @@
 ### Authors: Arthur Delarue, Jean Pauphilet, 2019
 ###################################
 
-using DataFrames, CSV
-
 """
 	Count number of columns with at least one missing value
 """
@@ -19,8 +17,12 @@ function count_missing_columns(df::DataFrame)
 	return counter
 end
 
+"""
+	Given the name of a dataset in the datasets folder, count the number of missing
+		columns with at least one missing value
+"""
 function count_missing_columns(datasetname::AbstractString)
-	df = CSV.read("../datasets/$datasetname/1/X_missing.csv")
+	df = CSV.read("$(@__DIR__)/../datasets/$datasetname/1/X_missing.csv")
 	return count_missing_columns(df)
 end
 
@@ -37,15 +39,19 @@ function missing_percentage(df::DataFrame)
 	return counter / (nrow(df) * count_missing_columns(df)) * 100.0
 end
 
+"""
+	Given the name of a dataset in the datasets folder, count the number of missing
+		columns with at least one missing value
+"""
 function missing_percentage(datasetname::AbstractString)
-	df = CSV.read("../datasets/$datasetname/1/X_missing.csv")
+	df = CSV.read("$(@__DIR__)/../datasets/$datasetname/1/X_missing.csv")
 	return missing_percentage(df)
 end
 
 """
 	Given a dataset name, return the dataset size
 """
-function size(datasetname::AbstractString) #Note from Jean: My install of julia gets confused of this renaming of size.
-	df = CSV.read("../datasets/$datasetname/1/X_missing.csv")
+function size(datasetname::AbstractString)
+	df = CSV.read("$(@__DIR__)/../datasets/$datasetname/1/X_missing.csv")
 	return Base.size(df)
 end

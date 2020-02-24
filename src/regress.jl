@@ -4,9 +4,6 @@
 ### Authors: Arthur Delarue, Jean Pauphilet, 2019
 ###################################
 
-using DataFrames, GLMNet
-using Statistics
-
 """
 	Perform linear regression on a dataframe
 	Args:
