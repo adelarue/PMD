@@ -60,7 +60,7 @@ end
 """
 	Evaluate the fit quality of a linear model on a dataset
 """
-function evaluate(Y::Array{Float64}, df::DataFrame, model::DataFrame)
+function evaluate(Y::Array{Float64}, df::DataFrame, model)
 	trainmean = Statistics.mean(Y[df[:,:Test] .== 0])
 	SST = sum((Y[df[:,:Test] .== 0] .- trainmean) .^ 2)
 	OSSST = sum((Y[df[:,:Test] .== 1] .- trainmean) .^ 2)

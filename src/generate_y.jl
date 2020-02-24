@@ -16,14 +16,14 @@
 			and standard deviation one), except special columns
 """
 function standardize(data::DataFrame; separate_test::Bool = true)
-	@assert count_missing_columns(data) == 0
+	# @assert count_missing_columns(data) == 0
 	truenames = setdiff(names(data), [:Test])
 	data_for_stats = data
 	if separate_test
 		data_for_stats = filter(row -> row[:Test] == 0, data)
 	end
-	μ = [mean(data_for_stats[!, name]) for name in truenames]
-	σ = [std(data_for_stats[!, name]) for name in truenames]
+	μ = [mean(data_for_stats[.!ismissing.(data_for_stats[!, name]), name]) for name in truenames]
+	σ = [std(data_for_stats[.!ismissing.(data_for_stats[!, name]), name]) for name in truenames]
 	# if a stddev is 0, the column is constant, and we should simply not rescale it
 	σ[findall(σ .== 0)] .= 1
 	newdata = DataFrame()
