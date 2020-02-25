@@ -4,9 +4,6 @@
 ### Authors: Arthur Delarue, Jean Pauphilet, 2019
 ###################################
 
-using DataFrames, GLMNet
-using Statistics
-
 """
 	Perform linear regression on a dataframe
 	Args:
@@ -24,8 +21,8 @@ using Statistics
 function regress(Y::Array{Float64}, df::DataFrame;
 				 lasso::Bool=false, alpha::Real=0.8, missing_penalty::Real=1.0)
 	cols = setdiff(names(df), [:Test])
-	X = convert(Matrix, df[df[:Test] .== 0, cols])
-	y = convert(Array, Y[df[:Test] .== 0])
+	X = convert(Matrix, df[df[!, :Test] .== 0, cols])
+	y = convert(Array, Y[df[!, :Test] .== 0])
 	coefficients = DataFrame()
 	if lasso
 		penalty_factor = ones(length(cols))
@@ -63,7 +60,7 @@ end
 """
 	Evaluate the fit quality of a linear model on a dataset
 """
-function evaluate(Y::Array{Float64}, df::DataFrame, model::DataFrame)
+function evaluate(Y::Array{Float64}, df::DataFrame, model)
 	trainmean = Statistics.mean(Y[df[:,:Test] .== 0])
 	SST = sum((Y[df[:,:Test] .== 0] .- trainmean) .^ 2)
 	OSSST = sum((Y[df[:,:Test] .== 1] .- trainmean) .^ 2)

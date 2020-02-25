@@ -42,7 +42,7 @@ function augmentaffine(df::DataFrame; removezerocols::Bool = false)
 	result = hcat(newdf, Z)
 	for missingname in names(Z)
 		for name in setdiff(names(newdf), [:Test, :Y])
-			result[Symbol("$(name)_$missingname")] = newdf[name] .* Z[missingname]
+			result[!, Symbol("$(name)_$missingname")] = newdf[!, name] .* Z[!, missingname]
 		end
 	end
 	if removezerocols
