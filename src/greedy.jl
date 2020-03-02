@@ -96,7 +96,6 @@ end
 		- maxdepth:		maximum depth of tree
 		- tolerance:	minimum improvement to MSE required
 		- minbucket:	minimum number of observations in a split to attempt a split
-		- λ:			ridge parameter
 """
 function trainGreedyModel(Y::Vector, data::DataFrame;
 						  maxdepth::Int = 3,
