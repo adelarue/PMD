@@ -98,13 +98,16 @@ end
 		- minbucket:	minimum number of observations in a split to attempt a split
 		- λ:			ridge parameter
 """
-function trainGreedyModel(Y::Vector, data::DataFrame, maxdepth::Int, tolerance::Float64,
-						  minbucket::Int)
+function trainGreedyModel(Y::Vector, data::DataFrame;
+						  maxdepth::Int = 3,
+						  tolerance::Float64 = 0.1,
+						  minbucket::Int = 10,
+						  missingdata::DataFrame = data)
 	gm = initializeGreedyModel(Y, data)
 	maxdepth == 1 && return gm
 	trainIndices = findall(data[!, :Test] .== 0)
 	heap = BinaryMinHeap([bestSplit(gm, Y, data, 1, trainIndices,
-	                                gm.nodes[1].featuresIn, minbucket)])
+	                                gm.nodes[1].featuresIn, minbucket, missingdata)])
 	while !isempty(heap)
 		leafToSplit = pop!(heap)
 		if leafToSplit.improvement > tolerance * length(trainIndices)
@@ -116,9 +119,9 @@ function trainGreedyModel(Y::Vector, data::DataFrame, maxdepth::Int, tolerance::
 			L = length(gm.nodes)
 			if gm.nodes[L].depth < maxdepth # only add to heap if below max depth
 				push!(heap, bestSplit(gm, Y, data, L-1, leafToSplit.leftPoints,
-				                      leafToSplit.leftFeatures, minbucket))
+				                      leafToSplit.leftFeatures, minbucket, missingdata))
 				push!(heap, bestSplit(gm, Y, data, L, leafToSplit.rightPoints,
-				                      leafToSplit.rightFeatures, minbucket))
+				                      leafToSplit.rightFeatures, minbucket, missingdata))
 			end
 		end
 	end
@@ -141,7 +144,8 @@ end
 	Find best split at a particular node
 """
 function bestSplit(gm::GreedyModel, Y::Vector, data::DataFrame, node::Int,
-				   points::Vector{Int}, features::Vector{Int}, minbucket::Int)
+				   points::Vector{Int}, features::Vector{Int}, minbucket::Int,
+				   missingdata::DataFrame = data)
 	currentNode = gm.nodes[node]
 	p = Base.size(data, 2) - 1
 	X = Matrix(data[points, Not(:Test)])
@@ -153,15 +157,16 @@ function bestSplit(gm::GreedyModel, Y::Vector, data::DataFrame, node::Int,
 	bestFeature = 1
 	bestCoeffs = (0., zeros(p), 0., zeros(p))
 	for j = 1:p
-		if j in features
-			continue
-		end
-		featuresLeft = sort(vcat(features, j))
-		pointsLeft = points[.!ismissing.(data[points, j])]
+		# if j in features
+		# 	continue
+		# end
+		featuresLeft = sort(collect(Set(vcat(features, j))))
+		# featuresLeft = sort(vcat(features, j))
+		pointsLeft = points[.!ismissing.(missingdata[points, j])]
 		length(pointsLeft) < minbucket && continue
 		intLeft, coeffsLeft, SSEL = regressionCoefficients(Y, data, pointsLeft, featuresLeft)
 		featuresRight = features
-		pointsRight = points[ismissing.(data[points, j])]
+		pointsRight = points[ismissing.(missingdata[points, j])]
 		length(pointsRight) < minbucket && continue
 		intRight, coeffsRight, SSER = regressionCoefficients(Y, data, pointsRight, featuresRight)
 		newSSE = SSEL + SSER
@@ -172,9 +177,9 @@ function bestSplit(gm::GreedyModel, Y::Vector, data::DataFrame, node::Int,
 		end
 	end
 	return SplitCandidate(node, abs(bestSSE - currentSSE), bestFeature,
-	                      points[.!ismissing.(data[points, bestFeature])],
-	                      points[ismissing.(data[points, bestFeature])],
-	                      sort(vcat(features, bestFeature)), features,
+	                      points[.!ismissing.(missingdata[points, bestFeature])],
+	                      points[ismissing.(missingdata[points, bestFeature])],
+	                      sort(collect(Set(vcat(features, bestFeature)))), features,
 	                      bestCoeffs[1], bestCoeffs[2], bestCoeffs[3], bestCoeffs[4])
 end
 
@@ -231,14 +236,14 @@ end
 """
 	Apply greedy regression model to data with missing values
 """
-function predict(data::DataFrame, gm::GreedyModel)
+function predict(data::DataFrame, gm::GreedyModel; missingdata::DataFrame = data)
 	truenames = setdiff(names(data), [:Test])
 	result = zeros(nrow(data))
 	# loop through points
 	for i = 1:nrow(data)
 		currentNode = gm.nodes[1]
 		while !(currentNode.id in gm.leaves)
-			if !ismissing(data[i, truenames[currentNode.feature]])
+			if !ismissing(missingdata[i, truenames[currentNode.feature]])
 				currentNode = gm.nodes[currentNode.left]
 			else
 				currentNode = gm.nodes[currentNode.right]
@@ -329,4 +334,18 @@ function print_ascii(gm::GreedyModel)
 		print("\n")
 	end
 	return nothing
+end
+
+"""
+	Evaluate the fit quality of a greedy model on a dataset
+"""
+function evaluate(Y::Array{Float64}, df::DataFrame, model::GreedyModel, missingdata::DataFrame=df)
+	trainmean = Statistics.mean(Y[df[:,:Test] .== 0])
+	SST = sum((Y[df[:,:Test] .== 0] .- trainmean) .^ 2)
+	OSSST = sum((Y[df[:,:Test] .== 1] .- trainmean) .^ 2)
+
+	prediction = predict(df, model, missingdata=missingdata)
+	R2 = 1 - sum((Y[df[:,:Test] .== 0] .- prediction[df[:,:Test] .== 0]) .^ 2)/SST
+	OSR2 = 1 - sum((Y[df[:,:Test] .== 1] .- prediction[df[:,:Test] .== 1]) .^ 2)/OSSST
+	return R2, OSR2
 end
