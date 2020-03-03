@@ -5,104 +5,96 @@
 ### 	see https://cran.r-project.org/web/packages/VIM/VIM.pdf
 ### Authors: Arthur Delarue, Jean Pauphilet, 2019
 ###################################
+using Pkg
+Pkg.activate(".")
 
 using RDatasets, RCall, DataFrames, CSV, UCIData
 using Random, Printf
 
 function nan_to_missing!(df::DataFrame)
-	for name in names(df)
-		df[name] = convert(Vector{Any}, df[name])
-	end
-	for i = 1:nrow(df), name in names(df)
-		if isnan(df[i, name])
-			df[i, name] = missing
-		end
-	end
-end
+    allowmissing!(df)
 
-function onehotencode!(df)
-    categorical_cols = [k for k in names(df) if startswith(String(k),"C")]
-
-    long_cat = DataFrame(id=[], variable=[], value=[])
-    for c in categorical_cols
-        for i in 1:size(df,1)
-            if !ismissing(df[i,c])
-                push!(long_cat, [df[i,:id], string(String(c),"_",df[i,c]), 1])
-            else
-                push!(long_cat, [df[i,:id], string(String(c),"_","Missing"), 1])
-            end
+    for i = 1:nrow(df), name in names(df)
+        if isnan(df[i, name])
+            df[i, name] = missing
         end
     end
-
-    wide_cat = unstack(long_cat, :id, :variable, :value)
-    coalesce.(wide_cat,0)
-
-    select!(df, Not(categorical_cols))
-    df = join(df, wide_cat, on=:id)
 end
 
-function create_data(df, df_name; NUM_IMPUTATIONS = 10, TEST_FRACTION=.3)
-	if !isdir("datasets/"*df_name*"/")
-		mkdir("datasets/"*df_name*"/")
-	end
-	R"library(mice)"
-	R"imputed = mice($df, m = $NUM_IMPUTATIONS, method='cart')"
-		# @rget sleep
-	# nan_to_missing!(df)
-	# Train-test split
-	num_test_points = floor(Int, nrow(df) * TEST_FRACTION)
-	test_points = shuffle(vcat(zeros(Int, nrow(df) - num_test_points), ones(Int, num_test_points)))
+function onehotencode(df)
+    categorical_cols = [k for k in names(df) if startswith(String(k),"C") || length(unique(df[:,k])) <= 5] #Categorical = starts with C or less than 5 unique values
 
-	# Get dependent variable, then hide the missing values once again
-	for i = 1:NUM_IMPUTATIONS
-		if !isdir("datasets/"*df_name*"/$i/")
-			mkdir("datasets/"*df_name*"/$i/")
-		end
+    if length(categorical_cols) > 0
+        long_cat = DataFrame(id=[], variable=[], value=[])
+        for c in categorical_cols
+            for i in 1:size(df,1)
+                if !ismissing(df[i,c])
+                    push!(long_cat, [df[i,:id], string("C",String(c),"_",df[i,c]), 1])
+                else
+                    push!(long_cat, [df[i,:id], string("C",String(c),"_","Missing"), 1])
+                end
+            end
+        end
 
-		# Get the i-th imputed dataset from mice + cart
-	    R"imputeddf= complete(imputed, action = $i)"
-	    @rget imputeddf
-	    # compute the dependent variable
-	    df[:Test] = test_points
-		imputeddf[:Test] = test_points
-	    # Save the dataset
-		path = "datasets/"*df_name*"/$i/"
-	    CSV.write(path*"X_missing.csv", df)
-		CSV.write(path*"X_full.csv", imputeddf)
-	end
+        wide_cat = unstack(long_cat, :id, :variable, :value)
+        wide_cat = coalesce.(wide_cat,0)
+
+        select!(df, Not(categorical_cols))
+        return join(df, wide_cat, on=:id)
+    else
+        return df
+    end
+end
+
+R"library(missForest)"
+
+function impute_data(df, df_name)
+    path = "datasets/"*df_name*"/"
+
+    if !isdir(path)
+        mkdir(path)
+    end
+
+    R"impute = missForest($df)"
+    R"imputeddf <- impute$ximp"
+
+    @rget imputeddf
+
+    idlist = [string("#",i) for i in 1:size(df,1)]
+    df[!,:Id] = idlist
+    imputeddf[!,:Id] = idlist
+
+    # Save the dataset
+    CSV.write(path*"X_missing.csv", df)
+    CSV.write(path*"X_full.csv", imputeddf)
 end
 
 Random.seed!(1515)
 
-NUM_IMPUTATIONS = 20
-TEST_FRACTION = 0.3
+# NUM_IMPUTATIONS = 20
+# TEST_FRACTION = 0.3
 
-# Get dataset, and impute it a bunch of times using CART
-R"library(VIM)"
-R"data(sleep, package='VIM')"
-R"sleep = as.data.frame(scale(sleep))"
-
-@rget sleep
+# Get dataset, and impute it using missForest
+# R"library(VIM)"
+# R"data(sleep, package='VIM')"
+# R"sleep = as.data.frame(scale(sleep))"
+# @rget sleep
 # nan_to_missing!(sleep)
+# impute_data(sleep, "sleep")
 
-create_data(sleep, "sleep"; NUM_IMPUTATIONS = NUM_IMPUTATIONS, TEST_FRACTION = TEST_FRACTION)
-
-for task in ["classification", "regression"]
-	for n in UCIData.list_datasets(task)
+for task in ["regression"]#["classification"]#, "regression"]
+	for n in UCIData.list_datasets(task)[1:40]
 		@show n
 		df = UCIData.dataset(n)
-		if any([startswith(k,"C") for k in String.(names(df))])
-			onehotencode!(df)
-		end
+		# if any([startswith(k,"C") for k in String.(names(df))])
+			df = onehotencode(df) #One-hot encode categorical columns
+		# end
 		if any(.!completecases(df)) || any([endswith(k,"_Missing") for k in String.(names(df))])
 			# @show n
-			for k in [:id, :target]
-				if k ∈ names(df)
-					deletecols!(df, k)
-				end
-			end
+            select!(df, Not(intersect(names(df), [:id, :target])))
+
 			if size(df, 2) > 1
-				create_data(df, n; NUM_IMPUTATIONS = NUM_IMPUTATIONS, TEST_FRACTION = TEST_FRACTION)
+				impute_data(df, n)
 			end
 		end
 	end

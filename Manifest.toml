@@ -58,6 +58,12 @@ git-tree-sha1 = "674b67f344687a88310213ddfa8a2b3c76cc4252"
 uuid = "9a962f9c-6df0-11e9-0e5d-c546b8b5ee8a"
 version = "1.1.0"
 
+[[DataDeps]]
+deps = ["HTTP", "Reexport", "SHA"]
+git-tree-sha1 = "f2be642d7a94e7f0cabcd2106fee4c6715d452d1"
+uuid = "124859b0-ceae-595e-8997-d05f6a7a8dfe"
+version = "0.7.2"
+
 [[DataFrames]]
 deps = ["CategoricalArrays", "Compat", "DataAPI", "Future", "InvertedIndices", "IteratorInterfaceExtensions", "Missings", "PooledArrays", "Printf", "REPL", "Reexport", "SortingAlgorithms", "Statistics", "TableTraits", "Tables", "Unicode"]
 git-tree-sha1 = "7d5bf815cc0b30253e3486e8ce2b93bf9d0faff6"
@@ -93,6 +99,23 @@ git-tree-sha1 = "058e5e39ceee0f92ccec70c5bf31c90ffb374669"
 uuid = "31c24e10-a181-5473-b8eb-7969acd0382f"
 version = "0.21.5"
 
+[[ExprTools]]
+git-tree-sha1 = "08c1f74d9ad03acf0ee84c12c9e665ab1a9a6e33"
+uuid = "e2ba6199-217a-4e67-a87a-7c52f15ade04"
+version = "0.1.0"
+
+[[EzXML]]
+deps = ["BinaryProvider", "Libdl", "Printf"]
+git-tree-sha1 = "ed53ce1ddb862193b2bd3851dfa108513aab2d5c"
+uuid = "8f5d6c58-4d21-5cfd-889c-e3ad7ee6a615"
+version = "1.0.0"
+
+[[FileIO]]
+deps = ["Pkg"]
+git-tree-sha1 = "2c84c57aced468fa21763c66d3bef33adcd09ec7"
+uuid = "5789e2e9-d7fb-5bc7-8068-2c6fae9b9549"
+version = "1.2.2"
+
 [[FilePathsBase]]
 deps = ["Dates", "LinearAlgebra", "Printf", "Test", "UUIDs"]
 git-tree-sha1 = "2cd6e2e7965934f72cb80251f760228e2264bab3"
@@ -109,6 +132,18 @@ git-tree-sha1 = "275eff0f6a5013f4e587775c9e4a57b5df1ba38c"
 pinned = true
 uuid = "8d5ece8b-de18-5317-b113-243142960cc6"
 version = "0.4.1"
+
+[[HTTP]]
+deps = ["Base64", "Dates", "IniFile", "MbedTLS", "Sockets"]
+git-tree-sha1 = "8d9bdd55c9d0d6ddf08f8b5229f90b7f274b6777"
+uuid = "cd3eb016-35fb-5094-929b-558a96fad6f3"
+version = "0.8.12"
+
+[[IniFile]]
+deps = ["Test"]
+git-tree-sha1 = "098e4d2c533924c921f9f9847274f2ad89e018b8"
+uuid = "83e8ac13-25f8-5344-8a64-a9f2b223428f"
+version = "0.5.0"
 
 [[InteractiveUtils]]
 deps = ["Markdown"]
@@ -145,6 +180,12 @@ pinned = true
 uuid = "b1bec4e5-fd48-53fe-b0cb-9723c09d164b"
 version = "0.3.1"
 
+[[LegacyStrings]]
+deps = ["Compat"]
+git-tree-sha1 = "d4b9bde2694c552fe579cc4462733f1ce08733fe"
+uuid = "1b4a561d-cfcb-5daf-8433-43fcf8b4bea3"
+version = "0.4.1"
+
 [[LibGit2]]
 uuid = "76f85450-5226-5b5a-8eaa-529ad045b433"
 
@@ -178,6 +219,12 @@ version = "0.4.3"
 [[Mmap]]
 uuid = "a63ad114-7e13-5084-954f-fe012c677804"
 
+[[Mocking]]
+deps = ["ExprTools"]
+git-tree-sha1 = "916b850daad0d46b8c71f65f719c49957e9513ed"
+uuid = "78c3b35d-d492-501b-9361-3d52fe80e533"
+version = "0.7.1"
+
 [[OrderedCollections]]
 deps = ["Random", "Serialization", "Test"]
 git-tree-sha1 = "c4c13474d23c60d20a67b217f1d7f22a40edf8f1"
@@ -192,9 +239,9 @@ version = "0.9.11"
 
 [[Parsers]]
 deps = ["Dates", "Test"]
-git-tree-sha1 = "d112c19ccca00924d5d3a38b11ae2b4b268dda39"
+git-tree-sha1 = "0c16b3179190d3046c073440d94172cfc3bb0553"
 uuid = "69de0a69-1ddd-5017-9359-2bf0b02dc9f0"
-version = "0.3.11"
+version = "0.3.12"
 
 [[Pkg]]
 deps = ["Dates", "LibGit2", "Markdown", "Printf", "REPL", "Random", "SHA", "UUIDs"]
@@ -221,6 +268,18 @@ deps = ["CategoricalArrays", "Conda", "DataFrames", "DataStructures", "Dates", "
 git-tree-sha1 = "21f8375424fa7050595080bf53b4b4f854449eb9"
 uuid = "6f49c342-dc21-5d91-9882-a32aef131414"
 version = "0.13.4"
+
+[[RData]]
+deps = ["CategoricalArrays", "CodecZlib", "DataFrames", "Dates", "FileIO", "Requires", "TimeZones"]
+git-tree-sha1 = "cb2b11bbbb18a4317a1db0ef121626945c1db51e"
+uuid = "df47a6cb-8c03-5eed-afd8-b6050d6c41da"
+version = "0.6.3"
+
+[[RDatasets]]
+deps = ["CSV", "CodecZlib", "DataFrames", "FileIO", "Printf", "RData", "Reexport"]
+git-tree-sha1 = "e2ec04fbd4e4a9129161fe2a5376fb49f8f29e68"
+uuid = "ce6b1742-4840-55fa-b093-852dadbb1d8b"
+version = "0.6.6"
 
 [[REPL]]
 deps = ["InteractiveUtils", "Markdown", "Sockets"]
@@ -332,11 +391,23 @@ version = "1.0.2"
 deps = ["Distributed", "InteractiveUtils", "Logging", "Random"]
 uuid = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
+[[TimeZones]]
+deps = ["Dates", "EzXML", "Mocking", "Printf", "Serialization", "Unicode"]
+git-tree-sha1 = "f60a33649ef8380bafe6be7d1af1eeb8a3a3ea92"
+uuid = "f269a46b-ccf7-5d73-abea-4c690281aa53"
+version = "1.0.1"
+
 [[TranscodingStreams]]
 deps = ["Random", "Test"]
 git-tree-sha1 = "7c53c35547de1c5b9d46a4797cf6d8253807108c"
 uuid = "3bb67fe8-82b1-5028-8e26-92a6c54297fa"
 version = "0.9.5"
+
+[[UCIData]]
+deps = ["CSV", "DataDeps", "DataFrames", "Dates", "DelimitedFiles", "LegacyStrings"]
+path = "/Users/jpauph/.julia/dev/UCIData"
+uuid = "2dacb708-9dd8-11e9-1001-07df1c52a9e4"
+version = "0.1.0"
 
 [[URIParser]]
 deps = ["Test", "Unicode"]
