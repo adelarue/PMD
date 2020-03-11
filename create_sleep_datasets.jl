@@ -55,6 +55,13 @@ function impute_data(df, df_name)
         mkdir(path)
     end
 
+    Y = DataFrame(target=zeros(size(df,1)))
+    istarget = :target ∈ names(df)
+    if istarget
+        Y[!,:target] .= df[:, :target]
+    end
+    select!(df, Not(intersect(names(df), [:target])))
+
     R"impute = missForest($df)"
     R"imputeddf <- impute$ximp"
 
@@ -67,6 +74,11 @@ function impute_data(df, df_name)
     # Save the dataset
     CSV.write(path*"X_missing.csv", df)
     CSV.write(path*"X_full.csv", imputeddf)
+
+    if istarget
+        Y[!,:Id] = idlist
+        CSV.write(path*"Y.csv", Y)
+    end
 end
 
 Random.seed!(1515)
@@ -75,15 +87,15 @@ Random.seed!(1515)
 # TEST_FRACTION = 0.3
 
 # Get dataset, and impute it using missForest
-# R"library(VIM)"
-# R"data(sleep, package='VIM')"
-# R"sleep = as.data.frame(scale(sleep))"
-# @rget sleep
-# nan_to_missing!(sleep)
-# impute_data(sleep, "sleep")
+R"library(VIM)"
+R"data(sleep, package='VIM')"
+R"sleep = as.data.frame(scale(sleep))"
+@rget sleep
+nan_to_missing!(sleep)
+impute_data(sleep, "sleep")
 
-for task in ["regression"]#["classification"]#, "regression"]
-	for n in UCIData.list_datasets(task)[1:40]
+for task in ["classification", "regression"]
+	for n in UCIData.list_datasets(task)#[1:5]
 		@show n
 		df = UCIData.dataset(n)
 		# if any([startswith(k,"C") for k in String.(names(df))])
@@ -91,7 +103,7 @@ for task in ["regression"]#["classification"]#, "regression"]
 		# end
 		if any(.!completecases(df)) || any([endswith(k,"_Missing") for k in String.(names(df))])
 			# @show n
-            select!(df, Not(intersect(names(df), [:id, :target])))
+            select!(df, Not(intersect(names(df), [:id])))
 
 			if size(df, 2) > 1
 				impute_data(df, n)
