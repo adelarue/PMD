@@ -15,22 +15,21 @@
 		- a DataFrame that has been standardized (each column has mean zero
 			and standard deviation one), except special columns
 """
-function standardize(data::DataFrame; separate_test::Bool = true)
+function standardize(data::DataFrame)
 	# @assert count_missing_columns(data) == 0
-	truenames = setdiff(names(data), [:Test])
-	data_for_stats = data
-	if separate_test
-		data_for_stats = filter(row -> row[:Test] == 0, data)
-	end
-	μ = [mean(data_for_stats[.!ismissing.(data_for_stats[!, name]), name]) for name in truenames]
-	σ = [std(data_for_stats[.!ismissing.(data_for_stats[!, name]), name]) for name in truenames]
+	truenames = setdiff(names(data), [:Test, :Id])
+
+	μ = [mean(data[.!ismissing.(data[!, name]), name]) for name in truenames]
+	σ = [std(data[.!ismissing.(data[!, name]), name]) for name in truenames]
 	# if a stddev is 0, the column is constant, and we should simply not rescale it
 	σ[findall(σ .== 0)] .= 1
 	newdata = DataFrame()
 	for (i, name) in enumerate(truenames)
 		newdata[!, name] = (data[!, name] .- μ[i]) ./ σ[i]
 	end
-	newdata[!, :Test] = data[!, :Test]
+	for n in intersect([:Test, :Id], names(data))
+		newdata[!,n] = data[!,n]
+	end
 	return newdata
 end
 
@@ -47,22 +46,39 @@ end
 	Returns:
 		- a vector of length nrow(data) with the values of Y
 """
-function linear_y(data::DataFrame; soft_threshold::Real=0.1, SNR::Real=4)
-	@assert soft_threshold >= 0.0
-	n, p = Base.size(data)
-	# sample coefficients
-	wtrue = softthresholding.(randn(p), λ=soft_threshold)
-	btrue = rand(1)
-	# remove coefficient for Test column
-	test_index = findfirst(names(data) .== :Test)
-	wtrue[test_index] = 0.
-	# standardize and generate Y
-	newdata = standardize(data, separate_test = false)
-	Y = Matrix{Float64}(newdata) * wtrue .+ btrue
-	# add noise
-	noise = randn(nrow(newdata))
-	noise .*= norm(Y) / norm(noise) / SNR
-	return Y .+ noise
+function linear_y(data::DataFrame;
+	soft_threshold::Real=0.1, SNR::Real=4,
+    canbemissing=falses(Base.size(data,2)), #indicates which features can be missing
+    n_missing_in_signal::Int=0) #indicates the number of potentially missing features in signal
+
+    @assert soft_threshold >= 0.0
+    @assert SNR >= 0.0
+
+    feature_names = names(data);
+    nevermissing_features = feature_names[.!canbemissing]; missing_features = feature_names[canbemissing]
+    setdiff!(nevermissing_features, [:Test, :Id]); setdiff!(missing_features, [:Test, :Id]);
+
+    n_missing_in_signal = min(n_missing_in_signal, length(missing_features))
+    #Standardize
+    newdata = standardize(data)
+
+    Y = zeros(nrow(newdata))
+    #For nevermissing features, sample with soft thresholding
+    p1 = length(nevermissing_features)
+    w1 = softthresholding.(randn(p1), λ=soft_threshold)
+    Y += Matrix{Float64}(newdata[:,nevermissing_features])*w1
+    #For missing feautres, choose
+	if n_missing_in_signal > 0
+	    support = shuffle(missing_features)[1:n_missing_in_signal]
+	    w2 = randn(n_missing_in_signal)
+	    Y += Matrix{Float64}(newdata[:,support])*w2
+	end
+    #Add bias
+    btrue = rand(1); Y .+= btrue
+    #Add noise
+    noise = randn(nrow(newdata)); noise .*= norm(Y) / norm(noise) / SNR
+
+    return Y .+ noise, p1+n_missing_in_signal
 end
 
 """
@@ -73,7 +89,7 @@ function softthresholding(x::Real; λ::Real=0.1)
         return x - λ
     elseif x < -λ
         return x + λ
-    else 
-        return 0 
+    else
+        return 0
     end
 end

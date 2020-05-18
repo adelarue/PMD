@@ -15,21 +15,26 @@ function mice(df::DataFrame)
 	@rput df
 	R"library(mice)"
 	R"library(dplyr)"
-	R"train = select(subset(as.data.frame(df), Test==0), -c(Test))"
+	R"train = select(df, -c('Id'))"
+
+	R"colnames <- names(train)"
+	R"names(train) <- make.names(colnames, unique=TRUE)"
 	# for some reason, sometimes columns are lists
-	R"train = t(apply(train, 1, unlist))"
-	R"imputed = mice(as.data.frame(train), m=1, printFlag=F)"
+	# R"train = t(apply(train, 1, unlist))"
+	R"imputed = mice(as.data.frame(train), m=2, method='cart')"
 	R"imputedtrain = complete(imputed, action=1)"
+	R"names(imputedtrain) <- colnames"
 	@rget imputedtrain
-	R"trainplus = select(as.data.frame(df), -c(Test))"
-	# for some reason, sometimes columns are lists
-	R"trainplus = t(apply(trainplus, 1, unlist))"
-	R"imputedplus = mice(as.data.frame(trainplus), m=1, printFlag=F)"
-	R"imputedtest = select(subset(mutate(complete(imputedplus, action=1), Test=df$Test), Test==1), -Test)"
-	@rget imputedtest
-	result[result.Test .== 0, setdiff(names(result), [:Test])] .= imputedtrain
-	result[result.Test .== 1, setdiff(names(result), [:Test])] .= imputedtest
-	return result
+	imputedtrain[!,:Id] = df[:,:Id]
+	# R"trainplus = select(as.data.frame(df), -c(Test))"
+	# # for some reason, sometimes columns are lists
+	# R"trainplus = t(apply(trainplus, 1, unlist))"
+	# R"imputedplus = mice(as.data.frame(trainplus), m=1, printFlag=F)"
+	# R"imputedtest = select(subset(mutate(complete(imputedplus, action=1), Test=df$Test), Test==1), -Test)"
+	# @rget imputedtest
+	# result[result.Test .== 0, setdiff(names(result), [:Test])] .= imputedtrain
+	# result[result.Test .== 1, setdiff(names(result), [:Test])] .= imputedtest
+	return imputedtrain
 end
 
 """
