@@ -20,7 +20,7 @@
 """
 function regress(Y::Array{Float64}, df::DataFrame;
 				 lasso::Bool=false, alpha::Real=0.8, missing_penalty::Real=1.0)
-	cols = setdiff(names(df), [:Test])
+	cols = setdiff(names(df), [:Id, :Test])
 	X = convert(Matrix, df[df[!, :Test] .== 0, cols])
 	y = convert(Array, Y[df[!, :Test] .== 0])
 	coefficients = DataFrame()
@@ -33,13 +33,13 @@ function regress(Y::Array{Float64}, df::DataFrame;
 		end
 		cv = glmnetcv(X, y, alpha=alpha, penalty_factor=penalty_factor)
 		for (i, col) in enumerate(cols)
-			coefficients[col] = ([cv.path.betas[i, argmin(cv.meanloss)]])
+			coefficients[!,col] = ([cv.path.betas[i, argmin(cv.meanloss)]])
 		end
 		coefficients[:Offset] = cv.path.a0[argmin(cv.meanloss)]
 	else
 		path = glmnet(X, y)
 		for (i, col) in enumerate(cols)
-			coefficients[col] = [path.betas[i, end]]
+			coefficients[!,col] = [path.betas[i, end]]
 		end
 		coefficients[:Offset] = path.a0[end]
 	end

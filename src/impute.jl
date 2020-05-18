@@ -19,9 +19,7 @@ function mice(df::DataFrame)
 
 	R"colnames <- names(train)"
 	R"names(train) <- make.names(colnames, unique=TRUE)"
-	# for some reason, sometimes columns are lists
-	# R"train = t(apply(train, 1, unlist))"
-	R"imputed = mice(as.data.frame(train), m=2, method='cart')"
+	R"imputed = mice(as.data.frame(train), m=2, printFlag=F)"
 	R"imputedtrain = complete(imputed, action=1)"
 	R"names(imputedtrain) <- colnames"
 	@rget imputedtrain
@@ -35,6 +33,30 @@ function mice(df::DataFrame)
 	# result[result.Test .== 0, setdiff(names(result), [:Test])] .= imputedtrain
 	# result[result.Test .== 1, setdiff(names(result), [:Test])] .= imputedtest
 	return imputedtrain
+end
+
+"""
+	Impute all missing values as mean
+"""
+function compute_mean(df::DataFrame)
+	numcols = filter(t->startswith(string(t),"N"), names(df))
+	nummeans = []
+	for c in numcols
+	    push!(nummeans, mean(skipmissing(df[:,c])))
+	end
+	return DataFrame(nummeans', numcols)
+end
+function mean_impute(df::DataFrame, means)
+	result = deepcopy(df)
+	for n in names(means)
+		result[!,n] = convert(Array{Union{Missing,Float64},1},result[:,n])
+		for i=1:nrow(df)
+			if ismissing(result[i, n])
+				result[i,n] = means[1,n]
+			end
+		end
+	end
+	return result
 end
 
 """
