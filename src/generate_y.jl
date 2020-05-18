@@ -17,7 +17,7 @@
 """
 function standardize(data::DataFrame)
 	# @assert count_missing_columns(data) == 0
-	truenames = setdiff(names(data), [:Test, :Id])
+	truenames = setdiff(names(data), [:Test, :Id, :Y])
 
 	μ = [mean(data[.!ismissing.(data[!, name]), name]) for name in truenames]
 	σ = [std(data[.!ismissing.(data[!, name]), name]) for name in truenames]
@@ -27,7 +27,7 @@ function standardize(data::DataFrame)
 	for (i, name) in enumerate(truenames)
 		newdata[!, name] = (data[!, name] .- μ[i]) ./ σ[i]
 	end
-	for n in intersect([:Test, :Id], names(data))
+	for n in intersect([:Test, :Id, :Y], names(data))
 		newdata[!,n] = data[!,n]
 	end
 	return newdata
@@ -78,7 +78,7 @@ function linear_y(data::DataFrame;
     #Add noise
     noise = randn(nrow(newdata)); noise .*= norm(Y) / norm(noise) / SNR
 
-    return Y .+ noise, p1+n_missing_in_signal
+    return Y .+ noise, p1+n_missing_in_signal, n_missing_in_signal
 end
 
 """
