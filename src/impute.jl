@@ -11,11 +11,10 @@ using RCall, DataFrames, CSV
 	Imputes training set alone, then testing set with training set
 """
 function mice(df::DataFrame)
-	result = deepcopy(df)
-	@rput df
+	aux = select(df, Not(:Id))
 	R"library(mice)"
 	R"library(dplyr)"
-	R"train = select(df, -c('Id'))"
+	R"train = $aux"
 
 	R"colnames <- names(train)"
 	R"names(train) <- make.names(colnames, unique=TRUE)"
