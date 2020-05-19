@@ -27,9 +27,9 @@ for ARG in ARGS
     n_missingsignal = missingsignal_list[aux_num]
 
     # Read in a data file.
-    X_missing = DataFrame(CSV.read("../datasets/"*dname*"/X_missing.csv", missingstrings=["", "NaN"])) #df with missing values
+    X_missing = PHD.standardize_colnames(DataFrame(CSV.read("../datasets/"*dname*"/X_missing.csv", missingstrings=["", "NaN"]))) #df with missing values
     canbemissing = [any(ismissing.(X_missing[:,j])) for j in names(X_missing)] #indicator of missing features
-    X_full = DataFrame(CSV.read("../datasets/"*dname*"/X_full.csv")) #ground truth df
+    X_full = PHD.standardize_colnames(DataFrame(CSV.read("../datasets/"*dname*"/X_full.csv"))) #ground truth df
 
     # Create output
     Random.seed!(549)
@@ -44,7 +44,7 @@ for ARG in ARGS
         test_ind = rand(nrow(X_missing)) .< test_prop ;
 
         ## Method 1.1
-        X_imputed = PHD.mice(X_missing);
+        X_imputed = PHD.mice_bruteforce(X_missing);
         df = deepcopy(X_imputed)
         df[!,:Test] = test_ind
         linear, bestparams = PHD.regress_cv(Y, df, lasso=[true], alpha=[0.7,0.8,0.9,1.0])
@@ -53,8 +53,9 @@ for ARG in ARGS
         CSV.write("../results/"*filename, results_table)
 
         ## Method 1.2
-        df = deepcopy(X_imputed)
-        X_train_imputed = PHD.mice(df[.!test_ind,:]);
+        df = deepcopy(X_missing)
+        X_train_imputed = PHD.mice_bruteforce(df[.!test_ind,:]);
+        select!(df, names(X_train_imputed))
         df[.!test_ind,:] .= X_train_imputed
         X_all_imputed = PHD.mice(df);
         df = deepcopy(X_all_imputed)
@@ -65,9 +66,10 @@ for ARG in ARGS
         CSV.write("../results/"*filename, results_table)
 
         ## Method 1.3
-        df = deepcopy(X_imputed)
-        X_train_imputed = PHD.mice(df[.!test_ind,:]);
-        X_all_imputed = PHD.mice(df);
+        df = deepcopy(X_missing)
+        X_train_imputed = PHD.mice_bruteforce(df[.!test_ind,:]);
+        X_all_imputed = PHD.mice_bruteforce(df[:,names(X_train_imputed)]);
+        select!(df, names(X_train_imputed))
         df[.!test_ind,:] .= X_train_imputed
         df[test_ind,:] .= X_all_imputed[test_ind,:]
         df[!,:Test] = test_ind

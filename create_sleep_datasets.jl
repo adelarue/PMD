@@ -5,8 +5,6 @@
 ### 	see https://cran.r-project.org/web/packages/VIM/VIM.pdf
 ### Authors: Arthur Delarue, Jean Pauphilet, 2019
 ###################################
-using Pkg
-Pkg.activate(".")
 
 using RDatasets, RCall, DataFrames, CSV, UCIData
 using Random, Printf
@@ -56,11 +54,14 @@ function impute_data(df, df_name)
     end
 
     Y = DataFrame(target=zeros(size(df,1)))
-    istarget = :target ∈ names(df)
+    targetnames = [n for n in names(df) if occursin("target", string(n))]
+    istarget = length(targetnames) > 0
     if istarget
-        Y[!,:target] .= df[:, :target]
+        for n in targetnames
+            Y[!,n] .= df[:, n]
+        end
     end
-    select!(df, Not(intersect(names(df), [:target])))
+    select!(df, Not(intersect(names(df), targetnames)))
 
     R"impute = missForest($df)"
     R"imputeddf <- impute$ximp"
@@ -86,28 +87,32 @@ Random.seed!(1515)
 # NUM_IMPUTATIONS = 20
 # TEST_FRACTION = 0.3
 
+folderlist = readdir("./results/")
+
 # Get dataset, and impute it using missForest
-R"library(VIM)"
-R"data(sleep, package='VIM')"
-R"sleep = as.data.frame(scale(sleep))"
-@rget sleep
-nan_to_missing!(sleep)
-impute_data(sleep, "sleep")
+# R"library(VIM)"
+# R"data(sleep, package='VIM')"
+# R"sleep = as.data.frame(scale(sleep))"
+# @rget sleep
+# nan_to_missing!(sleep)
+# impute_data(sleep, "sleep")
 
 for task in ["classification", "regression"]
 	for n in UCIData.list_datasets(task)#[1:5]
-		@show n
-		df = UCIData.dataset(n)
-		# if any([startswith(k,"C") for k in String.(names(df))])
-			df = onehotencode(df) #One-hot encode categorical columns
-		# end
-		if any(.!completecases(df)) || any([endswith(k,"_Missing") for k in String.(names(df))])
-			# @show n
-            select!(df, Not(intersect(names(df), [:id])))
+        if n ∉ folderlist || "Y.csv" ∉ readdir("./results/"*n*"/")
+            @show n
+    		df = UCIData.dataset(n)
+    		# if any([startswith(k,"C") for k in String.(names(df))])
+    			df = onehotencode(df) #One-hot encode categorical columns
+    		# end
+    		if any(.!completecases(df)) || any([endswith(k,"_Missing") for k in String.(names(df))])
+    			# @show n
+                select!(df, Not(intersect(names(df), [:id])))
 
-			if size(df, 2) > 1
-				impute_data(df, n)
-			end
-		end
+    			if size(df, 2) > 1
+    				impute_data(df, n)
+    			end
+    		end
+        end
 	end
 end
