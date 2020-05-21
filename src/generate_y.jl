@@ -68,6 +68,7 @@ function linear_y(data::DataFrame;
     w1 = softthresholding.(randn(p1), λ=soft_threshold)
     Y += Matrix{Float64}(newdata[:,nevermissing_features])*w1
     #For missing feautres, choose
+	@show n_missing_in_signal
 	if n_missing_in_signal > 0
 	    support = shuffle(missing_features)[1:n_missing_in_signal]
 	    w2 = randn(n_missing_in_signal)
