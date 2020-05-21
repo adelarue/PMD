@@ -22,7 +22,7 @@ end
 """
 	Impute missing values in a dataset using mice
 """
-function mice(df::DataFrame; m=2, maxit=5)
+function mice(df::DataFrame; m_imputation=2, max_epoch=5)
 	aux = select(df, Not(:Id))
 	R"library(mice)"
 	R"library(dplyr)"
@@ -30,7 +30,7 @@ function mice(df::DataFrame; m=2, maxit=5)
 
 	R"colnames <- names(train)"
 	R"names(train) <- make.names(colnames, unique=TRUE)"
-	R"imputed = mice(as.data.frame(train), m=$m, maxit=$maxit, printFlag=F)"
+	R"imputed = mice(as.data.frame(train), m=$m_imputation, maxit=$max_epoch, printFlag=F, seed=4326)"
 	R"imputedtrain = complete(imputed, action=1)"
 	R"names(imputedtrain) <- colnames"
 	@rget imputedtrain
@@ -46,14 +46,14 @@ function mice(df::DataFrame; m=2, maxit=5)
 	return imputedtrain
 end
 
-function mice_bruteforce(df::DataFrame; m=2, maxit=5)
-	df_imputed = PHD.mice(df, m=m, maxit=maxit)
-	if any([mean(ismissing.(df_imputed[:,k])) > 0 for k in names(df)]) #If some columns are still missing
-        df_imputed = PHD.mice(df_imputed, m=5, maxit=30) #Reimpute with more effort
-    end
-    if any([mean(ismissing.(df_imputed[:,k])) > 0 for k in names(df)]) #If still some columns are still missing
-        select!(df_imputed, Not([k for k in names(df) if mean(ismissing.(df_imputed[:,k])) > 0])) #Drop
-    end
+function mice_bruteforce(df::DataFrame; m_imputation=2, max_epoch=5)
+	df_imputed = PHD.mice(df, m_imputation=m_imputation, max_epoch=max_epoch)
+	# if any([mean(ismissing.(df_imputed[:,k])) > 0 for k in names(df)]) #If some columns are still missing
+    #     df_imputed = PHD.mice(df_imputed, m_imputation=5, max_epoch=30) #Reimpute with more effort
+    # end
+    # if any([mean(ismissing.(df_imputed[:,k])) > 0 for k in names(df)]) #If still some columns are still missing
+    #     select!(df_imputed, Not([k for k in names(df) if mean(ismissing.(df_imputed[:,k])) > 0])) #Drop
+    # end
 	return df_imputed
 end
 
