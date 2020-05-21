@@ -43,6 +43,14 @@ for ARG in ARGS
         # Split train / test
         test_ind = rand(nrow(X_missing)) .< test_prop ;
 
+        ## Method 0
+        df = X_missing[:,.!canbemissing]
+        df[!,:Test] = test_ind
+        linear, bestparams = PHD.regress_cv(Y, df, lasso=[true], alpha=[0.7,0.8,0.9,1.0])
+        R2, OSR2 = PHD.evaluate(Y, df, linear)
+        push!(results_table, [dname, SNR, k, k_missing, iter, "Complete Features", OSR2])
+        CSV.write("../results/"*filename, results_table)
+
         ## Method 1.1
         X_imputed = PHD.mice_bruteforce(X_missing);
         df = deepcopy(X_imputed)
@@ -94,7 +102,7 @@ for ARG in ARGS
         X_augmented = hcat(PHD.zeroimpute(df), PHD.indicatemissing(df, removezerocols=true))
         linear2, bestparams2 = PHD.regress_cv(Y, X_augmented, lasso=[true],
                                                 alpha=[0.7,0.8,0.9,1.0],
-                                                missing_penalty=[2.0, 4.0, 8.0, 16.0])
+                                                missing_penalty=[2.0,4.0,6.0,8.0,12.0,16.0])
         R2, OSR2 = PHD.evaluate(Y, X_augmented, linear2)
         push!(results_table, [dname, SNR, k, k_missing, iter, "Static", OSR2])
         CSV.write("../results/"*filename, results_table)
@@ -103,8 +111,8 @@ for ARG in ARGS
         df = deepcopy(X_missing)
         df[!,:Test] = test_ind
         X_affine = PHD.augmentaffine(df, removezerocols=true)
-        linear3, bestparams3 = PHD.regress_cv(Y, X_affine, lasso=[true], alpha=[0.8],
-                                              missing_penalty=[10.0, 20.0, 40.0, 80.0, 160.0])
+        linear3, bestparams3 = PHD.regress_cv(Y, X_affine, lasso=[true], alpha=[0.7,0.8,0.9,1.0],
+                                              missing_penalty=[2.0,4.0,6.0,8.0,12.0,16.0])
         R2, OSR2 = PHD.evaluate(Y, X_affine, linear3)
         push!(results_table, [dname, SNR, k, k_missing, iter, "Affine", OSR2])
         CSV.write("../results/"*filename, results_table)
