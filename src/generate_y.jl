@@ -75,7 +75,7 @@ function linear_y(data::DataFrame;
 	    Y += Matrix{Float64}(newdata[:,support])*w2
 	end
     #Add bias
-    btrue = rand(1); Y .+= btrue
+    btrue = randn(1); Y .+= btrue
     #Add noise
     noise = randn(nrow(newdata)); noise .*= norm(Y) / norm(noise) / SNR
 
