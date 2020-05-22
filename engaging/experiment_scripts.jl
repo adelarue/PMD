@@ -13,7 +13,10 @@ missingsignal_list = [0,1,2,3,4,5,6,7,8,9,10]
 if !isdir("../results")
     mkdir("../results")
 end
-
+savedir = "../results/fakey/"
+if !isdir(savedir)
+    mkdir(savedir)
+end
 SNR = 2
 
 results_main = DataFrame(dataset=[], SNR=[], k=[], kMissing=[], splitnum=[], method=[], osr2=[])
@@ -51,7 +54,7 @@ for ARG in ARGS
         linear, bestparams = PHD.regress_cv(Y, df, lasso=[true], alpha=[0.7,0.8,0.9,1.0])
         R2, OSR2 = PHD.evaluate(Y, df, linear)
         push!(results_table, [dname, SNR, k, k_missing, iter, "Complete Features", OSR2])
-        CSV.write("../results/"*filename, results_table)
+        CSV.write(savedir*filename, results_table)
 
         ## Method 1.1
         X_imputed = PHD.mice_bruteforce(X_missing);
@@ -60,7 +63,7 @@ for ARG in ARGS
         linear, bestparams = PHD.regress_cv(Y, df, lasso=[true], alpha=[0.7,0.8,0.9,1.0])
         R2, OSR2 = PHD.evaluate(Y, df, linear)
         push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 1", OSR2])
-        CSV.write("../results/"*filename, results_table)
+        CSV.write(savedir*filename, results_table)
 
         ## Method 1.2
         df = deepcopy(X_missing)
@@ -73,7 +76,7 @@ for ARG in ARGS
         linear, bestparams = PHD.regress_cv(Y, df, lasso=[true], alpha=[0.7,0.8,0.9,1.0])
         R2, OSR2 = PHD.evaluate(Y, df, linear)
         push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 2", OSR2])
-        CSV.write("../results/"*filename, results_table)
+        CSV.write(savedir*filename, results_table)
 
         ## Method 1.3
         df = deepcopy(X_missing)
@@ -86,7 +89,7 @@ for ARG in ARGS
         linear, bestparams = PHD.regress_cv(Y, df, lasso=[true], alpha=[0.7,0.8,0.9,1.0])
         R2, OSR2 = PHD.evaluate(Y, df, linear)
         push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 3", OSR2])
-        CSV.write("../results/"*filename, results_table)
+        CSV.write(savedir*filename, results_table)
 
         ## Method 1.4
         means_df = PHD.compute_mean(X_missing[.!test_ind,:])
@@ -96,7 +99,7 @@ for ARG in ARGS
         linear, bestparams = PHD.regress_cv(Y, df, lasso=[true], alpha=[0.7,0.8,0.9,1.0])
         R2, OSR2 = PHD.evaluate(Y, df, linear)
         push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 4", OSR2])
-        CSV.write("../results/"*filename, results_table)
+        CSV.write(savedir*filename, results_table)
 
         ## Method 2: Static Adaptability
         df = deepcopy(X_missing)
@@ -107,7 +110,7 @@ for ARG in ARGS
                                                 missing_penalty=[2.0,4.0,6.0,8.0,12.0,16.0])
         R2, OSR2 = PHD.evaluate(Y, X_augmented, linear2)
         push!(results_table, [dname, SNR, k, k_missing, iter, "Static", OSR2])
-        CSV.write("../results/"*filename, results_table)
+        CSV.write(savedir*filename, results_table)
 
         ## Method 3: Affine Adaptability
         df = deepcopy(X_missing)
@@ -117,6 +120,6 @@ for ARG in ARGS
                                               missing_penalty=[2.0,4.0,6.0,8.0,12.0,16.0])
         R2, OSR2 = PHD.evaluate(Y, X_affine, linear3)
         push!(results_table, [dname, SNR, k, k_missing, iter, "Affine", OSR2])
-        CSV.write("../results/"*filename, results_table)
+        CSV.write(savedir*filename, results_table)
     end
 end
