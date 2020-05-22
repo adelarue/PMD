@@ -46,6 +46,7 @@ for ARG in ARGS
         filename = string(dname, "_SNR_", SNR, "_nmiss_", n_missingsignal, "_$iter.csv")
 
         # Split train / test
+        Random.seed!(56802+767*i)
         test_ind = rand(nrow(X_missing)) .< test_prop ;
 
         ## Method 0

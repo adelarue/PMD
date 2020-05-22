@@ -29,7 +29,6 @@ for ARG in ARGS
     X_full = PHD.standardize_colnames(DataFrame(CSV.read("../datasets/"*dname*"/X_full.csv"))) #ground truth df
 
     # Create output
-    Random.seed!(549)
     # @time Y, k, k_missing = PHD.linear_y(X_full, soft_threshold=0.1, SNR=SNR, canbemissing=canbemissing, n_missing_in_signal=n_missingsignal) ;
     Y = convert(Array{Float64}, DataFrame(CSV.read("../datasets/"*dname*"/Y.csv", missingstrings=["", "NaN"]))[:,:target])
     test_prop = .3
@@ -42,6 +41,7 @@ for ARG in ARGS
 
             filename = string(dname, "_real_Y", "_$iter.csv")
 
+            Random.seed!(2142+767*i)
             # Split train / test
             test_ind = rand(nrow(X_missing)) .< test_prop ;
 
