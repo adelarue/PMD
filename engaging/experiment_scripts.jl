@@ -16,7 +16,7 @@ end
 
 SNR = 2
 
-results_table = DataFrame(dataset=[], SNR=[], k=[], kMissing=[], splitnum=[], method=[], osr2=[])
+results_main = DataFrame(dataset=[], SNR=[], k=[], kMissing=[], splitnum=[], method=[], osr2=[])
 
 for ARG in ARGS
     array_num = parse(Int, ARG)
@@ -38,6 +38,8 @@ for ARG in ARGS
     test_prop = .3
 
     for iter in 1:10
+        results_table = similar(results_main,0)
+
         filename = string(dname, "_SNR_", SNR, "_nmiss_", n_missingsignal, "_$iter.csv")
 
         # Split train / test

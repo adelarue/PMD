@@ -15,7 +15,7 @@ savedir = "../results/realy/"
 if !isdir(savedir)
     mkdir(savedir)
 end
-results_table = DataFrame(dataset=[], splitnum=[], method=[], osr2=[])
+results_main = DataFrame(dataset=[], splitnum=[], method=[], osr2=[])
 
 for ARG in ARGS
     d_num = parse(Int, ARG)
@@ -36,6 +36,8 @@ for ARG in ARGS
 
     if Base.size(DataFrame(CSV.read("../datasets/"*dname*"/Y.csv", missingstrings=["", "NaN"])),2) <=2
         for iter in 1:10
+            results_table = similar(results_main,0)
+            
             filename = string(dname, "_real_Y", "_$iter.csv")
 
             # Split train / test
