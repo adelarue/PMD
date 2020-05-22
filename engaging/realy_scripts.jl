@@ -22,7 +22,7 @@ for ARG in ARGS
 
     dname = dataset_list[d_num]#"dermatology" #"""thyroid-disease-thyroid-0387" #dataset_list[1]
     # n_missingsignal = missingsignal_list[aux_num]
-
+    @show dname
     # Read in a data file.
     X_missing = PHD.standardize_colnames(DataFrame(CSV.read("../datasets/"*dname*"/X_missing.csv", missingstrings=["", "NaN"]))) #df with missing values
     canbemissing = [any(ismissing.(X_missing[:,j])) for j in names(X_missing)] #indicator of missing features
@@ -34,10 +34,12 @@ for ARG in ARGS
     Y = DataFrame(CSV.read("../datasets/"*dname*"/Y.csv", missingstrings=["", "NaN"]))[:,:target]
     test_prop = .3
 
-    if Base.size(DataFrame(CSV.read("../datasets/"*dname*"/Y.csv", missingstrings=["", "NaN"])),2) <=2
+    ntargets = Base.size(DataFrame(CSV.read("../datasets/"*dname*"/Y.csv", missingstrings=["", "NaN"])),2)
+    @show ntargets
+    if ntargets <= 2
         for iter in 1:10
             results_table = similar(results_main,0)
-            
+
             filename = string(dname, "_real_Y", "_$iter.csv")
 
             # Split train / test
