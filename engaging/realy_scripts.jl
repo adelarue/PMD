@@ -31,7 +31,7 @@ for ARG in ARGS
     # Create output
     Random.seed!(549)
     # @time Y, k, k_missing = PHD.linear_y(X_full, soft_threshold=0.1, SNR=SNR, canbemissing=canbemissing, n_missing_in_signal=n_missingsignal) ;
-    Y = DataFrame(CSV.read("../datasets/"*dname*"/Y.csv", missingstrings=["", "NaN"]))[:,:target]
+    Y = convert(Array{Float64}, DataFrame(CSV.read("../datasets/"*dname*"/Y.csv", missingstrings=["", "NaN"]))[:,:target])
     test_prop = .3
 
     ntargets = Base.size(DataFrame(CSV.read("../datasets/"*dname*"/Y.csv", missingstrings=["", "NaN"])),2)
