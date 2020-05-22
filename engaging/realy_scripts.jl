@@ -41,7 +41,7 @@ for ARG in ARGS
 
             filename = string(dname, "_real_Y", "_$iter.csv")
 
-            Random.seed!(2142+767*i)
+            Random.seed!(2142+767*iter)
             # Split train / test
             test_ind = rand(nrow(X_missing)) .< test_prop ;
 
