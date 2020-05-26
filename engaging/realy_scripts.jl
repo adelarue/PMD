@@ -18,7 +18,9 @@ end
 results_main = DataFrame(dataset=[], splitnum=[], method=[], osr2=[])
 
 for ARG in ARGS
-    d_num = parse(Int, ARG)
+    array_num = parse(Int, ARG)
+    d_num = mod(array_num, 39) + 1
+    iter = div(array_num,39) + 1
 
     dname = dataset_list[d_num]#"dermatology" #"""thyroid-disease-thyroid-0387" #dataset_list[1]
     # n_missingsignal = missingsignal_list[aux_num]
@@ -30,11 +32,10 @@ for ARG in ARGS
 
     # Create output
     # @time Y, k, k_missing = PHD.linear_y(X_full, soft_threshold=0.1, SNR=SNR, canbemissing=canbemissing, n_missing_in_signal=n_missingsignal) ;
-    Y = convert(Array{Float64}, DataFrame(CSV.read("../datasets/"*dname*"/Y.csv", missingstrings=["", "NaN"]))[:,:target])
     test_prop = .3
 
     target_list = names(DataFrame(CSV.read("../datasets/"*dname*"/Y.csv", missingstrings=["", "NaN"])))
-    @show length(target_list)
+    # @show length(target_list)
 
     Y = zeros(Base.size(X_missing,1))
     if length(target_list) <= 2
@@ -49,8 +50,8 @@ for ARG in ARGS
     Y = Y[ind_availtarget]
     X_missing = X_missing[ind_availtarget,:]
     X_full = X_full[ind_availtarget,:]
-    
-    for iter in 1:10
+
+    # for iter in 1:10
         results_table = similar(results_main,0)
 
         filename = string(dname, "_real_Y", "_$iter.csv")
@@ -132,5 +133,5 @@ for ARG in ARGS
         R2, OSR2 = PHD.evaluate(Y, X_affine, linear3)
         push!(results_table, [dname, iter, "Affine", OSR2])
         CSV.write(savedir*filename, results_table)
-    end
+    # end
 end
