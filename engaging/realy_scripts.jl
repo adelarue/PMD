@@ -45,7 +45,11 @@ for ARG in ARGS
         sort!(target_list)
         Y = convert(Array{Float64}, DataFrame(CSV.read("../datasets/"*dname*"/Y.csv", missingstrings=["", "NaN"]))[:,target_list[1]])
     end
-
+    ind_availtarget = .! ismissing.(Y)
+    Y = Y[ind_availtarget]
+    X_missing = X_missing[ind_availtarget,:]
+    X_full = X_full[ind_availtarget,:]
+    
     for iter in 1:10
         results_table = similar(results_main,0)
 
