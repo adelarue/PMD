@@ -47,9 +47,9 @@ end
 		- a vector of length nrow(data) with the values of Y
 """
 function linear_y(data::DataFrame;
-	soft_threshold::Real=0.1, SNR::Real=4,
+	k::Real=20, SNR::Real=4,
     canbemissing=falses(Base.size(data,2)), #indicates which features can be missing
-    n_missing_in_signal::Int=0) #indicates the number of potentially missing features in signal
+    k_missing_in_signal::Int=0) #indicates the number of potentially missing features in signal
 
     @assert soft_threshold >= 0.0
     @assert SNR >= 0.0
