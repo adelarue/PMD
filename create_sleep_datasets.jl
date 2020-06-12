@@ -6,7 +6,7 @@
 ### Authors: Arthur Delarue, Jean Pauphilet, 2019
 ###################################
 
-using RDatasets, RCall, DataFrames, CSV, UCIData
+using RCall, DataFrames, CSV, UCIData
 using Random, Printf
 
 function nan_to_missing!(df::DataFrame)

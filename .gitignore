@@ -2,6 +2,7 @@
 notebooks/.ipynb_checkpoints
 datasets/
 results/
+*-old*
 
 *.aux
 *.log
