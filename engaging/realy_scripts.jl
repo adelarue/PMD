@@ -24,7 +24,7 @@ for ARG in ARGS
 
     dname = dataset_list[d_num]#"dermatology" #"""thyroid-disease-thyroid-0387" #dataset_list[1]
     # n_missingsignal = missingsignal_list[aux_num]
-    if d_num ∈ [8, 11, 24, 25, 28, 29, 37]
+    if d_num ∈ [24, 25, 28, 29, 37]
         @show dname
         # Read in a data file.
         X_missing = PHD.standardize_colnames(DataFrame(CSV.read("../datasets/"*dname*"/X_missing.csv", missingstrings=["", "NaN"]))) #df with missing values
@@ -49,7 +49,8 @@ for ARG in ARGS
         end
 
         ind_availtarget = .!ismissing.(Y)
-        Y = 1.0 .* Y[ind_availtarget]
+        Y = 1.0 .* Y[ind_availtarget] #Remove missing entries before converting to Float64 !
+        # Y = convert(Array{Float64}, 1.0 .* Y[ind_availtarget])
         X_missing = X_missing[ind_availtarget,:]
         X_full = X_full[ind_availtarget,:]
 
@@ -63,11 +64,15 @@ for ARG in ARGS
         test_ind = rand(nrow(X_missing)) .< test_prop ;
 
         ## Method 0
-        df = X_missing[:,.!canbemissing]
-        df[!,:Test] = test_ind
-        linear, bestparams = PHD.regress_cv(Y, df, lasso=[true], alpha=[0.7,0.8,0.9,1.0])
-        R2, OSR2 = PHD.evaluate(Y, df, linear)
-        push!(results_table, [dname, iter, "Complete Features", OSR2])
+        try
+            df = X_missing[:,.!canbemissing] #This step can raise an error if all features can be missing
+            df[!,:Test] = test_ind
+            linear, bestparams = PHD.regress_cv(Y, df, lasso=[true], alpha=[0.7,0.8,0.9,1.0])
+            R2, OSR2 = PHD.evaluate(Y, df, linear)
+            push!(results_table, [dname, iter, "Complete Features", OSR2])
+        catch #In this case, simply predict the mean - which leads to 0. OSR2
+            push!(results_table, [dname, iter, "Complete Features", 0.])
+        end
         CSV.write(savedir*filename, results_table)
 
         ## Method 1.1
