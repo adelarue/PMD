@@ -27,7 +27,7 @@ for ARG in ARGS
     aux_num = div(array_num,39) + 1
 
     dname = dataset_list[d_num]#"dermatology" #"""thyroid-disease-thyroid-0387" #dataset_list[1]
-    n_missingsignal = missingsignal_list[aux_num]
+    k_missingsignal = missingsignal_list[aux_num]
 
     # Read in a data file.
     X_missing = PHD.standardize_colnames(DataFrame(CSV.read("../datasets/"*dname*"/X_missing.csv", missingstrings=["", "NaN"]))) #df with missing values
@@ -36,7 +36,7 @@ for ARG in ARGS
 
     # Create output
     Random.seed!(549)
-    @time Y, k, k_missing = PHD.linear_y(X_full, soft_threshold=0.1, SNR=SNR, canbemissing=canbemissing, n_missing_in_signal=n_missingsignal) ;
+    @time Y, k, k_missing = PHD.linear_y(X_full, soft_threshold=0.1, SNR=SNR, canbemissing=canbemissing, k_missing_in_signal=k_missingsignal) ;
 
     test_prop = .3
 
