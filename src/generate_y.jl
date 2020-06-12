@@ -46,9 +46,10 @@ end
 	Returns:
 		- a vector of length nrow(data) with the values of Y
 """
-function linear_y(data::DataFrame;
+function linear_y(data::DataFrame, data_missing::DataFrame;
 	k::Real=10, SNR::Real=4,
     canbemissing=falses(Base.size(data,2)), #indicates which features can be missing
+	mar::Bool=true,
     k_missing_in_signal::Int=0) #indicates the number of potentially missing features in signal
 
     @assert k >= 0.0
@@ -78,6 +79,10 @@ function linear_y(data::DataFrame;
 	    support = shuffle(missing_features)[1:k_missing_in_signal]
 	    w2 = 2*rand(k_missing_in_signal) .- 1
 	    Y += Matrix{Float64}(newdata[:,support])*w2
+		if !mar
+			w2m = 2*rand(k_missing_in_signal) .- 1
+			Y += Matrix{Float64}(1.0 .* ismissing.(data_missing[:,support]) )*w2m
+		end
 	end
     #Add bias
     btrue = randn(1); Y .+= btrue
