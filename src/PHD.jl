@@ -8,7 +8,7 @@ using DataFrames, CSV
 using RCall
 using GLMNet
 using Statistics, LinearAlgebra, Printf, Random
-using DataStructures
+using DataStructures, StatsBase
 
 include("count.jl")
 include("impute.jl")

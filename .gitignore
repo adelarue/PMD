@@ -1,8 +1,10 @@
+Manifest.toml
 .DS_Store
 notebooks/.ipynb_checkpoints
 datasets/
 results/
 *-old*
+*.Rhistory
 
 *.aux
 *.log
