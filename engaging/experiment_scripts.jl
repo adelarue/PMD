@@ -36,7 +36,7 @@ for ARG in ARGS
 
     # Create output
     Random.seed!(549)
-    @time Y, k, k_missing = PHD.linear_y(X_full, k=10, SNR=SNR, canbemissing=canbemissing, k_missing_in_signal=k_missingsignal) ;
+    @time Y, k, k_missing = PHD.linear_y(X_full, X_missing, k=10, SNR=SNR, canbemissing=canbemissing, k_missing_in_signal=k_missingsignal) ;
 
     test_prop = .3
 
