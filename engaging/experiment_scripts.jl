@@ -36,14 +36,14 @@ for ARG in ARGS
 
     # Create output
     Random.seed!(549)
-    @time Y, k, k_missing = PHD.linear_y(X_full, X_missing, k=10, SNR=SNR, canbemissing=canbemissing, k_missing_in_signal=k_missingsignal) ;
+    @time Y, k, k_missing = PHD.linear_y(X_full, X_missing, k=10, SNR=SNR, canbemissing=canbemissing, k_missing_in_signal=k_missingsignal, mar=true) ;
 
     test_prop = .3
 
     for iter in 1:10
         results_table = similar(results_main,0)
 
-        filename = string(dname, "_SNR_", SNR, "_nmiss_", n_missingsignal, "_$iter.csv")
+        filename = string(dname, "_SNR_", SNR, "_nmiss_", k_missingsignal, "_$iter.csv")
 
         # Split train / test
         Random.seed!(56802+767*iter)
