@@ -13,7 +13,8 @@ patterndata = DataFrame(Name = datasets, Num_Patterns = zeros(Int, length(datase
 	                    p_miss = zeros(Int, length(datasets)),
 	                    Most_Frequent_Count = zeros(Int, length(datasets)),
 	                    Least_Frequent_Count = zeros(Int, length(datasets)),
-	                    Fully_Observed_Count = zeros(Int, length(datasets)))
+	                    Fully_Observed_Count = zeros(Int, length(datasets)),
+	                    Good_Turing_Prob = zeros(Float64, length(datasets)))
 
 for i = 1:nrow(patterndata)
 	df = CSV.read("../datasets/" * patterndata[i, :Name] * "/X_missing.csv", missingstrings=["", "NaN"])
@@ -30,7 +31,8 @@ for i = 1:nrow(patterndata)
 	else
 		patterndata[i, :Fully_Observed_Count] = 0
 	end
+	patterndata[i, :Good_Turing_Prob] = sum(counts .== 1)/nrow(df)
 	@show patterndata[i, :]
 end
 
-CSV.write("../results/pattern_counts.csv", patterndata)
+CSV.write("../results/pattern_counts_new.csv", patterndata)
