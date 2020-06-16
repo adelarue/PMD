@@ -4,13 +4,12 @@
 ### Authors: Arthur Delarue, Jean Pauphilet, 2019
 ###################################
 
-using RCall, DataFrames, CSV
 """
 	Standardize column names R-style
 """
 function standardize_colnames(df::DataFrame)
 	aux = select(df, Not(:Id))
-	R"library(dplyr)"
+	load_R_library("dplyr")
 	R"train = $aux"
 	R"colnames <- names(train)"
 	R"names(train) <- make.names(colnames, unique=TRUE)"
@@ -24,8 +23,8 @@ end
 """
 function mice(df::DataFrame; m_imputation=2, max_epoch=5)
 	aux = select(df, Not(:Id))
-	R"library(mice)"
-	R"library(dplyr)"
+	load_R_library("mice")
+	load_R_library("dplyr")
 	R"train = $aux"
 
 	R"colnames <- names(train)"
