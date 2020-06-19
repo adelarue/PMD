@@ -5,7 +5,7 @@
 module PHD
 
 using DataFrames, CSV
-using UCIData, RDatasets
+using RDatasets
 using RCall
 using GLMNet
 using Statistics, LinearAlgebra, Printf, Random
