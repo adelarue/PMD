@@ -49,6 +49,14 @@ for ARG in ARGS
         Random.seed!(56802+767*iter)
         test_ind = rand(nrow(X_missing)) .< test_prop ;
 
+        ## Method Oracle
+        df = X_full[:,:]
+        df[!,:Test] = test_ind
+        linear, bestparams = PHD.regress_cv(Y, df, lasso=[true], alpha=[0.7,0.8,0.9,1.0])
+        R2, OSR2 = PHD.evaluate(Y, df, linear)
+        push!(results_table, [dname, SNR, k, k_missing, iter, "Oracle", OSR2])
+        CSV.write(savedir*filename, results_table)
+
         ## Method 0
         df = X_missing[:,.!canbemissing]
         df[!,:Test] = test_ind
