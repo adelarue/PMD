@@ -55,16 +55,16 @@ function linear_y(data::DataFrame, data_missing::DataFrame;
     @assert k >= 0.0
     @assert SNR >= 0.0
 
-    feature_names = names(data);
+    feature_names = setdiff(names(data), [:Test, :Id]);
     nevermissing_features = feature_names[.!canbemissing]; missing_features = feature_names[canbemissing]
     setdiff!(nevermissing_features, [:Test, :Id]); setdiff!(missing_features, [:Test, :Id]);
 
-	k = min(k, length(setdiff(feature_names, [:Test, :Id])))
+	k = min(k, length(feature_names))
     k_missing_in_signal = min(k_missing_in_signal, length(missing_features))
 	k_non_missing = max(k - k_missing_in_signal, 0)
 
     #Standardize
-    newdata = standardize(data)
+    newdata = standardize(data[:,feature_names])
 
     Y = zeros(nrow(newdata))
     #For nevermissing features, choose then generate

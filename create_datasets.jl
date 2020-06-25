@@ -11,7 +11,8 @@ Pkg.activate(".")
 
 using Revise
 using PHD
-using UCIData, RCall, Random, DataFrames, CSV
+# using UCIData
+using RCall, Random, DataFrames, CSV
 
 """
 	Create datasets from UCI data repository
