@@ -51,7 +51,7 @@ end
 """
 function predict(df::DataFrame, model::DataFrame)
 	prediction = model[1, :Offset] .* ones(nrow(df))
-	for name in setdiff(Symbol.(names(model)) [:Offset])
+	for name in setdiff(Symbol.(names(model)), [:Offset])
 		prediction .+= (model[1, name]*df[:,name])
 	end
 	return prediction
