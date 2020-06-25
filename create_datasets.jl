@@ -47,5 +47,5 @@ function create_uci_datasets()
 	end
 end
 
-create_uci_datasets()
+# create_uci_datasets()
 PHD.create_r_datasets()
