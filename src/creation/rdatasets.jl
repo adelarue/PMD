@@ -319,7 +319,7 @@ function create_r_datasets()
     		if df != nothing
 				df = onehotencode(df) #One-hot encode categorical columns
 	    		if any(.!completecases(df)) || any([endswith(k,"_Missing") for k in String.(names(df))])
-	                select!(df, Not(intersect(names(df), [:id])))
+	                select!(df, Not(intersect(Symbol.(names(df)), [:id])))
 	    			if ncol(df) > 1
 	    				impute_data(df, n)
 	    			end
@@ -328,6 +328,3 @@ function create_r_datasets()
         end
 	end
 end
-
-
-
