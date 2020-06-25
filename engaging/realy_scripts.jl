@@ -7,6 +7,7 @@ using PHD
 using Random, Statistics, CSV, DataFrames, LinearAlgebra
 
 dataset_list = [d for d in split.(read(`ls ../datasets/`, String), "\n") if length(d) > 0]
+sort!(dataset_list)
 
 if !isdir("../results")
     mkdir("../results")
