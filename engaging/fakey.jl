@@ -7,6 +7,7 @@ using PHD
 using Random, Statistics, CSV, DataFrames, LinearAlgebra
 
 dataset_list = [d for d in split.(read(`ls ../datasets/`, String), "\n") if length(d) > 0]
+sort!(dataset_list)
 # SNR_list = [2, 1, .5]
 missingsignal_list = [0,1,2,3,4,5,6,7,8,9,10]
 
