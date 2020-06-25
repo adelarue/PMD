@@ -20,7 +20,7 @@
 """
 function regress(Y::Array{Float64}, df::DataFrame;
 				 lasso::Bool=false, alpha::Real=0.8, missing_penalty::Real=1.0)
-	cols = setdiff(names(df), [:Id, :Test])
+	cols = setdiff(Symbol.(names(df)), [:Id, :Test])
 	X = convert(Matrix, df[df[!, :Test] .== 0, cols])
 	y = convert(Array, Y[df[!, :Test] .== 0])
 	coefficients = DataFrame()
@@ -51,7 +51,7 @@ end
 """
 function predict(df::DataFrame, model::DataFrame)
 	prediction = model[1, :Offset] .* ones(nrow(df))
-	for name in setdiff(names(model), [:Offset])
+	for name in setdiff(Symbol.(names(model)) [:Offset])
 		prediction .+= (model[1, name]*df[:,name])
 	end
 	return prediction

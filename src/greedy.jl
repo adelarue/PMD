@@ -131,7 +131,7 @@ end
 	Initialize the greedy model with a single node, which always predicts the mean
 """
 function initializeGreedyModel(Y::Vector, data::DataFrame)
-	features = [i for (i, name) in enumerate(setdiff(names(data), [:Test]))
+	features = [i for (i, name) in enumerate(setdiff(Symbol.(names(data)), [:Test]))
 				if !any(ismissing.(data[!, name]))]
 	points = findall(data[!, :Test] .== 0)
 	intercept, coeffs, SSE = regressionCoefficients(Y, data, points, features)
@@ -236,7 +236,7 @@ end
 	Apply greedy regression model to data with missing values
 """
 function predict(data::DataFrame, gm::GreedyModel; missingdata::DataFrame = data)
-	truenames = setdiff(names(data), [:Test])
+	truenames = setdiff(Symbol.(names(data)), [:Test])
 	result = zeros(nrow(data))
 	# loop through points
 	for i = 1:nrow(data)

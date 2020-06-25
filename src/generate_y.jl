@@ -17,7 +17,7 @@
 """
 function standardize(data::DataFrame)
 	# @assert count_missing_columns(data) == 0
-	truenames = setdiff(names(data), [:Test, :Id, :Y])
+	truenames = setdiff(Symbol.(names(data)), [:Test, :Id, :Y])
 
 	μ = [mean(data[.!ismissing.(data[!, name]), name]) for name in truenames]
 	σ = [std(data[.!ismissing.(data[!, name]), name]) for name in truenames]
@@ -27,7 +27,7 @@ function standardize(data::DataFrame)
 	for (i, name) in enumerate(truenames)
 		newdata[!, name] = (data[!, name] .- μ[i]) ./ σ[i]
 	end
-	for n in intersect([:Test, :Id, :Y], names(data))
+	for n in intersect([:Test, :Id, :Y], Symbol.(names(data)))
 		newdata[!,n] = data[!,n]
 	end
 	return newdata
@@ -55,7 +55,7 @@ function linear_y(data::DataFrame, data_missing::DataFrame;
     @assert k >= 0.0
     @assert SNR >= 0.0
 
-	feature_names = (names(data));
+	feature_names = Symbol.(names(data));
     nevermissing_features = feature_names[.!canbemissing]; missing_features = feature_names[canbemissing]
 	setdiff!(feature_names, [:Test, :Id]); setdiff!(nevermissing_features, [:Test, :Id]); setdiff!(missing_features, [:Test, :Id]);
 
