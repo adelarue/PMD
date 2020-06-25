@@ -57,6 +57,14 @@ for ARG in ARGS
         push!(results_table, [dname, SNR, k, k_missing, iter, "Oracle", OSR2])
         CSV.write(savedir*filename, results_table)
 
+        df = [X_full[:,:] PHD.indicatemissing(X_missing[:,:]; removezerocols=true)]
+        df[!,:Test] = test_ind
+        linear, bestparams = PHD.regress_cv(Y, df, lasso=[true], alpha=[0.7,0.8,0.9,1.0])
+        R2, OSR2 = PHD.evaluate(Y, df, linear)
+        push!(results_table, [dname, SNR, k, k_missing, iter, "Oracle XM", OSR2])
+        CSV.write(savedir*filename, results_table)
+
+
         ## Method 0
         df = X_missing[:,.!canbemissing]
         df[!,:Test] = test_ind
