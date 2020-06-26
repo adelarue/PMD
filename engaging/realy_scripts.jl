@@ -25,7 +25,6 @@ for ARG in ARGS
 
     dname = dataset_list[d_num]#"dermatology" #"""thyroid-disease-thyroid-0387" #dataset_list[1]
     # n_missingsignal = missingsignal_list[aux_num]
-    if d_num ∈ [8,11,19,28,29,37,38]
         @show dname
         # Read in a data file.
         X_missing = PHD.standardize_colnames(DataFrame(CSV.read("../datasets/"*dname*"/X_missing.csv", missingstrings=["", "NaN"]))) #df with missing values
@@ -141,5 +140,4 @@ for ARG in ARGS
         R2, OSR2 = PHD.evaluate(Y, X_affine, linear3)
         push!(results_table, [dname, iter, "Affine", OSR2])
         CSV.write(savedir*filename, results_table)
-    end
 end
