@@ -24,8 +24,8 @@ results_main = DataFrame(dataset=[], SNR=[], k=[], kMissing=[], splitnum=[], met
 
 for ARG in ARGS
     array_num = parse(Int, ARG)
-    d_num = mod(array_num, 39) + 1
-    aux_num = div(array_num,39) + 1
+    d_num = mod(array_num, 71) + 1
+    aux_num = div(array_num,71) + 1
 
     dname = dataset_list[d_num]#"dermatology" #"""thyroid-disease-thyroid-0387" #dataset_list[1]
     k_missingsignal = missingsignal_list[aux_num]
