@@ -7,6 +7,7 @@ using PHD
 using Random, Statistics, CSV, DataFrames, LinearAlgebra
 
 dataset_list = [d for d in split.(read(`ls ../datasets/`, String), "\n") if length(d) > 0]
+sort!(dataset_list)
 # SNR_list = [2, 1, .5]
 missingsignal_list = [0,1,2,3,4,5,6,7,8,9,10]
 
@@ -23,11 +24,12 @@ results_main = DataFrame(dataset=[], SNR=[], k=[], kMissing=[], splitnum=[], met
 
 for ARG in ARGS
     array_num = parse(Int, ARG)
-    d_num = mod(array_num, 39) + 1
-    aux_num = div(array_num,39) + 1
+    d_num = mod(array_num, 71) + 1
+    aux_num = div(array_num,71) + 1
 
     dname = dataset_list[d_num]#"dermatology" #"""thyroid-disease-thyroid-0387" #dataset_list[1]
-    n_missingsignal = missingsignal_list[aux_num]
+    k_missingsignal = missingsignal_list[aux_num]
+    @show dname, k_missingsignal
 
     # Read in a data file.
     X_missing = PHD.standardize_colnames(DataFrame(CSV.read("../datasets/"*dname*"/X_missing.csv", missingstrings=["", "NaN"]))) #df with missing values
@@ -36,18 +38,34 @@ for ARG in ARGS
 
     # Create output
     Random.seed!(549)
-    @time Y, k, k_missing = PHD.linear_y(X_full, soft_threshold=0.1, SNR=SNR, canbemissing=canbemissing, n_missing_in_signal=n_missingsignal) ;
+    @time Y, k, k_missing = PHD.linear_y(X_full, X_missing, k=10, SNR=SNR, canbemissing=canbemissing, k_missing_in_signal=k_missingsignal, mar=true) ;
 
     test_prop = .3
 
     for iter in 1:10
         results_table = similar(results_main,0)
 
-        filename = string(dname, "_SNR_", SNR, "_nmiss_", n_missingsignal, "_$iter.csv")
+        filename = string(dname, "_SNR_", SNR, "_nmiss_", k_missingsignal, "_$iter.csv")
 
         # Split train / test
         Random.seed!(56802+767*iter)
         test_ind = rand(nrow(X_missing)) .< test_prop ;
+
+        ## Method Oracle
+        df = X_full[:,:]
+        df[!,:Test] = test_ind
+        linear, bestparams = PHD.regress_cv(Y, df, lasso=[true], alpha=[0.7,0.8,0.9,1.0])
+        R2, OSR2 = PHD.evaluate(Y, df, linear)
+        push!(results_table, [dname, SNR, k, k_missing, iter, "Oracle X", OSR2])
+        CSV.write(savedir*filename, results_table)
+
+        df = [X_full[:,:] PHD.indicatemissing(X_missing[:,:]; removezerocols=true)]
+        df[!,:Test] = test_ind
+        linear, bestparams = PHD.regress_cv(Y, df, lasso=[true], alpha=[0.7,0.8,0.9,1.0])
+        R2, OSR2 = PHD.evaluate(Y, df, linear)
+        push!(results_table, [dname, SNR, k, k_missing, iter, "Oracle XM", OSR2])
+        CSV.write(savedir*filename, results_table)
+
 
         ## Method 0
         df = X_missing[:,.!canbemissing]

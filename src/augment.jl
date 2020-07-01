@@ -9,7 +9,7 @@
 """
 function removezerocolumns(df::DataFrame)
 	tokeep = []
-	for name in names(df)
+	for name in Symbol.(names(df))
 		if name ∈ [:Id, :Test, :Y] || (!all(abs.(df[!,name]) .< 1e-9))
 			push!(tokeep, name)
 		end
@@ -22,7 +22,7 @@ end
 """
 function indicatemissing(df::DataFrame; removezerocols::Bool=false)
 	result = DataFrame()
-	for name in names(df)
+	for name in Symbol.(names(df))
 		if !startswith(String(name), "C") && !(name in [:Y, :Test, :Id]) #if not categorical nor Test/Y
 			result[:,Symbol("$(name)_missing")] = (Int.(ismissing.(df[name])))
 		end
@@ -40,8 +40,8 @@ function augmentaffine(df::DataFrame; removezerocols::Bool = false)
 	newdf = zeroimpute(df)
 	Z = indicatemissing(df, removezerocols=true)
 	result = hcat(newdf, Z)
-	for missingname in names(Z)
-		for name in setdiff(names(newdf), [:Test, :Y, :Id])
+	for missingname in Symbol.(names(Z))
+		for name in setdiff(Symbol.(names(newdf)), [:Test, :Y, :Id])
 			result[!, Symbol("$(name)_$missingname")] = newdf[!, name] .* Z[!, missingname]
 		end
 	end

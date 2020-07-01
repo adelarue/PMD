@@ -17,7 +17,7 @@
 """
 function standardize(data::DataFrame)
 	# @assert count_missing_columns(data) == 0
-	truenames = setdiff(names(data), [:Test, :Id, :Y])
+	truenames = setdiff(Symbol.(names(data)), [:Test, :Id, :Y])
 
 	μ = [mean(data[.!ismissing.(data[!, name]), name]) for name in truenames]
 	σ = [std(data[.!ismissing.(data[!, name]), name]) for name in truenames]
@@ -27,7 +27,7 @@ function standardize(data::DataFrame)
 	for (i, name) in enumerate(truenames)
 		newdata[!, name] = (data[!, name] .- μ[i]) ./ σ[i]
 	end
-	for n in intersect([:Test, :Id, :Y], names(data))
+	for n in intersect([:Test, :Id, :Y], Symbol.(names(data)))
 		newdata[!,n] = data[!,n]
 	end
 	return newdata
@@ -46,40 +46,50 @@ end
 	Returns:
 		- a vector of length nrow(data) with the values of Y
 """
-function linear_y(data::DataFrame;
-	soft_threshold::Real=0.1, SNR::Real=4,
+function linear_y(data::DataFrame, data_missing::DataFrame;
+	k::Real=10, SNR::Real=4,
     canbemissing=falses(Base.size(data,2)), #indicates which features can be missing
-    n_missing_in_signal::Int=0) #indicates the number of potentially missing features in signal
+	mar::Bool=true,
+    k_missing_in_signal::Int=0) #indicates the number of potentially missing features in signal
 
-    @assert soft_threshold >= 0.0
+    @assert k >= 0.0
     @assert SNR >= 0.0
 
-    feature_names = names(data);
+	feature_names = Symbol.(names(data));
     nevermissing_features = feature_names[.!canbemissing]; missing_features = feature_names[canbemissing]
-    setdiff!(nevermissing_features, [:Test, :Id]); setdiff!(missing_features, [:Test, :Id]);
+	setdiff!(feature_names, [:Test, :Id]); setdiff!(nevermissing_features, [:Test, :Id]); setdiff!(missing_features, [:Test, :Id]);
 
-    n_missing_in_signal = min(n_missing_in_signal, length(missing_features))
+	k = min(k, length(feature_names))
+    k_missing_in_signal = min(k_missing_in_signal, length(missing_features))
+	k_non_missing = max(k - k_missing_in_signal, 0)
+
     #Standardize
-    newdata = standardize(data)
+    newdata = standardize(data[:,feature_names])
 
     Y = zeros(nrow(newdata))
-    #For nevermissing features, sample with soft thresholding
-    p1 = length(nevermissing_features)
-    w1 = softthresholding.(randn(p1), λ=soft_threshold)
-    Y += Matrix{Float64}(newdata[:,nevermissing_features])*w1
+    #For nevermissing features, choose then generate
+	if k_non_missing > 0
+		support = shuffle(nevermissing_features)[1:k_non_missing]
+		w1 = 2*rand(k_non_missing) .- 1
+		Y += Matrix{Float64}(newdata[:,support])*w1
+	end
     #For missing feautres, choose
-	@show n_missing_in_signal
-	if n_missing_in_signal > 0
-	    support = shuffle(missing_features)[1:n_missing_in_signal]
-	    w2 = randn(n_missing_in_signal)
+	@show k_missing_in_signal
+	if k_missing_in_signal > 0
+	    support = shuffle(missing_features)[1:k_missing_in_signal]
+	    w2 = 2*rand(k_missing_in_signal) .- 1
 	    Y += Matrix{Float64}(newdata[:,support])*w2
+		if !mar
+			w2m = 2*rand(k_missing_in_signal) .- 1
+			Y += Matrix{Float64}(1.0 .* ismissing.(data_missing[:,support]) )*w2m
+		end
 	end
     #Add bias
     btrue = randn(1); Y .+= btrue
     #Add noise
     noise = randn(nrow(newdata)); noise .*= norm(Y) / norm(noise) / SNR
 
-    return Y .+ noise, p1+n_missing_in_signal, n_missing_in_signal
+    return Y .+ noise, k, k_missing_in_signal
 end
 
 """
