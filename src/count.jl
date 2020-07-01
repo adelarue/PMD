@@ -55,3 +55,28 @@ function size(datasetname::AbstractString)
 	df = CSV.read("$(@__DIR__)/../datasets/$datasetname/1/X_missing.csv")
 	return Base.size(df)
 end
+
+"""
+	Return unique missingness patterns in the provided dataframe
+"""
+function missing_patterns(df::DataFrame)
+	cols = setdiff(Symbol.(names(df)), [:Id, :Test, :Y])
+	return unique([ismissing.(convert(Vector, df[i, cols])) for i = 1:nrow(df)])
+end
+count_missing_patterns(df::DataFrame) = length(missing_patterns(df))
+
+"""
+	Return unique missingness patterns ordered by count
+"""
+function missing_patterns_countmap(df::DataFrame)
+	cols = setdiff(Symbol.(names(df)), [:Id, :Test, :Y])
+	patterns = [ismissing.(convert(Vector, df[i, cols])) for i = 1:nrow(df)]
+	patternmap = StatsBase.countmap(patterns)
+	patterns = collect(keys(patternmap))
+	counts = Int[]
+	for pattern in patterns
+		push!(counts, patternmap[pattern])
+	end
+	p = reverse(sortperm(counts))
+	return patterns[p], counts[p]
+end

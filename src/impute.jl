@@ -4,13 +4,12 @@
 ### Authors: Arthur Delarue, Jean Pauphilet, 2019
 ###################################
 
-using RCall, DataFrames, CSV
 """
 	Standardize column names R-style
 """
 function standardize_colnames(df::DataFrame)
 	aux = select(df, Not(:Id))
-	R"library(dplyr)"
+	load_R_library("dplyr")
 	R"train = $aux"
 	R"colnames <- names(train)"
 	R"names(train) <- make.names(colnames, unique=TRUE)"
@@ -24,13 +23,17 @@ end
 """
 function mice(df::DataFrame; m_imputation=2, max_epoch=5)
 	aux = select(df, Not(:Id))
-	R"library(mice)"
-	R"library(dplyr)"
+	load_R_library("mice")
+	load_R_library("dplyr")
 	R"train = $aux"
 
 	R"colnames <- names(train)"
 	R"names(train) <- make.names(colnames, unique=TRUE)"
-	R"imputed = mice(as.data.frame(train), m=$m_imputation, maxit=$max_epoch, printFlag=F, seed=4326)"
+	try
+		R"imputed = mice(as.data.frame(train), m=$m_imputation, maxit=$max_epoch, printFlag=F, seed=4326)"
+	catch
+		R"imputed = mice(as.data.frame(train), m=$m_imputation, maxit=$max_epoch, printFlag=F, seed=4326, method='cart')"
+	end
 	R"imputedtrain = complete(imputed, action=1)"
 	R"names(imputedtrain) <- colnames"
 	@rget imputedtrain
