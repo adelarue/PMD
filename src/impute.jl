@@ -96,3 +96,19 @@ function zeroimpute(df::DataFrame)
 	end
 	return result
 end
+
+"""
+	Remove indicator of missingness for categorical - Mode impute instead
+"""
+function mode_impute(df::DataFrame; train=ones(size(df,1)))
+	onehotencoded_missing = [n for n in names(df) if endswith(String(n),"_Missing")]
+	for f in onehotencoded_missing
+	    feat = split(String(f), "_Missing", keepempty=false)[1]
+	    onehot_feat = [n for n in names(df) if startswith(String(n), feat) && !endswith(String(n),"_Missing")]
+	    freq = vec(mean(convert(Matrix, df[train,onehot_feat]), dims=1))
+	    imax = argmax(freq)
+	    df[df[:,f] .== 1, onehot_feat[imax]] .= 1
+	end
+	select!(df, Not(onehotencoded_missing))
+	return df
+end
