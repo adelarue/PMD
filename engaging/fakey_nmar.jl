@@ -34,8 +34,16 @@ for ARG in ARGS
 
     # Read in a data file.
     X_missing = PHD.standardize_colnames(DataFrame(CSV.read("../datasets/"*dname*"/X_missing.csv", missingstrings=["", "NaN"]))) #df with missing values
+
+    #Remove intrinsic indicators
+    keep_cols = names(X_missing)
+    for l in values(PHD.intrinsic_indicators(X_missing))
+        setdiff!(keep_cols, l)
+    end
+    select!(X_missing, keep_cols)
+
     canbemissing = [any(ismissing.(X_missing[:,j])) for j in names(X_missing)] #indicator of missing features
-    X_full = PHD.standardize_colnames(DataFrame(CSV.read("../datasets/"*dname*"/X_full.csv"))) #ground truth df
+    X_full = PHD.standardize_colnames(DataFrame(CSV.read("../datasets/"*dname*"/X_full.csv")))[:,keep_cols] #ground truth df
 
     # Create output
     Random.seed!(5234)
@@ -112,6 +120,16 @@ for ARG in ARGS
         CSV.write(savedir*filename, results_table)
 
         ## Method 1.4
+        means_df = PHD.compute_mean(X_missing[.!test_ind,:])
+        X_imputed = PHD.mean_impute(X_missing, means_df);
+        df = deepcopy(X_imputed)
+        df[!,:Test] = test_ind
+        linear, bestparams = PHD.regress_cv(Y, df, lasso=[true], alpha=[0.7,0.8,0.9,1.0])
+        R2, OSR2 = PHD.evaluate(Y, df, linear)
+        push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 4", OSR2])
+        CSV.write(savedir*filename, results_table)
+
+        ## Method 1.5 Mean and mode impute
         means_df = PHD.compute_mean(X_missing[.!test_ind,:])
         X_imputed = PHD.mean_impute(X_missing, means_df);
         df = deepcopy(X_imputed)

@@ -28,8 +28,16 @@ for ARG in ARGS
         @show dname
         # Read in a data file.
         X_missing = PHD.standardize_colnames(DataFrame(CSV.read("../datasets/"*dname*"/X_missing.csv", missingstrings=["", "NaN"]))) #df with missing values
+
+        #Remove intrinsic indicators
+        keep_cols = names(X_missing)
+        for l in values(PHD.intrinsic_indicators(X_missing))
+            setdiff!(keep_cols, l)
+        end
+        select!(X_missing, keep_cols)
+
         canbemissing = [any(ismissing.(X_missing[:,j])) for j in names(X_missing)] #indicator of missing features
-        X_full = PHD.standardize_colnames(DataFrame(CSV.read("../datasets/"*dname*"/X_full.csv"))) #ground truth df
+        X_full = PHD.standardize_colnames(DataFrame(CSV.read("../datasets/"*dname*"/X_full.csv")))[:,keep_cols] #ground truth df
 
         # Create output
         # @time Y, k, k_missing = PHD.linear_y(X_full, soft_threshold=0.1, SNR=SNR, canbemissing=canbemissing, n_missing_in_signal=n_missingsignal) ;
