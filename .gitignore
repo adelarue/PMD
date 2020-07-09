@@ -5,6 +5,7 @@ datasets/
 results/
 *-old*
 *.Rhistory
+*_arthur*
 
 *.aux
 *.log
