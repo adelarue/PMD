@@ -86,7 +86,7 @@ end
 		a counterpart column which perfectly matches the missingness indicator
 	Returns a dictionary (column name with missing values) => [intrinsic indicator columns]
 """
-function intrinsic_indicators(df::DataFrame, correlation_threshold::Real = 0.999)
+function intrinsic_indicators(df::DataFrame; correlation_threshold::Real = 0.999)
 	cols = setdiff(Symbol.(names(df)), [:Id, :Test, :Y])
 	d = Dict()
 	for col in cols
@@ -106,4 +106,3 @@ function intrinsic_indicators(df::DataFrame, correlation_threshold::Real = 0.999
 	end
 	return d
 end
-
