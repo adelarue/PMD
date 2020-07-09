@@ -80,3 +80,30 @@ function missing_patterns_countmap(df::DataFrame)
 	p = reverse(sortperm(counts))
 	return patterns[p], counts[p]
 end
+
+"""
+	Given a dataset with missing values, check if any columns with missing values have
+		a counterpart column which perfectly matches the missingness indicator
+	Returns a dictionary (column name with missing values) => [intrinsic indicator columns]
+"""
+function intrinsic_indicators(df::DataFrame, correlation_threshold::Real = 0.999)
+	cols = setdiff(Symbol.(names(df)), [:Id, :Test, :Y])
+	d = Dict()
+	for col in cols
+		if any(ismissing.(df[!, col]))
+			d[col] = []
+			for col2 in setdiff(cols, [col])
+				if !any(ismissing.(df[!, col2]))
+					matrix = 0
+					matrix = [Int.(ismissing.(df[!, col])) float.(convert(Vector, df[!, col2]))]
+					correlation = cor(matrix)
+					if correlation[1, 2] >= correlation_threshold
+						push!(d[col], col2)
+					end
+				end
+			end
+		end
+	end
+	return d
+end
+
