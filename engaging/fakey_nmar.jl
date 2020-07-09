@@ -37,11 +37,10 @@ for ARG in ARGS
 
     #Remove intrinsic indicators
     keep_cols = names(X_missing)
-    for l in values(PHD.intrinsic_indicators(X_missing))
+    for l in values(PHD.intrinsic_indicators(X_missing, correlation_threshold=0.9))
         setdiff!(keep_cols, l)
     end
     select!(X_missing, keep_cols)
-
     canbemissing = [any(ismissing.(X_missing[:,j])) for j in names(X_missing)] #indicator of missing features
     X_full = PHD.standardize_colnames(DataFrame(CSV.read("../datasets/"*dname*"/X_full.csv")))[:,keep_cols] #ground truth df
 
@@ -133,10 +132,11 @@ for ARG in ARGS
         means_df = PHD.compute_mean(X_missing[.!test_ind,:])
         X_imputed = PHD.mean_impute(X_missing, means_df);
         df = deepcopy(X_imputed)
+        PHD.mode_impute!(df, train = .!test_ind)
         df[!,:Test] = test_ind
         linear, bestparams = PHD.regress_cv(Y, df, lasso=[true], alpha=[0.7,0.8,0.9,1.0])
         R2, OSR2 = PHD.evaluate(Y, df, linear)
-        push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 4", OSR2])
+        push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 5", OSR2])
         CSV.write(savedir*filename, results_table)
 
         ## Method 2: Static Adaptability
