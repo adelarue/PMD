@@ -97,7 +97,7 @@ function intrinsic_indicators(df::DataFrame; correlation_threshold::Real = 0.999
 					matrix = 0
 					matrix = [Int.(ismissing.(df[!, col])) float.(convert(Vector, df[!, col2]))]
 					correlation = cor(matrix)
-					if correlation[1, 2] >= correlation_threshold
+					if abs(correlation[1,2]) >= correlation_threshold
 						push!(d[col], col2)
 					end
 				end
