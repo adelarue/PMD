@@ -76,7 +76,7 @@ function mean_impute(df::DataFrame, means)
 	for n in names(means)
 		result[!,n] = convert(Array{Union{Missing,Float64},1},result[:,n])
 		for i=1:nrow(df)
-			if ismissing(result[i, n])
+			if ismissing(result[i,n])
 				result[i,n] = means[1,n]
 			end
 		end
