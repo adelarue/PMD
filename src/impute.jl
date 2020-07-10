@@ -64,7 +64,7 @@ end
 	Impute all missing values as mean
 """
 function compute_mean(df::DataFrame)
-	numcols = filter(t->startswith(string(t),"N"), names(df))
+	numcols = filter(t-> string(t) ∉ ["Id", "Test"], names(df))
 	nummeans = []
 	for c in numcols
 	    push!(nummeans, mean(skipmissing(df[:,c])))
