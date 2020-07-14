@@ -77,11 +77,15 @@ for ARG in ARGS
 
 
             ## Method 0
-            df = X_missing[:,.!canbemissing]
-            df[!,:Test] = test_ind
-            linear, bestparams = PHD.regress_cv(Y, df, lasso=[true], alpha=collect(0.1:0.1:1))
-            R2, OSR2 = PHD.evaluate(Y, df, linear)
-            push!(results_table, [dname, SNR, k, k_missing, iter, "Complete Features", OSR2])
+            try
+                df = X_missing[:,.!canbemissing] #This step can raise an error if all features can be missing
+                df[!,:Test] = test_ind
+                linear, bestparams = PHD.regress_cv(Y, df, lasso=[true], alpha=collect(0.1:0.1:1))
+                R2, OSR2 = PHD.evaluate(Y, df, linear)
+                push!(results_table, [dname, SNR, k, k_missing, iter, "Complete Features", OSR2])
+            catch #In this case, simply predict the mean - which leads to 0. OSR2
+                push!(results_table, [dname, SNR, k, k_missing, iter, "Complete Features", 0.])
+            end
             CSV.write(savedir*filename, results_table)
 
             ## Method 1.1
