@@ -61,13 +61,14 @@ function linear_y(data::DataFrame, data_missing::DataFrame;
 
 	k = min(k, length(feature_names))
     k_missing_in_signal = min(k_missing_in_signal, length(missing_features))
-	k_non_missing = max(k - k_missing_in_signal, 0)
+	k_non_missing = min(max(k - k_missing_in_signal, 0), length(nevermissing_features))
 
     #Standardize
     newdata = standardize(data[:,feature_names])
 
     Y = zeros(nrow(newdata))
     #For nevermissing features, choose then generate
+	@show k_non_missing
 	if k_non_missing > 0
 		support = shuffle(nevermissing_features)[1:k_non_missing]
 		w1 = 2*rand(k_non_missing) .- 1
