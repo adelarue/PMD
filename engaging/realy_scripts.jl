@@ -74,7 +74,7 @@ for ARG in ARGS
         try
             df = X_missing[:,.!canbemissing] #This step can raise an error if all features can be missing
             df[!,:Test] = test_ind
-            linear, bestparams = PHD.regress_cv(Y, df, lasso=[true], alpha=[0.7,0.8,0.9,1.0])
+            linear, bestparams = PHD.regress_cv(Y, df, lasso=[true], alpha=collect(0.1:0.1:1))
             R2, OSR2 = PHD.evaluate(Y, df, linear)
             push!(results_table, [dname, iter, "Complete Features", OSR2])
         catch #In this case, simply predict the mean - which leads to 0. OSR2
@@ -86,7 +86,7 @@ for ARG in ARGS
         X_imputed = PHD.mice_bruteforce(X_missing);
         df = deepcopy(X_imputed)
         df[!,:Test] = test_ind
-        linear, bestparams = PHD.regress_cv(Y, df, lasso=[true], alpha=[0.7,0.8,0.9,1.0])
+        linear, bestparams = PHD.regress_cv(Y, df, lasso=[true], alpha=collect(0.1:0.1:1))
         R2, OSR2 = PHD.evaluate(Y, df, linear)
         push!(results_table, [dname, iter, "Imp-then-Reg 1", OSR2])
         CSV.write(savedir*filename, results_table)
@@ -99,7 +99,7 @@ for ARG in ARGS
         X_all_imputed = PHD.mice(df);
         df = deepcopy(X_all_imputed)
         df[!,:Test] = test_ind
-        linear, bestparams = PHD.regress_cv(Y, df, lasso=[true], alpha=[0.7,0.8,0.9,1.0])
+        linear, bestparams = PHD.regress_cv(Y, df, lasso=[true], alpha=collect(0.1:0.1:1))
         R2, OSR2 = PHD.evaluate(Y, df, linear)
         push!(results_table, [dname, iter, "Imp-then-Reg 2", OSR2])
         CSV.write(savedir*filename, results_table)
@@ -112,7 +112,7 @@ for ARG in ARGS
         df[.!test_ind,:] .= X_train_imputed
         df[test_ind,:] .= X_all_imputed[test_ind,:]
         df[!,:Test] = test_ind
-        linear, bestparams = PHD.regress_cv(Y, df, lasso=[true], alpha=[0.7,0.8,0.9,1.0])
+        linear, bestparams = PHD.regress_cv(Y, df, lasso=[true], alpha=collect(0.1:0.1:1))
         R2, OSR2 = PHD.evaluate(Y, df, linear)
         push!(results_table, [dname, iter, "Imp-then-Reg 3", OSR2])
         CSV.write(savedir*filename, results_table)
@@ -122,7 +122,7 @@ for ARG in ARGS
         X_imputed = PHD.mean_impute(X_missing, means_df);
         df = deepcopy(X_imputed)
         df[!,:Test] = test_ind
-        linear, bestparams = PHD.regress_cv(Y, df, lasso=[true], alpha=[0.7,0.8,0.9,1.0])
+        linear, bestparams = PHD.regress_cv(Y, df, lasso=[true], alpha=collect(0.1:0.1:1))
         R2, OSR2 = PHD.evaluate(Y, df, linear)
         push!(results_table, [dname, iter, "Imp-then-Reg 4", OSR2])
         CSV.write(savedir*filename, results_table)
@@ -133,7 +133,7 @@ for ARG in ARGS
         df = deepcopy(X_imputed)
         PHD.mode_impute!(df, train = .!test_ind)
         df[!,:Test] = test_ind
-        linear, bestparams = PHD.regress_cv(Y, df, lasso=[true], alpha=[0.7,0.8,0.9,1.0])
+        linear, bestparams = PHD.regress_cv(Y, df, lasso=[true], alpha=collect(0.1:0.1:1))
         R2, OSR2 = PHD.evaluate(Y, df, linear)
         push!(results_table, [dname, iter, "Imp-then-Reg 5", OSR2])
         CSV.write(savedir*filename, results_table)
@@ -143,7 +143,7 @@ for ARG in ARGS
         df[!,:Test] = test_ind
         X_augmented = hcat(PHD.zeroimpute(df), PHD.indicatemissing(df, removezerocols=true))
         linear2, bestparams2 = PHD.regress_cv(Y, X_augmented, lasso=[true],
-                                                alpha=[0.7,0.8,0.9,1.0],
+                                                alpha=collect(0.1:0.1:1),
                                                 missing_penalty=[2.0,4.0,6.0,8.0,12.0,16.0])
         R2, OSR2 = PHD.evaluate(Y, X_augmented, linear2)
         push!(results_table, [dname, iter, "Static", OSR2])
@@ -153,7 +153,7 @@ for ARG in ARGS
         df = deepcopy(X_missing)
         df[!,:Test] = test_ind
         X_affine = PHD.augmentaffine(df, removezerocols=true)
-        linear3, bestparams3 = PHD.regress_cv(Y, X_affine, lasso=[true], alpha=[0.7,0.8,0.9,1.0],
+        linear3, bestparams3 = PHD.regress_cv(Y, X_affine, lasso=[true], alpha=collect(0.1:0.1:1),
                                               missing_penalty=[2.0,4.0,6.0,8.0,12.0,16.0])
         R2, OSR2 = PHD.evaluate(Y, X_affine, linear3)
         push!(results_table, [dname, iter, "Affine", OSR2])
