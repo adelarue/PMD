@@ -18,6 +18,8 @@ patterndata = DataFrame(Name = datasets, Num_Patterns = zeros(Int, length(datase
 
 for i = 1:nrow(patterndata)
 	df = CSV.read("../datasets/" * patterndata[i, :Name] * "/X_missing.csv", missingstrings=["", "NaN"])
+	# PHD.mode_impute!(df; deencode_only=false)
+
 	patterns, counts = PHD.missing_patterns_countmap(df)
 	patterndata[i, :n] = nrow(df)
 	patterndata[i, :p] = length(setdiff(names(df), [:Id, :Y, :Test]))
