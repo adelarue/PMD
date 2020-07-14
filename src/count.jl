@@ -5,7 +5,7 @@
 ###################################
 
 """
-	Count number of columns with at least one missing value
+	Count number of columns with at least one missing value (numeric)
 """
 function count_missing_columns(df::DataFrame)
 	counter = 0
