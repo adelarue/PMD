@@ -105,9 +105,11 @@ function mode_impute!(df::DataFrame; train=trues(Base.size(df,1)))
 	for f in onehotencoded_missing
 	    feat = split(String(f), "_Missing", keepempty=false)[1]
 	    onehot_feat = [n for n in names(df) if startswith(String(n), feat) && !endswith(String(n),"_Missing")]
-	    freq = vec(mean(convert(Matrix, df[train,onehot_feat]), dims=1))
-	    imax = argmax(freq)
-	    df[df[:,f] .== 1, onehot_feat[imax]] .= 1
+		if length(onehot_feat) > 0
+			freq = vec(mean(convert(Matrix, df[train,onehot_feat]), dims=1))
+		    imax = argmax(freq)
+		    df[df[:,f] .== 1, onehot_feat[imax]] .= 1
+		end
 	end
 	select!(df, Not(onehotencoded_missing))
 end
