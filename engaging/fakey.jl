@@ -34,6 +34,20 @@ for ARG in ARGS
     # Read in a data file.
     X_missing = PHD.standardize_colnames(DataFrame(CSV.read("../datasets/"*dname*"/X_missing.csv", missingstrings=["", "NaN"]))) #df with missing values
 
+    # Clean up : to be checked, some datasets have strings in features
+    delete_obs = trues(Base.size(X_missing,1))
+    for j in names(X_missing)
+        if Symbol(j) != :Id && (eltype(X_missing[:,j]) == String || eltype(X_missing[:,j]) == Union{Missing,String})
+            newcol = tryparse.(Float64, X_missing[:,j])
+            delete_obs[newcol .== nothing] .= false
+            newcol = convert(Array{Union{Float64,Missing,Nothing}}, newcol)
+            newcol[newcol .== nothing] .= missing
+            newcol = convert(Array{Union{Float64,Missing}}, newcol)
+            X_missing[!,j] = newcol
+        end
+    end
+    X_missing = X_missing[delete_obs,:];
+
     #Remove intrinsic indicators
     keep_cols = names(X_missing)
     for l in values(PHD.intrinsic_indicators(X_missing, correlation_threshold=0.9))
@@ -41,7 +55,7 @@ for ARG in ARGS
     end
     select!(X_missing, keep_cols)
     canbemissing = [any(ismissing.(X_missing[:,j])) for j in names(X_missing)] #indicator of missing features
-    X_full = PHD.standardize_colnames(DataFrame(CSV.read("../datasets/"*dname*"/X_full.csv")))[:,keep_cols] #ground truth df
+    X_full = PHD.standardize_colnames(DataFrame(CSV.read("../datasets/"*dname*"/X_full.csv")))[delete_obs,keep_cols] #ground truth df
 
     # Create output
     Random.seed!(549)

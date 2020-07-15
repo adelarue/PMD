@@ -16,7 +16,7 @@ patterndata = DataFrame(Name = datasets, Num_Patterns = zeros(Int, length(datase
 	                    Fully_Observed_Count = zeros(Int, length(datasets)),
 	                    Good_Turing_Prob = zeros(Float64, length(datasets)))
 
-deencode_missing = true
+deencode_missing = false
 
 for i = 1:nrow(patterndata)
 	df = CSV.read("../datasets/" * patterndata[i, :Name] * "/X_missing.csv", missingstrings=["", "NaN"])
