@@ -24,8 +24,10 @@ for ARG in ARGS
     iter = div(array_num,71) + 1
 
     dname = dataset_list[d_num]#"dermatology" #"""thyroid-disease-thyroid-0387" #dataset_list[1]
-    # n_missingsignal = missingsignal_list[aux_num]
-        @show dname
+
+    @show dname
+    pb_list =  ["MASS-Cars93", "rpart-car.test.frame", "soybean-large", "thyroid-disease-thyroid-0387"]
+    if dname ∈ pb_list
         # Read in a data file.
         X_missing = PHD.standardize_colnames(DataFrame(CSV.read("../datasets/"*dname*"/X_missing.csv", missingstrings=["", "NaN"]))) #df with missing values
 
@@ -62,11 +64,11 @@ for ARG in ARGS
         Y = zeros(Base.size(X_missing,1))
         if length(target_list) <= 2
             target_name = setdiff(target_list, [:Id])[1]
-            Y = DataFrame(CSV.read("../datasets/"*dname*"/Y.csv", missingstrings=["", "NaN"]))[:,target_name]
+            Y = DataFrame(CSV.read("../datasets/"*dname*"/Y.csv", missingstrings=["", "NaN"]))[delete_obs,target_name]
         else
             setdiff!(target_list, [:Id, :target])
             sort!(target_list)
-            Y = DataFrame(CSV.read("../datasets/"*dname*"/Y.csv", missingstrings=["", "NaN"]))[:,target_list[1]]
+            Y = DataFrame(CSV.read("../datasets/"*dname*"/Y.csv", missingstrings=["", "NaN"]))[delete_obs,target_list[1]]
         end
 
         ind_availtarget = .!ismissing.(Y)
@@ -172,4 +174,5 @@ for ARG in ARGS
         R2, OSR2 = PHD.evaluate(Y, X_affine, linear3)
         push!(results_table, [dname, iter, "Affine", OSR2])
         CSV.write(savedir*filename, results_table)
+    end
 end
