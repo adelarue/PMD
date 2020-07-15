@@ -70,10 +70,15 @@ for ARG in ARGS
             sort!(target_list)
             Y = DataFrame(CSV.read("../datasets/"*dname*"/Y.csv", missingstrings=["", "NaN"]))[delete_obs,target_list[1]]
         end
-
+        if eltype(Y) ∉ [Float64, Int64]
+            using StatsBase
+            cm = countmap(Y)
+            level = collect(keys(cm))[argmax(collect(values(cm)))]
+            Y = 1.0 .* (Y .== level)
+        end
         ind_availtarget = .!ismissing.(Y)
         Y = 1.0 .* Y[ind_availtarget] #Remove missing entries before converting to Float64 !
-        # Y = convert(Array{Float64}, 1.0 .* Y[ind_availtarget])
+
         X_missing = X_missing[ind_availtarget,:]
         X_full = X_full[ind_availtarget,:]
 
