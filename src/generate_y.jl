@@ -90,7 +90,7 @@ function linear_y(data::DataFrame, data_missing::DataFrame;
     #Add noise
     noise = randn(nrow(newdata)); noise .*= norm(Y) / norm(noise) / SNR
 
-    return Y .+ noise, k, k_missing_in_signal
+    return Y .+ noise, k_non_missing+k_non_missing, k_non_missing
 end
 
 """
