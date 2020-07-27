@@ -16,8 +16,13 @@ patterndata = DataFrame(Name = datasets, Num_Patterns = zeros(Int, length(datase
 	                    Fully_Observed_Count = zeros(Int, length(datasets)),
 	                    Good_Turing_Prob = zeros(Float64, length(datasets)))
 
+deencode_missing = false
+
 for i = 1:nrow(patterndata)
 	df = CSV.read("../datasets/" * patterndata[i, :Name] * "/X_missing.csv", missingstrings=["", "NaN"])
+	if deencode_missing
+		PHD.mode_impute!(df; deencode_only=false)
+	end
 	patterns, counts = PHD.missing_patterns_countmap(df)
 	patterndata[i, :n] = nrow(df)
 	patterndata[i, :p] = length(setdiff(names(df), [:Id, :Y, :Test]))
@@ -34,5 +39,8 @@ for i = 1:nrow(patterndata)
 	patterndata[i, :Good_Turing_Prob] = sum(counts .== 1)/nrow(df)
 	@show patterndata[i, :]
 end
-
-CSV.write("../results/pattern_counts_new.csv", patterndata)
+if deencode_missing
+	CSV.write("../results/pattern_counts_allfeat.csv", patterndata)
+else
+	CSV.write("../results/pattern_counts_numonly.csv", patterndata)
+end
