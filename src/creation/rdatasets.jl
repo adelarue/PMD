@@ -143,6 +143,12 @@ function format_dataset(package::AbstractString, dataset::AbstractString)
 		end
 	elseif package == "MASS"
 		if dataset == "Cars93"
+			for i = 1:nrow(df), j in names(df)
+				allowmissing!(df)
+				if !ismissing(df[i, j]) && df[i, j] == "rotary"
+					df[i, j] = missing
+				end
+			end
 			return process_dataset(df, target_index = 5,
 			                       feature_indices = union([1, 3], 7:26),
 			                       categoric_indices = union([1, 3, 9, 10, 16, 26]))
@@ -267,9 +273,9 @@ function format_dataset(package::AbstractString, dataset::AbstractString)
 		end
 	elseif package == "rpart"
 		if dataset == "car.test.frame"
-			return process_dataset(df, target_index = 1,
-			                       feature_indices = 2:8,
-			                       categoric_indices = [2, 5])
+			return process_dataset(df, target_index = 2,
+			                       feature_indices = 3:9,
+			                       categoric_indices = [3, 6])
 		elseif dataset == "stagec"
 			return process_dataset(df, target_index = -1,
 			                       feature_indices = 1:8,
