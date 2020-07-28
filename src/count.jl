@@ -67,7 +67,7 @@ function list_datasets(; p_min::Int = 0)
 			push!(dlist, dname)
 		end
 	end
-	return dlist
+	return sort(dlist)
 end
 
 """
