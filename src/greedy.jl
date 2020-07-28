@@ -105,7 +105,7 @@ function trainGreedyModel(Y::Vector, data::DataFrame;
 	gm = initializeGreedyModel(Y, data)
 	maxdepth == 1 && return gm
 	trainIndices = findall(data[!, :Test] .== 0)
-	heap = BinaryMinHeap([bestSplit(gm, Y, data, 1, trainIndices,
+	heap = BinaryMaxHeap([bestSplit(gm, Y, data, 1, trainIndices,
 	                                gm.nodes[1].featuresIn, minbucket, missingdata)])
 	while !isempty(heap)
 		leafToSplit = pop!(heap)
