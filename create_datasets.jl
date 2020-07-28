@@ -11,7 +11,7 @@ Pkg.activate(".")
 
 using Revise
 using PHD
-# using UCIData
+using UCIData
 using RCall, Random, DataFrames, CSV
 
 """
@@ -32,6 +32,9 @@ function create_uci_datasets()
 
 	for task in ["classification", "regression"]
 		for n in UCIData.list_datasets(task)
+			if n == "trains"
+				continue
+			end
 	        if n ∉ folderlist || "X_missing.csv" ∉ readdir("$(@__DIR__)/datasets/"*n*"/")
 	            @show n
 	    		df = UCIData.dataset(n)
@@ -48,5 +51,5 @@ function create_uci_datasets()
 	end
 end
 
-# create_uci_datasets()
+create_uci_datasets()
 PHD.create_r_datasets()
