@@ -6,8 +6,8 @@ using PHD
 
 using Random, Statistics, CSV, DataFrames, LinearAlgebra
 
-dataset_list = [d for d in split.(read(`ls ../datasets/`, String), "\n") if length(d) > 0]
-sort!(dataset_list)
+dataset_list = PHD.list_datasets(p_min = 1)
+@show length(dataset_list)
 
 # SNR_list = [2, 1, .5]
 missingsignal_list = [0,1,2,3,4,5,6,7,8,9,10]
@@ -25,8 +25,8 @@ results_main = DataFrame(dataset=[], SNR=[], k=[], kMissing=[], splitnum=[], met
 
 for ARG in ARGS
     array_num = parse(Int, ARG)
-    d_num = mod(array_num, 71) + 1
-    aux_num = div(array_num,71) + 1
+    d_num = mod(array_num, length(dataset_list)) + 1
+    aux_num = div(array_num, length(dataset_list)) + 1
 
     dname = dataset_list[d_num]#"dermatology" #"""thyroid-disease-thyroid-0387" #dataset_list[1]
     k_missingsignal = missingsignal_list[aux_num]
