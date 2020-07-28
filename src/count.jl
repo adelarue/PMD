@@ -22,7 +22,7 @@ end
 		columns with at least one missing value
 """
 function count_missing_columns(datasetname::AbstractString)
-	df = CSV.read("$(@__DIR__)/../datasets/$datasetname/1/X_missing.csv")
+	df = CSV.read("$(@__DIR__)/../datasets/$datasetname/X_missing.csv")
 	return count_missing_columns(df)
 end
 
@@ -44,7 +44,7 @@ end
 		columns with at least one missing value
 """
 function missing_percentage(datasetname::AbstractString)
-	df = CSV.read("$(@__DIR__)/../datasets/$datasetname/1/X_missing.csv")
+	df = CSV.read("$(@__DIR__)/../datasets/$datasetname/X_missing.csv")
 	return missing_percentage(df)
 end
 
@@ -52,8 +52,22 @@ end
 	Given a dataset name, return the dataset size
 """
 function size(datasetname::AbstractString)
-	df = CSV.read("$(@__DIR__)/../datasets/$datasetname/1/X_missing.csv")
+	df = CSV.read("$(@__DIR__)/../datasets/$datasetname/X_missing.csv")
 	return Base.size(df)
+end
+
+"""
+	List datasets meeting certain conditions
+		- at least p_min missing columns
+"""
+function list_datasets(; p_min::Int = 0)
+	dlist = String[]
+	for dname in readdir("$(@__DIR__)/../datasets")
+		if count_missing_columns(dname) >= p_min
+			push!(dlist, dname)
+		end
+	end
+	return dlist
 end
 
 """
