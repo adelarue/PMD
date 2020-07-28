@@ -43,6 +43,37 @@ function regress(Y::Array{Float64}, df::DataFrame;
 		end
 		coefficients[:Offset] = path.a0[end]
 	end
+	coefficients[:Logistic] = false
+	return coefficients
+end
+
+function regress(Y::BitArray{1}, df::DataFrame;
+				 lasso::Bool=false, alpha::Real=0.8, missing_penalty::Real=1.0)
+	cols = setdiff(Symbol.(names(df)), [:Id, :Test])
+	X = convert(Matrix, df[df[!, :Test] .== 0, cols])
+	y = convert(Array, Y[df[!, :Test] .== 0])
+	coefficients = DataFrame()
+	if lasso
+		penalty_factor = ones(length(cols))
+		for (i, col) in enumerate(cols)
+			if occursin("_missing", string(col))
+				penalty_factor[i] = missing_penalty
+			end
+		end
+		cv = glmnetcv(X, hcat(Float64.(.!y), Float64.(y)), GLMNet.Binomial(),
+		              alpha=alpha, penalty_factor=penalty_factor)
+		for (i, col) in enumerate(cols)
+			coefficients[!,col] = ([cv.path.betas[i, argmin(cv.meanloss)]])
+		end
+		coefficients[:Offset] = cv.path.a0[argmin(cv.meanloss)]
+	else
+		path = glmnet(X, hcat(Float64.(.!y), Float64.(y)), GLMNet.Binomial())
+		for (i, col) in enumerate(cols)
+			coefficients[!,col] = [path.betas[i, end]]
+		end
+		coefficients[:Offset] = path.a0[end]
+	end
+	coefficients[:Logistic] = true
 	return coefficients
 end
 
@@ -51,22 +82,61 @@ end
 """
 function predict(df::DataFrame, model::DataFrame)
 	prediction = model[1, :Offset] .* ones(nrow(df))
-	for name in setdiff(Symbol.(names(model)), [:Offset])
+	for name in setdiff(Symbol.(names(model)), [:Offset, :Logistic])
 		prediction .+= (model[1, name]*df[:,name])
 	end
-	return prediction
+	if model[1, :Logistic]
+		return 1 ./ (1 .+ exp.(-1 .* prediction))
+	else
+		return prediction
+	end
 end
 
 """
 	Evaluate the fit quality of a linear model on a dataset
 """
-function evaluate(Y::Array{Float64}, df::DataFrame, model)
-	trainmean = Statistics.mean(Y[df[:,:Test] .== 0])
-	SST = sum((Y[df[:,:Test] .== 0] .- trainmean) .^ 2)
-	OSSST = sum((Y[df[:,:Test] .== 1] .- trainmean) .^ 2)
-
+function evaluate(Y::Vector, df::DataFrame, model::DataFrame)
 	prediction = predict(df, model)
-	R2 = 1 - sum((Y[df[:,:Test] .== 0] .- prediction[df[:,:Test] .== 0]) .^ 2)/SST
-	OSR2 = 1 - sum((Y[df[:,:Test] .== 1] .- prediction[df[:,:Test] .== 1]) .^ 2)/OSSST
-	return R2, OSR2
+	if model[1, :Logistic]
+		error("Logistic model evaluated on continuous vector")
+	else
+		trainmean = Statistics.mean(Y[df[:,:Test] .== 0])
+		SST = sum((Y[df[:,:Test] .== 0] .- trainmean) .^ 2)
+		OSSST = sum((Y[df[:,:Test] .== 1] .- trainmean) .^ 2)
+
+		R2 = 1 - sum((Y[df[:,:Test] .== 0] .- prediction[df[:,:Test] .== 0]) .^ 2)/SST
+		OSR2 = 1 - sum((Y[df[:,:Test] .== 1] .- prediction[df[:,:Test] .== 1]) .^ 2)/OSSST
+		return R2, OSR2
+	end
+end
+function evaluate(Y::BitArray{1}, df::DataFrame, model::DataFrame;
+				  metric::AbstractString="logloss")
+	prediction = predict(df, model)
+	if model[1, :Logistic]
+		if metric == "logloss"
+			logloss = sum(Y[df[:,:Test] .== 0] .*
+			              log.(prediction[df[:,:Test] .== 0]) .-
+					  (1 .- Y[df[:,:Test] .== 0]) .*
+					  log.(1 .- prediction[df[:,:Test] .== 0]))
+			OSlogloss = sum(Y[df[:,:Test] .== 1] .*
+			                log.(prediction[df[:,:Test] .== 1]) .-
+					  	(1 .- Y[df[:,:Test] .== 1]) .*
+					  	log.(1 .- prediction[df[:,:Test] .== 1]))
+			return logloss, OSlogloss
+		elseif metric == "auc"
+			return auc(Y[df[:,:Test] .== 0], prediction[df[:,:Test] .== 0]),
+				   auc(Y[df[:,:Test] .== 1], prediction[df[:,:Test] .== 1])
+		end
+	else
+		error("Continuous model evaluated on binary vector")
+	end
+end
+
+function auc(actual::BitArray{1}, predicted::Vector)
+	@assert length(actual) == length(predicted)
+	r = StatsBase.tiedrank(predicted)
+	n_pos = sum(actual)
+	n_neg = length(actual) - n_pos
+	AUC = (sum(r[actual]) - n_pos * (n_pos + 1) / 2) / (n_pos * n_neg)
+	return AUC
 end

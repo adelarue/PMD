@@ -93,6 +93,20 @@ function linear_y(data::DataFrame, data_missing::DataFrame;
     return Y .+ noise, k_non_missing+k_missing_in_signal, k_missing_in_signal
 end
 
+"Generate binary Y"
+function binary_y(data::DataFrame, data_missing::DataFrame;
+				  k::Real=10, SNR::Real=4,
+    			  canbemissing=falses(Base.size(data,2)), #indicates which features can be missing
+				  mar::Bool=true,
+    			  k_missing_in_signal::Int=0,
+    			  sigmoid_threshold::Real=0.5)
+	Y, _1, _2 = linear_y(data, data_missing, k=k, SNR=SNR, canbemissing=canbemissing,
+	                     mar=mar, k_missing_in_signal=k_missing_in_signal)
+	@show length(Y)
+	return 1 ./ (1 .+ exp.(-1 .* Y)) .> sigmoid_threshold
+end
+
+
 """
 	Soft thresholding
 """

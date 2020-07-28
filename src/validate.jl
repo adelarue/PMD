@@ -42,6 +42,36 @@ function regress_cv(Y::Vector, data::DataFrame;
 	                    missing_penalty = bestparams[3])
 	return bestmodel, bestparams
 end
+function regress_cv(Y::BitArray{1}, data::DataFrame;
+					val_fraction::Real=0.2,
+					lasso::Vector{Bool}=[false],
+					alpha::Vector{Float64}=[0.8],
+					missing_penalty::Vector{Float64}=[1.0])
+	# isolate training set
+	newY = Y[data[!, :Test] .== 0]
+	newdata = filter(row -> row[:Test] == 0, data)
+	# designate some of training as testing/validation
+	val_indices = shuffle(1:nrow(newdata))[1:Int(floor(val_fraction * nrow(newdata)))]
+	newdata[val_indices, :Test] .= 1
+	bestmodel = regress(newY, newdata, lasso = lasso[1], alpha = alpha[1],
+	                    missing_penalty = missing_penalty[1])
+	bestlogloss = evaluate(newY, newdata, bestmodel)[2]
+	bestparams = (lasso[1], alpha[1], missing_penalty[1])
+	for l in lasso, a in alpha, mp in missing_penalty
+		newmodel = regress(newY, newdata, lasso = l, alpha = a, missing_penalty = mp)
+		newlogloss = evaluate(newY, newdata, newmodel)[2]
+		if newlogloss < bestlogloss
+			bestlogloss = newlogloss
+			bestparams = (l, a, mp)
+		end
+	end
+	# train model on full dataset using best parameters
+	bestmodel = regress(Y, data, lasso = bestparams[1], alpha = bestparams[2],
+	                    missing_penalty = bestparams[3])
+	return bestmodel, bestparams
+end
+
+
 
 """
 	Train greedy regression model, validating hyperparameters
