@@ -80,7 +80,7 @@ end
 		- tolerance:	minimum improvement to MSE required
 		- minbucket:	minimum number of observations in a split to attempt a split
 """
-function greedymodel_cv(Y::Vector, data::DataFrame;
+function greedymodel_cv(Y::Union{Vector, BitArray{1}}, data::DataFrame;
 						val_fraction::Real=0.2,
 						maxdepth::Vector{Int} = [3],
 						tolerance::Vector{Float64} = [0.1],
@@ -98,14 +98,17 @@ function greedymodel_cv(Y::Vector, data::DataFrame;
 	                             tolerance = tolerance[1],
 	                    		 minbucket = minbucket[1],
 	                    		 missingdata = newmissingdata)
-	bestOSR2 = evaluate(newY, newdata, bestmodel, newmissingdata)[2]
+	bestMetric = evaluate(newY, newdata, bestmodel, newmissingdata)[2]
 	bestparams = (maxdepth[1], tolerance[1], minbucket[1])
 	for depth in maxdepth, tol in tolerance, mb in minbucket
+		if depth == maxdepth[1] && tol == tolerance[1] && mb == minbucket[1]
+			continue
+		end
 		newmodel = trainGreedyModel(newY, newdata, maxdepth = depth, tolerance = tol,
 	                    		 	 minbucket = mb, missingdata = newmissingdata)
-		newOSR2 = evaluate(newY, newdata, newmodel, newmissingdata)[2]
-		if newOSR2 > bestOSR2
-			bestOSR2 = newOSR2
+		newMetric = evaluate(newY, newdata, newmodel, newmissingdata)[2]
+		if (!newmodel.logistic && newMetric > bestMetric) || (newmodel.logistic && newMetric < bestMetric)
+			bestMetric = newMetric
 			bestparams = (depth, tol, mb)
 		end
 	end

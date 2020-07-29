@@ -86,7 +86,7 @@ function predict(df::DataFrame, model::DataFrame)
 		prediction .+= (model[1, name]*df[:,name])
 	end
 	if model[1, :Logistic]
-		return 1 ./ (1 .+ exp.(-1 .* prediction))
+		return sigmoid.(prediction)
 	else
 		return prediction
 	end
@@ -114,24 +114,27 @@ function evaluate(Y::BitArray{1}, df::DataFrame, model::DataFrame;
 	prediction = predict(df, model)
 	if model[1, :Logistic]
 		if metric == "logloss"
-			logloss = sum(Y[df[:,:Test] .== 0] .*
-			              log.(prediction[df[:,:Test] .== 0]) .-
-					  (1 .- Y[df[:,:Test] .== 0]) .*
-					  log.(1 .- prediction[df[:,:Test] .== 0]))
-			OSlogloss = sum(Y[df[:,:Test] .== 1] .*
-			                log.(prediction[df[:,:Test] .== 1]) .-
-					  	(1 .- Y[df[:,:Test] .== 1]) .*
-					  	log.(1 .- prediction[df[:,:Test] .== 1]))
-			return logloss, OSlogloss
+			ll = logloss(Y[df[:,:Test] .== 0], prediction[df[:,:Test] .== 0])
+			osll = logloss(Y[df[:,:Test] .== 1], prediction[df[:,:Test] .== 1])
+			return ll, osll
 		elseif metric == "auc"
 			return auc(Y[df[:,:Test] .== 0], prediction[df[:,:Test] .== 0]),
 				   auc(Y[df[:,:Test] .== 1], prediction[df[:,:Test] .== 1])
+		else
+			error("Unknown metric: $metric (only supports 'logloss', 'auc')")
 		end
 	else
 		error("Continuous model evaluated on binary vector")
 	end
 end
 
+"Compute logistic loss of a particular prediction"
+function logloss(actual::BitArray{1}, predicted::Vector)
+	return sum(actual .* log.(predicted) .- (1 .- actual) .* log.(1 .- predicted))
+end
+logloss(actual::BitArray{1}, constant::Real) = logloss(actual, constant .* ones(length(actual)))
+
+"Compute AUC of predictions"
 function auc(actual::BitArray{1}, predicted::Vector)
 	@assert length(actual) == length(predicted)
 	r = StatsBase.tiedrank(predicted)
