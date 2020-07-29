@@ -59,6 +59,8 @@ struct GreedyModel
 	nodes::Vector{Node}
 	"Leaf nodes"
 	leaves::Set{Int}
+	"Linear or logistic"
+	logistic::Bool
 end
 
 """
@@ -97,7 +99,7 @@ end
 		- tolerance:	minimum improvement to MSE required
 		- minbucket:	minimum number of observations in a split to attempt a split
 """
-function trainGreedyModel(Y::Vector, data::DataFrame;
+function trainGreedyModel(Y::Union{Vector, BitArray{1}}, data::DataFrame;
 						  maxdepth::Int = 3,
 						  tolerance::Float64 = 0.1,
 						  minbucket::Int = 10,
@@ -131,28 +133,36 @@ end
 	Initialize the greedy model with a single node, which always predicts the mean
 """
 function initializeGreedyModel(Y::Vector, data::DataFrame)
-	features = [i for (i, name) in enumerate(setdiff(Symbol.(names(data)), [:Test]))
+	features = [i for (i, name) in enumerate(setdiff(Symbol.(names(data)), [:Test, :Id]))
 				if !any(ismissing.(data[!, name]))]
 	points = findall(data[!, :Test] .== 0)
 	intercept, coeffs, SSE = regressionCoefficients(Y, data, points, features)
 	root = LeafNode(1, 1, intercept, coeffs, features, Int[], 0)
-	return GreedyModel([root], Set([1]))
+	return GreedyModel([root], Set([1]), false)
+end
+function initializeGreedyModel(Y::BitArray{1}, data::DataFrame)
+	features = [i for (i, name) in enumerate(setdiff(Symbol.(names(data)), [:Test, :Id]))
+				if !any(ismissing.(data[!, name]))]
+	points = findall(data[!, :Test] .== 0)
+	intercept, coeffs, LL = regressionCoefficients(Y, data, points, features)
+	root = LeafNode(1, 1, intercept, coeffs, features, Int[], 0)
+	return GreedyModel([root], Set([1]), true)
 end
 
 """
 	Find best split at a particular node
 """
-function bestSplit(gm::GreedyModel, Y::Vector, data::DataFrame, node::Int,
+function bestSplit(gm::GreedyModel, Y::Union{Vector, BitArray{1}}, data::DataFrame, node::Int,
 				   points::Vector{Int}, features::Vector{Int}, minbucket::Int,
 				   missingdata::DataFrame = data)
 	currentNode = gm.nodes[node]
-	p = Base.size(data, 2) - 1
-	X = Matrix(data[points, Not(:Test)])
+	p = Base.size(data, 2) - 2
+	X = Matrix(data[points, Not([:Test, :Id])])
 	y = Y[points]
 	X = Float64.(X[:, currentNode.featuresIn])
-	currentSSE = sum((currentNode.intercept .+
-	                  X * currentNode.coeffs[currentNode.featuresIn] - y) .^ 2)
-	bestSSE = currentSSE
+	pred = currentNode.intercept .+ X * currentNode.coeffs[currentNode.featuresIn]
+	currentLoss = gm.logistic ? logloss(y, sigmoid.(pred)) : sum((y .- pred) .^ 2)
+	bestLoss = currentLoss
 	bestFeature = 1
 	bestCoeffs = (0., zeros(p), 0., zeros(p))
 	for j = 1:p
@@ -163,19 +173,19 @@ function bestSplit(gm::GreedyModel, Y::Vector, data::DataFrame, node::Int,
 		# featuresLeft = sort(vcat(features, j))
 		pointsLeft = points[.!ismissing.(missingdata[points, j])]
 		length(pointsLeft) < minbucket && continue
-		intLeft, coeffsLeft, SSEL = regressionCoefficients(Y, data, pointsLeft, featuresLeft)
+		intLeft, coeffsLeft, lossLeft = regressionCoefficients(Y, data, pointsLeft, featuresLeft)
 		featuresRight = features
 		pointsRight = points[ismissing.(missingdata[points, j])]
 		length(pointsRight) < minbucket && continue
-		intRight, coeffsRight, SSER = regressionCoefficients(Y, data, pointsRight, featuresRight)
-		newSSE = SSEL + SSER
-		if newSSE < bestSSE
-			bestSSE = newSSE
+		intRight, coeffsRight, lossRight = regressionCoefficients(Y, data, pointsRight, featuresRight)
+		newLoss = lossLeft + lossRight
+		if newLoss < bestLoss
+			bestLoss = newLoss
 			bestFeature = j
 			bestCoeffs = intLeft, coeffsLeft, intRight, coeffsRight
 		end
 	end
-	return SplitCandidate(node, abs(bestSSE - currentSSE), bestFeature,
+	return SplitCandidate(node, abs(bestLoss - currentLoss), bestFeature,
 	                      points[.!ismissing.(missingdata[points, bestFeature])],
 	                      points[ismissing.(missingdata[points, bestFeature])],
 	                      sort(collect(Set(vcat(features, bestFeature)))), features,
@@ -222,7 +232,7 @@ function regressionCoefficients(Y::Vector, data::DataFrame, points::Vector{Int},
 		β_0 = mean(Y[points])
 		return β_0, coeffs, sum((β_0 .- Y[points]) .^ 2)
 	end
-	X = Matrix(data[points, Not(:Test)])[:, features]
+	X = Matrix(data[points, Not([:Test, :Id])])[:, features]
 	X = Float64.(X)
 	y = Y[points]
 	cv = glmnetcv(X, y)
@@ -231,12 +241,30 @@ function regressionCoefficients(Y::Vector, data::DataFrame, points::Vector{Int},
 	SSE = sum((X * coeffs[features] - y .+ β_0) .^ 2)
 	return β_0, coeffs, SSE
 end
+function regressionCoefficients(Y::BitArray{1}, data::DataFrame, points::Vector{Int},
+								features::Vector{Int})
+	p = Base.size(data, 2) - 1
+	coeffs = zeros(p)
+	if length(features) == 0
+		β_0 = log(mean(Y[points]) / (1 - mean(Y[points])))
+		return β_0, coeffs, logloss(Y[points], mean(Y[points]))
+	end
+	X = Matrix(data[points, Not([:Test, :Id])])[:, features]
+	X = Float64.(X)
+	y = Y[points]
+	cv = glmnetcv(X, hcat(Float64.(.!y), Float64.(y)), GLMNet.Binomial())
+	β_0 = cv.path.a0[argmin(cv.meanloss)]
+	coeffs[features] = cv.path.betas[:, argmin(cv.meanloss)]
+	pred = sigmoid.(β_0 .+ X * coeffs[features])
+	LL = logloss(y, pred)
+	return β_0, coeffs, LL
+end
 
 """
 	Apply greedy regression model to data with missing values
 """
 function predict(data::DataFrame, gm::GreedyModel; missingdata::DataFrame = data)
-	truenames = setdiff(Symbol.(names(data)), [:Test])
+	truenames = setdiff(Symbol.(names(data)), [:Test, :Id])
 	result = zeros(nrow(data))
 	# loop through points
 	for i = 1:nrow(data)
@@ -253,7 +281,11 @@ function predict(data::DataFrame, gm::GreedyModel; missingdata::DataFrame = data
 			result[i] += currentNode.coeffs[f] * data[i, f]
 		end
 	end
-	return result
+	if gm.logistic
+		return sigmoid.(result)
+	else
+		return result
+	end
 end
 
 """
@@ -339,12 +371,37 @@ end
 	Evaluate the fit quality of a greedy model on a dataset
 """
 function evaluate(Y::Array{Float64}, df::DataFrame, model::GreedyModel, missingdata::DataFrame=df)
-	trainmean = Statistics.mean(Y[df[:,:Test] .== 0])
-	SST = sum((Y[df[:,:Test] .== 0] .- trainmean) .^ 2)
-	OSSST = sum((Y[df[:,:Test] .== 1] .- trainmean) .^ 2)
+	if model.logistic
+		error("Cannot evaluate a logistic model on continuous labels")
+	else
+		trainmean = Statistics.mean(Y[df[:,:Test] .== 0])
+		SST = sum((Y[df[:,:Test] .== 0] .- trainmean) .^ 2)
+		OSSST = sum((Y[df[:,:Test] .== 1] .- trainmean) .^ 2)
 
-	prediction = predict(df, model, missingdata=missingdata)
-	R2 = 1 - sum((Y[df[:,:Test] .== 0] .- prediction[df[:,:Test] .== 0]) .^ 2)/SST
-	OSR2 = 1 - sum((Y[df[:,:Test] .== 1] .- prediction[df[:,:Test] .== 1]) .^ 2)/OSSST
-	return R2, OSR2
+		prediction = predict(df, model, missingdata=missingdata)
+		R2 = 1 - sum((Y[df[:,:Test] .== 0] .- prediction[df[:,:Test] .== 0]) .^ 2)/SST
+		OSR2 = 1 - sum((Y[df[:,:Test] .== 1] .- prediction[df[:,:Test] .== 1]) .^ 2)/OSSST
+		return R2, OSR2
+	end
 end
+function evaluate(Y::BitArray{1}, df::DataFrame, model::GreedyModel, missingdata::DataFrame=df;
+				  metric::AbstractString = "logloss")
+	if model.logistic
+		prediction = predict(df, model, missingdata=missingdata)
+		if metric == "logloss"
+			ll = logloss(Y[df[:,:Test] .== 0], prediction[df[:,:Test] .== 0])
+			osll = logloss(Y[df[:,:Test] .== 1], prediction[df[:,:Test] .== 1])
+			return ll, osll
+		elseif metric == "auc"
+			return auc(Y[df[:,:Test] .== 0], prediction[df[:,:Test] .== 0]),
+				   auc(Y[df[:,:Test] .== 1], prediction[df[:,:Test] .== 1])
+		else
+			error("Unknown metric: $metric (only supports 'logloss', 'auc')")
+		end
+	else
+		error("Cannot evaluate a linear model on binary labels")
+	end
+end
+
+
+
