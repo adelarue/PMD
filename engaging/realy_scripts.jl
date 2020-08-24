@@ -82,6 +82,9 @@ for ARG in ARGS
         X_missing = X_missing[ind_availtarget,:]
         X_full = X_full[ind_availtarget,:]
 
+        if length(levels(Y)) == 2
+            Y = convert(BitArray, Y)
+        end
     # for iter in 1:10
         results_table = similar(results_main,0)
 
