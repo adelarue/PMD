@@ -21,7 +21,7 @@ results_main = DataFrame(dataset=[], SNR=[], k=[], kMissing=[], splitnum=[], met
 
 id = 1
 if length(ARGS) > 0
-	id = ARGS[1]
+	id = parse(Int, ARGS[1])
 end
 
 counter = 0
