@@ -35,8 +35,9 @@ for dname in dataset_list, k in k_list, k_missingsignal in 0:k
 	# Read in a data file
 	X_missing = PHD.standardize_colnames(DataFrame(CSV.read("../datasets/"*dname*"/X_missing.csv",
 	                                                        missingstrings=["", "NaN"])));
-	@show nrow(X_missing), ncol(X_missing)
 	X_full = PHD.standardize_colnames(DataFrame(CSV.read("../datasets/"*dname*"/X_full.csv")))[:,:];
+	@show nrow(X_missing), ncol(X_missing)
+	@show nrow(X_full), ncol(X_full)
 
 	# optimize missingness pattern for outlier suppression
 	X_missing = PHD.optimize_missingness(X_missing, X_full);
@@ -71,14 +72,14 @@ for dname in dataset_list, k in k_list, k_missingsignal in 0:k
         df[!,:Test] = test_ind
         linear, bestparams = PHD.regress_cv(Y, df, lasso=[true], alpha=collect(0.1:0.1:1))
         R2, OSR2 = PHD.evaluate(Y, df, linear)
-        push!(results_table, [dname, SNR, k, k_missing, iter, "Oracle", OSR2])
+        push!(results_table, [dname, SNR, k, k_missing, iter, "Oracle", R2, OSR2])
         CSV.write(savedir*filename, results_table)
 
         df = [X_full[:,:] PHD.indicatemissing(X_missing[:,:]; removezerocols=true)]
         df[!,:Test] = test_ind
         linear, bestparams = PHD.regress_cv(Y, df, lasso=[true], alpha=collect(0.1:0.1:1))
         R2, OSR2 = PHD.evaluate(Y, df, linear)
-        push!(results_table, [dname, SNR, k, k_missing, iter, "Oracle XM", OSR2])
+        push!(results_table, [dname, SNR, k, k_missing, iter, "Oracle XM", R2, OSR2])
         CSV.write(savedir*filename, results_table)
 
         ## Method 0
@@ -88,9 +89,9 @@ for dname in dataset_list, k in k_list, k_missingsignal in 0:k
             df[!,:Test] = test_ind
             linear, bestparams = PHD.regress_cv(Y, df, lasso=[true], alpha=collect(0.1:0.1:1))
             R2, OSR2 = PHD.evaluate(Y, df, linear)
-            push!(results_table, [dname, SNR, k, k_missing, iter, "Complete Features", OSR2])
+            push!(results_table, [dname, SNR, k, k_missing, iter, "Complete Features", R2, OSR2])
         catch #In this case, simply predict the mean - which leads to 0. OSR2
-            push!(results_table, [dname, SNR, k, k_missing, iter, "Complete Features", 0.])
+            push!(results_table, [dname, SNR, k, k_missing, iter, "Complete Features", 0., 0.])
         end
         CSV.write(savedir*filename, results_table)
 
@@ -101,7 +102,7 @@ for dname in dataset_list, k in k_list, k_missingsignal in 0:k
         df[!,:Test] = test_ind
         linear, bestparams = PHD.regress_cv(Y, df, lasso=[true], alpha=collect(0.1:0.1:1))
         R2, OSR2 = PHD.evaluate(Y, df, linear)
-        push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 1", OSR2])
+        push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 1", R2, OSR2])
         CSV.write(savedir*filename, results_table)
 
         ## Method 1.2
@@ -115,7 +116,7 @@ for dname in dataset_list, k in k_list, k_missingsignal in 0:k
         df[!,:Test] = test_ind
         linear, bestparams = PHD.regress_cv(Y, df, lasso=[true], alpha=collect(0.1:0.1:1))
         R2, OSR2 = PHD.evaluate(Y, df, linear)
-        push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 2", OSR2])
+        push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 2", R2, OSR2])
         CSV.write(savedir*filename, results_table)
 
         ## Method 1.3
@@ -129,7 +130,7 @@ for dname in dataset_list, k in k_list, k_missingsignal in 0:k
         df[!,:Test] = test_ind
         linear, bestparams = PHD.regress_cv(Y, df, lasso=[true], alpha=collect(0.1:0.1:1))
         R2, OSR2 = PHD.evaluate(Y, df, linear)
-        push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 3", OSR2])
+        push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 3", R2, OSR2])
         CSV.write(savedir*filename, results_table)
 
         ## Method 1.4
@@ -140,7 +141,7 @@ for dname in dataset_list, k in k_list, k_missingsignal in 0:k
         df[!,:Test] = test_ind
         linear, bestparams = PHD.regress_cv(Y, df, lasso=[true], alpha=collect(0.1:0.1:1))
         R2, OSR2 = PHD.evaluate(Y, df, linear)
-        push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 4", OSR2])
+        push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 4", R2, OSR2])
         CSV.write(savedir*filename, results_table)
 
         ## Method 1.5 Mean and mode impute
@@ -152,7 +153,7 @@ for dname in dataset_list, k in k_list, k_missingsignal in 0:k
         df[!,:Test] = test_ind
         linear, bestparams = PHD.regress_cv(Y, df, lasso=[true], alpha=collect(0.1:0.1:1))
         R2, OSR2 = PHD.evaluate(Y, df, linear)
-        push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 5", OSR2])
+        push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 5", R2, OSR2])
         CSV.write(savedir*filename, results_table)
 
         ## Method 2: Static Adaptability
@@ -164,7 +165,7 @@ for dname in dataset_list, k in k_list, k_missingsignal in 0:k
                                                 alpha=collect(0.1:0.1:1),
                                                 missing_penalty=[2.0,4.0,6.0,8.0,12.0,16.0])
         R2, OSR2 = PHD.evaluate(Y, X_augmented, linear2)
-        push!(results_table, [dname, SNR, k, k_missing, iter, "Static", OSR2])
+        push!(results_table, [dname, SNR, k, k_missing, iter, "Static", R2, OSR2])
         CSV.write(savedir*filename, results_table)
 
         ## Method 3: Affine Adaptability
@@ -175,7 +176,7 @@ for dname in dataset_list, k in k_list, k_missingsignal in 0:k
         linear3, bestparams3 = PHD.regress_cv(Y, X_affine, lasso=[true], alpha=collect(0.1:0.1:1),
                                               missing_penalty=[2.0,4.0,6.0,8.0,12.0,16.0])
         R2, OSR2 = PHD.evaluate(Y, X_affine, linear3)
-        push!(results_table, [dname, SNR, k, k_missing, iter, "Affine", OSR2])
+        push!(results_table, [dname, SNR, k, k_missing, iter, "Affine", R2, OSR2])
         CSV.write(savedir*filename, results_table)
     end
 end
