@@ -68,14 +68,14 @@ function linear_y(data::DataFrame, data_missing::DataFrame;
 
     Y = zeros(nrow(newdata))
     #For nevermissing features, choose then generate
-	@show k_non_missing
+	# @show k_non_missing
 	if k_non_missing > 0
 		support = shuffle(nevermissing_features)[1:k_non_missing]
 		w1 = 2*rand(k_non_missing) .- 1
 		Y += Matrix{Float64}(newdata[:,support])*w1
 	end
     #For missing feautres, choose
-	@show k_missing_in_signal
+	# @show k_missing_in_signal
 	if k_missing_in_signal > 0
 	    support = shuffle(missing_features)[1:k_missing_in_signal]
 	    w2 = 2*rand(k_missing_in_signal) .- 1

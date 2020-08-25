@@ -143,3 +143,9 @@ function auc(actual::BitArray{1}, predicted::Vector)
 	AUC = (sum(r[actual]) - n_pos * (n_pos + 1) / 2) / (n_pos * n_neg)
 	return AUC
 end
+
+"Transpose a linear model dataframe"
+function transpose(linear)
+	@assert nrow(linear) == 1
+	return DataFrame(Feature = names(linear), Coeff = vec(linear |> Matrix))
+end
