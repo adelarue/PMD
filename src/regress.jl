@@ -133,7 +133,7 @@ end
 
 "Compute logistic loss of a particular prediction"
 function logloss(actual::BitArray{1}, predicted::Vector)
-	return sum(actual .* log.(predicted) .- (1 .- actual) .* log.(1 .- predicted))
+	return sum(actual .* log.(predicted) .+ (1 .- actual) .* log.(1 .- predicted))
 end
 logloss(actual::BitArray{1}, constant::Real) = logloss(actual, constant .* ones(length(actual)))
 
