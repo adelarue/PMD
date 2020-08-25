@@ -10,6 +10,7 @@ using RCall
 using GLMNet
 using Statistics, LinearAlgebra, Printf, Random
 using DataStructures, StatsBase
+using JuMP, Gurobi
 
 "Helper function to load R packages and install them if necessary"
 function load_R_library(name::AbstractString)

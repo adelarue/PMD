@@ -120,3 +120,30 @@ function mode_impute!(df::DataFrame; train=trues(Base.size(df,1)), deencode_only
 	end
 	select!(df, Not(onehotencoded_missing))
 end
+
+"""
+	Swap missingness patterns in order to maximize total sum of missing values
+"""
+function optimize_missingness(X_missing::DataFrame, X_full::DataFrame)
+    cols = setdiff(Symbol.(names(X_missing)), [:Id])
+    patterns, counts = missing_patterns_countmap(X_missing)
+    model = Model(with_optimizer(Gurobi.Optimizer, TimeLimit=10, OutputFlag=0))
+    @variable(model, z[i = 1:nrow(X_full), j=eachindex(patterns)], Bin)
+    @constraint(model, [i = 1:nrow(X_full)], sum(z[i, j] for j = eachindex(patterns)) == 1)
+    @constraint(model, [j = eachindex(patterns)], sum(z[i, j] for i = 1:nrow(X_full)) == counts[j])
+    @objective(model, Max, sum(z[i, j] * sum(X_full[i, name] * patterns[j][k] for (k, name) in enumerate(cols))
+                               for i = 1:nrow(X_full), j = eachindex(patterns)))
+    optimize!(model)
+    new_X_missing = deepcopy(X_full)
+    allowmissing!(new_X_missing)
+    for i = 1:nrow(X_full), j=eachindex(patterns)
+        if value(z[i, j]) > 0.5
+            for (k, name) in enumerate(cols)
+                if patterns[j][k]
+                    new_X_missing[i, name] = missing
+                end
+            end
+        end
+    end
+    return new_X_missing
+end
