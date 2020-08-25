@@ -52,6 +52,9 @@ function regress(Y::BitArray{1}, df::DataFrame;
 	cols = setdiff(Symbol.(names(df)), [:Id, :Test])
 	X = convert(Matrix, df[df[!, :Test] .== 0, cols])
 	y = convert(Array, Y[df[!, :Test] .== 0])
+
+	freq = mean(1.0.*Y)
+	w = (1/freq).*Y .+ (1/(1 - freq)).*(1. .- Y); #class weights
 	coefficients = DataFrame()
 	if lasso
 		penalty_factor = ones(length(cols))
@@ -61,13 +64,13 @@ function regress(Y::BitArray{1}, df::DataFrame;
 			end
 		end
 		cv = glmnetcv(X, hcat(Float64.(.!y), Float64.(y)), GLMNet.Binomial(),
-		              alpha=alpha, penalty_factor=penalty_factor)
+		              alpha=alpha, penalty_factor=penalty_factor, weights=w)
 		for (i, col) in enumerate(cols)
 			coefficients[!,col] = ([cv.path.betas[i, argmin(cv.meanloss)]])
 		end
 		coefficients[:Offset] = cv.path.a0[argmin(cv.meanloss)]
 	else
-		path = glmnet(X, hcat(Float64.(.!y), Float64.(y)), GLMNet.Binomial())
+		path = glmnet(X, hcat(Float64.(.!y), Float64.(y)), GLMNet.Binomial(), weights=w)
 		for (i, col) in enumerate(cols)
 			coefficients[!,col] = [path.betas[i, end]]
 		end
