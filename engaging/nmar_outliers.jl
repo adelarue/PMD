@@ -1,7 +1,6 @@
 using Pkg
 Pkg.activate("..")
 
-using Revise
 using PHD
 using Random, Statistics, CSV, DataFrames, LinearAlgebra
 
@@ -67,6 +66,7 @@ for dname in dataset_list, k in k_list, k_missingsignal in 0:k
         test_ind = rand(nrow(X_missing)) .< test_prop ;
 
         ## Method Oracle
+        println("Oracle")
         df = X_full[:,:]
         df[!,:Test] = test_ind
         linear, bestparams = PHD.regress_cv(Y, df, lasso=[true], alpha=collect(0.1:0.1:1))
@@ -82,6 +82,7 @@ for dname in dataset_list, k in k_list, k_missingsignal in 0:k
         CSV.write(savedir*filename, results_table)
 
         ## Method 0
+        println("Method 0")
         try
             df = X_missing[:,.!canbemissing] #This step can raise an error if all features can be missing
             df[!,:Test] = test_ind
@@ -94,6 +95,7 @@ for dname in dataset_list, k in k_list, k_missingsignal in 0:k
         CSV.write(savedir*filename, results_table)
 
         ## Method 1.1
+        println("Method 1.1")
         X_imputed = PHD.mice_bruteforce(X_missing);
         df = deepcopy(X_imputed)
         df[!,:Test] = test_ind
@@ -103,6 +105,7 @@ for dname in dataset_list, k in k_list, k_missingsignal in 0:k
         CSV.write(savedir*filename, results_table)
 
         ## Method 1.2
+        println("Method 1.2")
         df = deepcopy(X_missing)
         X_train_imputed = PHD.mice_bruteforce(df[.!test_ind,:]);
         select!(df, names(X_train_imputed))
@@ -116,6 +119,7 @@ for dname in dataset_list, k in k_list, k_missingsignal in 0:k
         CSV.write(savedir*filename, results_table)
 
         ## Method 1.3
+        println("Method 1.3")
         df = deepcopy(X_missing)
         X_train_imputed = PHD.mice_bruteforce(df[.!test_ind,:]);
         X_all_imputed = PHD.mice_bruteforce(df[:,names(X_train_imputed)]);
@@ -129,6 +133,7 @@ for dname in dataset_list, k in k_list, k_missingsignal in 0:k
         CSV.write(savedir*filename, results_table)
 
         ## Method 1.4
+        println("Method 1.4")
         means_df = PHD.compute_mean(X_missing[.!test_ind,:])
         X_imputed = PHD.mean_impute(X_missing, means_df);
         df = deepcopy(X_imputed)
@@ -139,6 +144,7 @@ for dname in dataset_list, k in k_list, k_missingsignal in 0:k
         CSV.write(savedir*filename, results_table)
 
         ## Method 1.5 Mean and mode impute
+        println("Method 1.5")
         means_df = PHD.compute_mean(X_missing[.!test_ind,:])
         X_imputed = PHD.mean_impute(X_missing, means_df);
         df = deepcopy(X_imputed)
@@ -150,6 +156,7 @@ for dname in dataset_list, k in k_list, k_missingsignal in 0:k
         CSV.write(savedir*filename, results_table)
 
         ## Method 2: Static Adaptability
+        println("Method 2")
         df = deepcopy(X_missing)
         df[!,:Test] = test_ind
         X_augmented = hcat(PHD.zeroimpute(df), PHD.indicatemissing(df, removezerocols=true))
@@ -161,6 +168,7 @@ for dname in dataset_list, k in k_list, k_missingsignal in 0:k
         CSV.write(savedir*filename, results_table)
 
         ## Method 3: Affine Adaptability
+        println("Method 3")
         df = deepcopy(X_missing)
         df[!,:Test] = test_ind
         X_affine = PHD.augmentaffine(df, removezerocols=true)
