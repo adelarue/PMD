@@ -60,7 +60,7 @@ for dname in dataset_list, k in k_list, k_missingsignal in 0:k
 	for iter in 1:10
         results_table = similar(results_main,0)
 
-        filename = string(dname, "_SNR_", SNR, "_nmiss_", k_missingsignal, "_$iter.csv")
+        filename = string(dname, "_k_", k, "_kmiss_", k_missingsignal, "_iter_$iter.csv")
 
         # Split train / test
         Random.seed!(56802+767*iter)
