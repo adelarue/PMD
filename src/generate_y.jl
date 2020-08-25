@@ -80,10 +80,15 @@ function linear_y(data::DataFrame, data_missing::DataFrame;
 	    support = shuffle(missing_features)[1:k_missing_in_signal]
 	    w2 = 2*rand(k_missing_in_signal) .- 1
 	    Y += Matrix{Float64}(newdata[:,support])*w2
-		if !mar
-			w2m = 2*rand(k_missing_in_signal) .- 1
-			Y += Matrix{Float64}(1.0 .* ismissing.(data_missing[:,support]) )*w2m
-		end
+		# if !mar
+		# 	w2m = 2*rand(k_missing_in_signal) .- 1
+		# 	Y += Matrix{Float64}(1.0 .* ismissing.(data_missing[:,support]) )*w2m
+		# end
+	end
+	if k_missing_in_signal > 0 && !mar
+		support = shuffle(missing_features)[1:k_missing_in_signal]
+		w2m = 2*rand(k_missing_in_signal) .- 1
+		Y += Matrix{Float64}(1.0 .* ismissing.(data_missing[:,support]) )*w2m
 	end
     #Add bias
     btrue = randn(1); Y .+= btrue
