@@ -70,7 +70,7 @@ for ARG in ARGS
             sort!(target_list)
             Y = DataFrame(CSV.read("../datasets/"*dname*"/Y.csv", missingstrings=["", "NaN"]))[delete_obs,target_list[1]]
         end
-        if eltype(Y) ∉ [Float64, Int64]
+        if eltype(Y) ∉ [Float64, Int64, Union{Float64,Missing}, Union{Int64,Missing}]
             using StatsBase
             cm = countmap(Y)
             level = collect(keys(cm))[argmax(collect(values(cm)))]
