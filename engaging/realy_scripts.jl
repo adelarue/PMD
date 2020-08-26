@@ -27,7 +27,7 @@ for ARG in ARGS
 
     @show dname
     pb_list =  ["communities-and-crime-2", "cylinder-bands", "trains"]
-    if dname ∈ pb_list
+    if true #dname ∈ pb_list
         # Read in a data file.
         X_missing = PHD.standardize_colnames(DataFrame(CSV.read("../datasets/"*dname*"/X_missing.csv", missingstrings=["", "NaN"]))) #df with missing values
 
