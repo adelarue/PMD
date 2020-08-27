@@ -26,7 +26,7 @@ for ARG in ARGS
     dname = dataset_list[d_num]#"dermatology" #"""thyroid-disease-thyroid-0387" #dataset_list[1]
 
     @show dname
-    pb_list =  ["soybean-large", "thyroid-disease-thyroid-0387"]
+    pb_list =  ["communities-and-crime-2", "cylinder-bands", "trains"]
     if true #dname ∈ pb_list
         # Read in a data file.
         X_missing = PHD.standardize_colnames(DataFrame(CSV.read("../datasets/"*dname*"/X_missing.csv", missingstrings=["", "NaN"]))) #df with missing values
@@ -70,7 +70,7 @@ for ARG in ARGS
             sort!(target_list)
             Y = DataFrame(CSV.read("../datasets/"*dname*"/Y.csv", missingstrings=["", "NaN"]))[delete_obs,target_list[1]]
         end
-        if eltype(Y) ∉ [Float64, Int64]
+        if eltype(Y) ∉ [Float64, Int64, Union{Float64,Missing}, Union{Int64,Missing}]
             using StatsBase
             cm = countmap(Y)
             level = collect(keys(cm))[argmax(collect(values(cm)))]

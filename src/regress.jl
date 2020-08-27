@@ -113,7 +113,7 @@ function evaluate(Y::Vector, df::DataFrame, model::DataFrame)
 	end
 end
 function evaluate(Y::BitArray{1}, df::DataFrame, model::DataFrame;
-				  metric::AbstractString="logloss")
+				  metric::AbstractString="auc")
 	prediction = predict(df, model)
 	if model[1, :Logistic]
 		if metric == "logloss"
