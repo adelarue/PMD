@@ -35,7 +35,11 @@ for dname in dataset_list, k in k_list, k_missingsignal in 0:k
 	# Read in a data file
 	X_missing = PHD.standardize_colnames(DataFrame(CSV.read("../datasets/"*dname*"/X_missing.csv",
 	                                                        missingstrings=["", "NaN"])));
+	deleterows = PHD.unique_missing_patterns(X_missing)
+	X_missing = X_missing[setdiff(1:nrow(X_missing), deleterows), :];
+
 	X_full = PHD.standardize_colnames(DataFrame(CSV.read("../datasets/"*dname*"/X_full.csv")))[:,:];
+	X_full = X_full[setdiff(1:nrow(X_full), deleterows), :];
 	@show nrow(X_missing), ncol(X_missing)
 	@show nrow(X_full), ncol(X_full)
 
@@ -64,7 +68,8 @@ for dname in dataset_list, k in k_list, k_missingsignal in 0:k
 
         # Split train / test
         Random.seed!(56802+767*iter)
-        test_ind = rand(nrow(X_missing)) .< test_prop ;
+        test_ind = PHD.split_dataset(X_missing, test_fraction = test_prop)
+        @show sum(test_ind) / length(test_ind)
 
         ## Method Oracle
         println("Oracle")
