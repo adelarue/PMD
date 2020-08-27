@@ -96,6 +96,23 @@ function missing_patterns_countmap(df::DataFrame)
 end
 
 """
+	Find rows with a unique missingness pattern
+"""
+function unique_missing_patterns(df::DataFrame)
+	patterns, counts = missing_patterns_countmap(df)
+	cols = setdiff(Symbol.(names(df)), [:Id, :Test, :Y])
+	unique_rows = Int[]
+	for i = 1:nrow(df)
+		pattern = ismissing.(convert(Vector, df[i, cols]))
+		idx = findfirst(x -> x == pattern, patterns)
+		if counts[idx] == 1
+			push!(unique_rows, i)
+		end
+	end
+	return unique_rows
+end
+
+"""
 	Given a dataset with missing values, check if any columns with missing values have
 		a counterpart column which perfectly matches the missingness indicator
 	Returns a dictionary (column name with missing values) => [intrinsic indicator columns]
@@ -119,4 +136,19 @@ function intrinsic_indicators(df::DataFrame; correlation_threshold::Real = 0.999
 		end
 	end
 	return d
+end
+
+"""
+	Split dataset into in-sample and out-of-sample using stratified sampling
+	Returns a vector with value true if in test set and false otherwise
+"""
+function split_dataset(df::DataFrame; test_fraction::Real = 0.3)
+	cols = setdiff(Symbol.(names(df)), [:Id, :Test, :Y])
+	patterns, counts = missing_patterns_countmap(df)
+	patternidx = [findfirst(x -> x == ismissing.(convert(Vector, df[i, cols])),
+	                        patterns) for i = 1:nrow(df)]
+	train, test = MLDataPattern.stratifiedobs((eachindex(patternidx), patternidx), 1 - test_fraction)
+	test_ind = falses(nrow(df))
+	test_ind[test[1]] .= true
+	return test_ind
 end
