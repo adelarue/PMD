@@ -9,7 +9,7 @@ using RDatasets
 using RCall
 using GLMNet
 using Statistics, LinearAlgebra, Printf, Random
-using DataStructures, StatsBase
+using DataStructures, StatsBase, MLDataPattern
 using JuMP, Gurobi
 
 "Helper function to load R packages and install them if necessary"
