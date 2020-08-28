@@ -47,6 +47,9 @@ for ARG in ARGS
             X_missing[!,j] = newcol
         end
     end
+    for j in PHD.unique_missing_patterns(X_missing)
+        delete_obs[j] = false
+    end
     X_missing = X_missing[delete_obs,:];
 
     #Remove intrinsic indicators
@@ -72,7 +75,7 @@ for ARG in ARGS
 
             # Split train / test
             Random.seed!(56802+767*iter)
-            test_ind = rand(nrow(X_missing)) .< test_prop ;
+            test_ind = PHD.split_dataset(X_missing, test_fraction = test_prop)
 
             ## Method Oracle
             df = X_full[:,:]

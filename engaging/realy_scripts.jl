@@ -31,6 +31,13 @@ for ARG in ARGS
         # Read in a data file.
         X_missing = PHD.standardize_colnames(DataFrame(CSV.read("../datasets/"*dname*"/X_missing.csv", missingstrings=["", "NaN"]))) #df with missing values
 
+        deleterows = PHD.unique_missing_patterns(X_missing)
+        X_missing = X_missing[setdiff(1:nrow(X_missing), deleterows), :];
+
+        X_full = PHD.standardize_colnames(DataFrame(CSV.read("../datasets/"*dname*"/X_full.csv")))[:,:];
+        X_full = X_full[setdiff(1:nrow(X_full), deleterows), :];
+
+
         # Clean up : to be checked, some datasets have strings in features
         delete_obs = trues(Base.size(X_missing,1))
         for j in names(X_missing)
@@ -43,6 +50,10 @@ for ARG in ARGS
                 X_missing[!,j] = newcol
             end
         end
+        for j in PHD.unique_missing_patterns(X_missing)
+            delete_obs[j] = false
+        end
+
         X_missing = X_missing[delete_obs,:];
 
         #Remove intrinsic indicators
@@ -92,7 +103,7 @@ for ARG in ARGS
 
         Random.seed!(2142+767*iter)
         # Split train / test
-        test_ind = rand(nrow(X_missing)) .< test_prop ;
+        test_ind = PHD.split_dataset(X_missing, test_fraction = test_prop) #rand(nrow(X_missing)) .< test_prop ;
 
         ## Method 0
         try
