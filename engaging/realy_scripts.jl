@@ -53,7 +53,6 @@ for ARG in ARGS
         for j in PHD.unique_missing_patterns(X_missing)
             delete_obs[j] = false
         end
-
         X_missing = X_missing[delete_obs,:];
 
         #Remove intrinsic indicators
@@ -64,7 +63,8 @@ for ARG in ARGS
         select!(X_missing, keep_cols)
         canbemissing = [any(ismissing.(X_missing[:,j])) for j in names(X_missing)] #indicator of missing features
 
-        X_full = PHD.standardize_colnames(DataFrame(CSV.read("../datasets/"*dname*"/X_full.csv")))[delete_obs,:] #ground truth df
+        X_full = PHD.standardize_colnames(DataFrame(CSV.read("../datasets/"*dname*"/X_full.csv"))) #ground truth df
+        X_full = X_full[findall(delete_obs),:]
         select!(X_full, keep_cols)
 
         # Create output
