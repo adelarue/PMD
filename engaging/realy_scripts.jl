@@ -63,7 +63,9 @@ for ARG in ARGS
         end
         select!(X_missing, keep_cols)
         canbemissing = [any(ismissing.(X_missing[:,j])) for j in names(X_missing)] #indicator of missing features
-        X_full = PHD.standardize_colnames(DataFrame(CSV.read("../datasets/"*dname*"/X_full.csv")))[delete_obs,keep_cols] #ground truth df
+
+        X_full = PHD.standardize_colnames(DataFrame(CSV.read("../datasets/"*dname*"/X_full.csv")))[delete_obs,:] #ground truth df
+        select!(X_full, keep_cols)
 
         # Create output
         # @time Y, k, k_missing = PHD.linear_y(X_full, soft_threshold=0.1, SNR=SNR, canbemissing=canbemissing, n_missing_in_signal=n_missingsignal) ;
