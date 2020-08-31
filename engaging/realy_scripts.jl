@@ -63,7 +63,7 @@ for ARG in ARGS
         select!(X_missing, keep_cols)
         canbemissing = [any(ismissing.(X_missing[:,j])) for j in names(X_missing)] #indicator of missing features
 
-        X_full = PHD.standardize_colnames(DataFrame(CSV.read("../datasets/"*dname*"/X_full.csv"))) #ground truth df
+        # X_full = PHD.standardize_colnames(DataFrame(CSV.read("../datasets/"*dname*"/X_full.csv"))) #ground truth df
         X_full = X_full[findall(delete_obs),:]
         select!(X_full, keep_cols)
 
@@ -77,11 +77,11 @@ for ARG in ARGS
         Y = zeros(Base.size(X_missing,1))
         if length(target_list) <= 2
             target_name = setdiff(target_list, [:Id])[1]
-            Y = DataFrame(CSV.read("../datasets/"*dname*"/Y.csv", missingstrings=["", "NaN"]))[delete_obs,target_name]
+            Y = DataFrame(CSV.read("../datasets/"*dname*"/Y.csv", missingstrings=["", "NaN"]))[findall(delete_obs),target_name]
         else
             setdiff!(target_list, [:Id, :target])
             sort!(target_list)
-            Y = DataFrame(CSV.read("../datasets/"*dname*"/Y.csv", missingstrings=["", "NaN"]))[delete_obs,target_list[1]]
+            Y = DataFrame(CSV.read("../datasets/"*dname*"/Y.csv", missingstrings=["", "NaN"]))[findall(delete_obs),target_list[1]]
         end
         if eltype(Y) ∉ [Float64, Int64, Union{Float64,Missing}, Union{Int64,Missing}]
             using StatsBase
