@@ -1,5 +1,4 @@
 using Pkg
-Pkg.update()
 Pkg.build()
 Pkg.activate("..")
 Pkg.build()
