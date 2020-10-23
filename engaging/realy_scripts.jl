@@ -197,6 +197,7 @@ for ARG in ARGS
             sub_features = intersect(sub_features, unique(map(t -> split(t, "_missing")[1], aux)))
             push!(sub_features, "Test")
         end
+        sub_features = unique(sub_features)
         X_affine = PHD.augmentaffine(df[:,sub_features], removezerocols=true)
         linear3, bestparams3 = PHD.regress_cv(Y, X_affine, lasso=[true], alpha=collect(0.1:0.1:1),
                                               missing_penalty=[2.0,4.0,6.0,8.0,12.0,16.0])
