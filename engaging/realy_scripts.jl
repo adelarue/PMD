@@ -183,7 +183,7 @@ for ARG in ARGS
         X_augmented = hcat(PHD.zeroimpute(df), PHD.indicatemissing(df, removezerocols=true))
         linear2, bestparams2 = PHD.regress_cv(Y, X_augmented, lasso=[true],
                                                 alpha=collect(0.1:0.1:1),
-                                                missing_penalty=[2.0,4.0,6.0,8.0,12.0,16.0])
+                                                missing_penalty=[1.0,2.0,4.0,6.0,8.0])
         R2, OSR2 = PHD.evaluate(Y, X_augmented, linear2)
         push!(results_table, [dname, iter, "Static", OSR2])
         CSV.write(savedir*filename, results_table)
