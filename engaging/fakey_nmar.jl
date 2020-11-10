@@ -186,7 +186,7 @@ for ARG in ARGS
             sub_features = unique(sub_features)
             X_affine = PHD.augmentaffine(df[:,sub_features], removezerocols=true)
             linear3, bestparams3 = PHD.regress_cv(Y, X_affine, lasso=[true], alpha=collect(0.1:0.1:1),
-                                                  missing_penalty=[2.0,4.0,6.0,8.0,12.0,16.0])
+                                                  missing_penalty=[1.0,2.0,4.0,6.0,8.0])
             R2, OSR2 = PHD.evaluate(Y, X_affine, linear3)
             push!(results_table, [dname, SNR, k, k_missing, iter, "Affine", OSR2])
             CSV.write(savedir*filename, results_table)
