@@ -39,6 +39,7 @@ for dname in dataset_list, k in k_list, k_missingsignal in 0:k
 	                                                        missingstrings=["", "NaN"])));
 
     # Clean up : to be checked, some datasets have strings in features
+    delete_obs = trues(Base.size(X_missing,1))
     for j in names(X_missing)
         if Symbol(j) != :Id && (eltype(X_missing[:,j]) == String || eltype(X_missing[:,j]) == Union{Missing,String})
             newcol = tryparse.(Float64, X_missing[:,j])
@@ -49,9 +50,10 @@ for dname in dataset_list, k in k_list, k_missingsignal in 0:k
             X_missing[!,j] = newcol
         end
     end
-    #Remove observations that correspond to only observed once missingness pattern
-    deleterows = PHD.unique_missing_patterns(X_missing)
-	X_missing = X_missing[setdiff(1:nrow(X_missing), deleterows), :];
+    for j in PHD.unique_missing_patterns(X_missing)
+        delete_obs[j] = false
+    end
+	X_missing = X_missing[delete_obs, :];
 
     #Remove intrinsic indicators
     keep_cols = names(X_missing)
@@ -61,7 +63,7 @@ for dname in dataset_list, k in k_list, k_missingsignal in 0:k
     select!(X_missing, keep_cols)
 
 	X_full = PHD.standardize_colnames(DataFrame(CSV.read("../datasets/"*dname*"/X_full.csv")))[:,:];
-	X_full = X_full[setdiff(1:nrow(X_full), deleterows), keep_cols];
+	X_full = X_full[delete_obs, keep_cols];
 	@show nrow(X_missing), ncol(X_missing)
 	@show nrow(X_full), ncol(X_full)
 
