@@ -5,7 +5,7 @@ using PHD
 using Random, Statistics, CSV, DataFrames, LinearAlgebra
 
 dataset_list = PHD.list_datasets(p_min = 1)
-k_list = [5, 10]
+k_list = [10]
 SNR = 2
 
 # save information
@@ -18,6 +18,8 @@ if !isdir(savedir)
 end
 results_main = DataFrame(dataset=[], SNR=[], k=[], kMissing=[], splitnum=[], method=[],
                          r2 = [], osr2=[])
+
+affine_on_static_only = true
 
 id = 1
 if length(ARGS) > 0
@@ -35,11 +37,31 @@ for dname in dataset_list, k in k_list, k_missingsignal in 0:k
 	# Read in a data file
 	X_missing = PHD.standardize_colnames(DataFrame(CSV.read("../datasets/"*dname*"/X_missing.csv",
 	                                                        missingstrings=["", "NaN"])));
-	deleterows = PHD.unique_missing_patterns(X_missing)
+
+    # Clean up : to be checked, some datasets have strings in features
+    for j in names(X_missing)
+        if Symbol(j) != :Id && (eltype(X_missing[:,j]) == String || eltype(X_missing[:,j]) == Union{Missing,String})
+            newcol = tryparse.(Float64, X_missing[:,j])
+            delete_obs[newcol .== nothing] .= false
+            newcol = convert(Array{Union{Float64,Missing,Nothing}}, newcol)
+            newcol[newcol .== nothing] .= missing
+            newcol = convert(Array{Union{Float64,Missing}}, newcol)
+            X_missing[!,j] = newcol
+        end
+    end
+    #Remove observations that correspond to only observed once missingness pattern
+    deleterows = PHD.unique_missing_patterns(X_missing)
 	X_missing = X_missing[setdiff(1:nrow(X_missing), deleterows), :];
 
+    #Remove intrinsic indicators
+    keep_cols = names(X_missing)
+    for l in values(PHD.intrinsic_indicators(X_missing, correlation_threshold=0.9))
+        setdiff!(keep_cols, l)
+    end
+    select!(X_missing, keep_cols)
+
 	X_full = PHD.standardize_colnames(DataFrame(CSV.read("../datasets/"*dname*"/X_full.csv")))[:,:];
-	X_full = X_full[setdiff(1:nrow(X_full), deleterows), :];
+	X_full = X_full[setdiff(1:nrow(X_full), deleterows), keep_cols];
 	@show nrow(X_missing), ncol(X_missing)
 	@show nrow(X_full), ncol(X_full)
 
@@ -177,7 +199,14 @@ for dname in dataset_list, k in k_list, k_missingsignal in 0:k
         println("Method 3")
         df = deepcopy(X_missing)
         df[!,:Test] = test_ind
-        X_affine = PHD.augmentaffine(df, removezerocols=true)
+        sub_features = names(df)
+        if affine_on_static_only
+            aux = names(X_augmented)[findall(abs.(convert(Array, linear2[1,:])) .> 0)]
+            sub_features = intersect(sub_features, unique(map(t -> split(t, "_missing")[1], aux)))
+            push!(sub_features, "Test")
+        end
+        sub_features = unique(sub_features)
+        X_affine = PHD.augmentaffine(df[:,sub_features], removezerocols=true)
         linear3, bestparams3 = PHD.regress_cv(Y, X_affine, lasso=[true], alpha=collect(0.1:0.1:1),
                                               missing_penalty=[2.0,4.0,6.0,8.0,12.0,16.0])
         R2, OSR2 = PHD.evaluate(Y, X_affine, linear3)
