@@ -39,9 +39,9 @@ function regress(Y::Array{Float64}, df::DataFrame;
 			coefficients[:Offset] = cv.path.a0[argmin(cv.meanloss)]
 		catch
 			for col in cols
-				coefficients[!,col] = 0.
+				coefficients[!,col] = [0.]
 			end
-			coefficients[:Offset] = mean(y)
+			coefficients[:Offset] = [mean(y)]
 		end
 	else
 		path = glmnet(X, y)
@@ -79,9 +79,9 @@ function regress(Y::BitArray{1}, df::DataFrame;
 			coefficients[:Offset] = cv.path.a0[argmin(cv.meanloss)]
 		catch
 			for col in cols
-				coefficients[!,col] = 0.
+				coefficients[!,col] = [0.]
 			end
-			coefficients[:Offset] = mean(y)
+			coefficients[:Offset] = [mean(y)]
 		end
 	else
 		path = glmnet(X, hcat(Float64.(.!y), Float64.(y)), GLMNet.Binomial(), weights=w)
