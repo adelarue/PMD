@@ -225,7 +225,7 @@ for ARG in ARGS
             @time gm2 = PHD.trainGreedyModel(Y, X_missing_zero_std,
                                              maxdepth = 8, tolerance = 0.05, minbucket = 20, missingdata = X_missing)
             R2, OSR2 = PHD.evaluate(Y, X_missing_zero_std, gm2, X_missing_std)
-            push!(results_table, [dname, SNR, k, k_missing, iter, "Finite", OSR2])
+            push!(results_table, [dname, iter, "Finite", OSR2])
             CSV.write(savedir*filename, results_table)
         end
     end
