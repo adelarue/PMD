@@ -116,7 +116,7 @@ for ARG in ARGS
                     R2, OSR2 = PHD.evaluate(Y, df, linear)
                     push!(results_table, [dname, SNR, k, k_missing, iter, "Complete Features", R2, OSR2, δt])
                 catch #In this case, simply predict the mean - which leads to 0. OSR2
-                    push!(results_table, [dname, SNR, k, k_missing, iter, "Complete Features", 0., 0.])
+                    push!(results_table, [dname, SNR, k, k_missing, iter, "Complete Features", 0., 0., 0.])
                 end
                 CSV.write(savedir*filename, results_table)
             end
@@ -143,7 +143,7 @@ for ARG in ARGS
                 select!(df, names(X_train_imputed))
                 df[.!test_ind,:] .= X_train_imputed
                 start = time()
-                X_all_imputed = PHD.mice(df);
+                X_all_imputed = PHD.mice_bruteforce(df);
                 δt += (time() - start)
                 df = deepcopy(X_all_imputed)
                 df[!,:Test] = test_ind

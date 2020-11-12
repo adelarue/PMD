@@ -91,7 +91,7 @@ for dname in dataset_list, k in k_list, k_missingsignal in 0:k
 		break
 	end
 	test_prop = .3
-	test_ind = rand(nrow(X_missing)) .< test_prop ;
+	# test_ind = rand(nrow(X_missing)) .< test_prop ;
 
 	for iter in 1:10
         results_table = similar(results_main,0)
@@ -164,7 +164,7 @@ for dname in dataset_list, k in k_list, k_missingsignal in 0:k
             select!(df, names(X_train_imputed))
             df[.!test_ind,:] .= X_train_imputed
             start = time()
-            X_all_imputed = PHD.mice(df);
+            X_all_imputed = PHD.mice_bruteforce(df);
             δt += (time() - start)
             df = deepcopy(X_all_imputed)
             df[!,:Test] = test_ind

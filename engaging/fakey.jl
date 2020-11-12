@@ -144,7 +144,7 @@ for ARG in ARGS
                 select!(df, names(X_train_imputed))
                 df[.!test_ind,:] .= X_train_imputed
                 start = time()
-                X_all_imputed = PHD.mice(df);
+                X_all_imputed = PHD.mice_bruteforce(df);
                 δt += (time() - start)
 
                 df = deepcopy(X_all_imputed)
