@@ -6,8 +6,8 @@ using PHD
 
 using Random, Statistics, CSV, DataFrames, LinearAlgebra
 
-dataset_list = PHD.list_datasets(p_min = 1)
-# dataset_list = [d for d in split.(read(`ls ../datasets/`, String), "\n") if length(d) > 0]
+# dataset_list = PHD.list_datasets(p_min = 1)
+dataset_list = [d for d in split.(read(`ls ../datasets/`, String), "\n") if length(d) > 0]
 sort!(dataset_list)
 @show length(dataset_list)
 
@@ -22,12 +22,12 @@ if !isdir(savedir)
 end
 SNR = 2
 
-do_benchmark = false
-do_impthenreg = false
+do_benchmark = true
+do_impthenreg = true
 do_static = true
-do_affine = false
+do_affine = true
 affine_on_static_only = true
-do_finite = false
+do_finite = true
 
 results_main = DataFrame(dataset=[], SNR=[], k=[], kMissing=[], splitnum=[], method=[],
                             r2=[], osr2=[], time=[])
@@ -77,7 +77,7 @@ for ARG in ARGS
     if k_missing == k_missingsignal #If not enough missing features to generate Y with k_missingsignal, abort (already done)
         test_prop = .3
 
-        for iter in 2:10
+        for iter in 1:10
             results_table = similar(results_main,0)
 
             filename = string(dname, "_SNR_", SNR, "_nmiss_", k_missingsignal, "_$iter.csv")
