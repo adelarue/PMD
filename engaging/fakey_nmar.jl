@@ -1,15 +1,16 @@
 using Pkg
 Pkg.activate("..")
 
-using Revise
+# using Revise
 using PHD
 
 using Random, Statistics, CSV, DataFrames, LinearAlgebra
 
-dataset_list = PHD.list_datasets(p_min = 1)
+# dataset_list = PHD.list_datasets(p_min = 1)
+dataset_list = [d for d in split.(read(`ls ../datasets/`, String), "\n") if length(d) > 0]
+sort!(dataset_list)
 @show length(dataset_list)
 
-# SNR_list = [2, 1, .5]
 missingsignal_list = [0,1,2,3,4,5,6,7,8,9,10]
 
 if !isdir("../results")
@@ -21,7 +22,15 @@ if !isdir(savedir)
 end
 SNR = 2
 
-results_main = DataFrame(dataset=[], SNR=[], k=[], kMissing=[], splitnum=[], method=[], osr2=[])
+do_benchmark = true
+do_impthenreg = true
+do_static = true
+do_affine = true
+affine_on_static_only = true
+do_finite = true
+
+results_main = DataFrame(dataset=[], SNR=[], k=[], kMissing=[], splitnum=[], method=[],
+                            r2=[], osr2=[], time=[])
 
 for ARG in ARGS
     array_num = parse(Int, ARG)
@@ -47,6 +56,9 @@ for ARG in ARGS
             X_missing[!,j] = newcol
         end
     end
+    for j in PHD.unique_missing_patterns(X_missing)
+        delete_obs[j] = false
+    end
     X_missing = X_missing[delete_obs,:];
 
     #Remove intrinsic indicators
@@ -66,118 +78,187 @@ for ARG in ARGS
         test_prop = .3
 
         for iter in 1:10
+            @show iter
+
             results_table = similar(results_main,0)
 
             filename = string(dname, "_SNR_", SNR, "_nmiss_", k_missingsignal, "_$iter.csv")
 
             # Split train / test
             Random.seed!(56802+767*iter)
-            test_ind = rand(nrow(X_missing)) .< test_prop ;
+            test_ind = PHD.split_dataset(X_missing, test_fraction = test_prop)
 
-            ## Method Oracle
-            df = X_full[:,:]
-            df[!,:Test] = test_ind
-            linear, bestparams = PHD.regress_cv(Y, df, lasso=[true], alpha=collect(0.1:0.1:1))
-            R2, OSR2 = PHD.evaluate(Y, df, linear)
-            push!(results_table, [dname, SNR, k, k_missing, iter, "Oracle", OSR2])
-            CSV.write(savedir*filename, results_table)
-
-            df = [X_full[:,:] PHD.indicatemissing(X_missing[:,:]; removezerocols=true)]
-            df[!,:Test] = test_ind
-            linear, bestparams = PHD.regress_cv(Y, df, lasso=[true], alpha=collect(0.1:0.1:1))
-            R2, OSR2 = PHD.evaluate(Y, df, linear)
-            push!(results_table, [dname, SNR, k, k_missing, iter, "Oracle XM", OSR2])
-            CSV.write(savedir*filename, results_table)
-
-
-            ## Method 0
-            try
-                df = X_missing[:,.!canbemissing] #This step can raise an error if all features can be missing
+            if do_benchmark
+                println("Benchmark methods...")
+                println("####################")
+                ## Method Oracle
+                df = X_full[:,:]
                 df[!,:Test] = test_ind
+                start = time()
                 linear, bestparams = PHD.regress_cv(Y, df, lasso=[true], alpha=collect(0.1:0.1:1))
+                δt = (time() - start)
                 R2, OSR2 = PHD.evaluate(Y, df, linear)
-                push!(results_table, [dname, SNR, k, k_missing, iter, "Complete Features", OSR2])
-            catch #In this case, simply predict the mean - which leads to 0. OSR2
-                push!(results_table, [dname, SNR, k, k_missing, iter, "Complete Features", 0.])
+                push!(results_table, [dname, SNR, k, k_missing, iter, "Oracle", R2, OSR2, δt])
+                CSV.write(savedir*filename, results_table)
+
+                df = [X_full[:,:] PHD.indicatemissing(X_missing[:,:]; removezerocols=true)]
+                df[!,:Test] = test_ind
+                start = time()
+                linear, bestparams = PHD.regress_cv(Y, df, lasso=[true], alpha=collect(0.1:0.1:1))
+                δt = (time() - start)
+                R2, OSR2 = PHD.evaluate(Y, df, linear)
+                push!(results_table, [dname, SNR, k, k_missing, iter, "Oracle XM", R2, OSR2, δt])
+                CSV.write(savedir*filename, results_table)
+
+                ## Method 0
+                try
+                    df = X_missing[:,.!canbemissing] #This step can raise an error if all features can be missing
+                    df[!,:Test] = test_ind
+                    start = time()
+                    linear, bestparams = PHD.regress_cv(Y, df, lasso=[true], alpha=collect(0.1:0.1:1))
+                    δt = (time() - start)
+                    R2, OSR2 = PHD.evaluate(Y, df, linear)
+                    push!(results_table, [dname, SNR, k, k_missing, iter, "Complete Features", R2, OSR2, δt])
+                catch #In this case, simply predict the mean - which leads to 0. OSR2
+                    push!(results_table, [dname, SNR, k, k_missing, iter, "Complete Features", 0., 0., 0.])
+                end
+                CSV.write(savedir*filename, results_table)
             end
-            CSV.write(savedir*filename, results_table)
 
-            ## Method 1.1
-            X_imputed = PHD.mice_bruteforce(X_missing);
-            df = deepcopy(X_imputed)
-            df[!,:Test] = test_ind
-            linear, bestparams = PHD.regress_cv(Y, df, lasso=[true], alpha=collect(0.1:0.1:1))
-            R2, OSR2 = PHD.evaluate(Y, df, linear)
-            push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 1", OSR2])
-            CSV.write(savedir*filename, results_table)
+            if do_impthenreg
+                println("Impute-then-regress methods...")
+                println("###############################")
+                ## Method 1.1
+                start = time()
+                X_imputed = PHD.mice_bruteforce(X_missing);
+                δt = (time() - start)
+                df = deepcopy(X_imputed)
+                df[!,:Test] = test_ind
+                start = time()
+                linear, bestparams = PHD.regress_cv(Y, df, lasso=[true], alpha=collect(0.1:0.1:1))
+                δt += (time() - start)
+                R2, OSR2 = PHD.evaluate(Y, df, linear)
+                push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 1", R2, OSR2, δt])
+                CSV.write(savedir*filename, results_table)
 
-            ## Method 1.2
-            df = deepcopy(X_missing)
-            X_train_imputed = PHD.mice_bruteforce(df[.!test_ind,:]);
-            select!(df, names(X_train_imputed))
-            df[.!test_ind,:] .= X_train_imputed
-            X_all_imputed = PHD.mice(df);
-            df = deepcopy(X_all_imputed)
-            df[!,:Test] = test_ind
-            linear, bestparams = PHD.regress_cv(Y, df, lasso=[true], alpha=collect(0.1:0.1:1))
-            R2, OSR2 = PHD.evaluate(Y, df, linear)
-            push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 2", OSR2])
-            CSV.write(savedir*filename, results_table)
+                ## Method 1.2
+                df = deepcopy(X_missing)
+                start = time()
+                X_train_imputed = PHD.mice_bruteforce(df[.!test_ind,:]);
+                δt = (time() - start)
+                select!(df, names(X_train_imputed))
+                df[.!test_ind,:] .= X_train_imputed
+                start = time()
+                X_all_imputed = PHD.mice_bruteforce(df);
+                δt += (time() - start)
+                df = deepcopy(X_all_imputed)
+                df[!,:Test] = test_ind
+                start = time()
+                linear, bestparams = PHD.regress_cv(Y, df, lasso=[true], alpha=collect(0.1:0.1:1))
+                δt += (time() - start)
+                R2, OSR2 = PHD.evaluate(Y, df, linear)
+                push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 2", R2, OSR2, δt])
+                CSV.write(savedir*filename, results_table)
 
-            ## Method 1.3
-            df = deepcopy(X_missing)
-            X_train_imputed = PHD.mice_bruteforce(df[.!test_ind,:]);
-            X_all_imputed = PHD.mice_bruteforce(df[:,names(X_train_imputed)]);
-            select!(df, names(X_train_imputed))
-            df[.!test_ind,:] .= X_train_imputed
-            df[test_ind,:] .= X_all_imputed[test_ind,:]
-            df[!,:Test] = test_ind
-            linear, bestparams = PHD.regress_cv(Y, df, lasso=[true], alpha=collect(0.1:0.1:1))
-            R2, OSR2 = PHD.evaluate(Y, df, linear)
-            push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 3", OSR2])
-            CSV.write(savedir*filename, results_table)
+                ## Method 1.3
+                df = deepcopy(X_missing)
+                start = time()
+                X_train_imputed = PHD.mice_bruteforce(df[.!test_ind,:]);
+                X_all_imputed = PHD.mice_bruteforce(df[:,names(X_train_imputed)]);
+                δt = (time() - start)
+                select!(df, names(X_train_imputed))
+                df[.!test_ind,:] .= X_train_imputed
+                df[test_ind,:] .= X_all_imputed[test_ind,:]
+                df[!,:Test] = test_ind
+                start = time()
+                linear, bestparams = PHD.regress_cv(Y, df, lasso=[true], alpha=collect(0.1:0.1:1))
+                δt += (time() - start)
+                R2, OSR2 = PHD.evaluate(Y, df, linear)
+                push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 3", R2, OSR2, δt])
+                CSV.write(savedir*filename, results_table)
 
-            ## Method 1.4
-            means_df = PHD.compute_mean(X_missing[.!test_ind,:])
-            X_imputed = PHD.mean_impute(X_missing, means_df);
-            df = deepcopy(X_imputed)
-            df[!,:Test] = test_ind
-            linear, bestparams = PHD.regress_cv(Y, df, lasso=[true], alpha=collect(0.1:0.1:1))
-            R2, OSR2 = PHD.evaluate(Y, df, linear)
-            push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 4", OSR2])
-            CSV.write(savedir*filename, results_table)
+                ## Method 1.4
+                start = time()
+                means_df = PHD.compute_mean(X_missing[.!test_ind,:])
+                X_imputed = PHD.mean_impute(X_missing, means_df);
+                δt = (time() - start)
+                df = deepcopy(X_imputed)
+                df[!,:Test] = test_ind
+                start = time()
+                linear, bestparams = PHD.regress_cv(Y, df, lasso=[true], alpha=collect(0.1:0.1:1))
+                δt += (time() - start)
+                R2, OSR2 = PHD.evaluate(Y, df, linear)
+                push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 4", R2, OSR2, δt])
+                CSV.write(savedir*filename, results_table)
 
-            ## Method 1.5 Mean and mode impute
-            means_df = PHD.compute_mean(X_missing[.!test_ind,:])
-            X_imputed = PHD.mean_impute(X_missing, means_df);
-            df = deepcopy(X_imputed)
-            PHD.mode_impute!(df, train = .!test_ind)
-            df[!,:Test] = test_ind
-            linear, bestparams = PHD.regress_cv(Y, df, lasso=[true], alpha=collect(0.1:0.1:1))
-            R2, OSR2 = PHD.evaluate(Y, df, linear)
-            push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 5", OSR2])
-            CSV.write(savedir*filename, results_table)
+                ## Method 1.5 Mean and mode impute
+                start = time()
+                means_df = PHD.compute_mean(X_missing[.!test_ind,:])
+                X_imputed = PHD.mean_impute(X_missing, means_df);
+                δt = (time() - start)
+                df = deepcopy(X_imputed)
+                start = time()
+                PHD.mode_impute!(df, train = .!test_ind)
+                δt += (time() - start)
+                df[!,:Test] = test_ind
+                start = time()
+                linear, bestparams = PHD.regress_cv(Y, df, lasso=[true], alpha=collect(0.1:0.1:1))
+                δt += (time() - start)
+                R2, OSR2 = PHD.evaluate(Y, df, linear)
+                push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 5", R2, OSR2, δt])
+                CSV.write(savedir*filename, results_table)
+            end
 
-            ## Method 2: Static Adaptability
-            df = deepcopy(X_missing)
-            df[!,:Test] = test_ind
-            X_augmented = hcat(PHD.zeroimpute(df), PHD.indicatemissing(df, removezerocols=true))
-            linear2, bestparams2 = PHD.regress_cv(Y, X_augmented, lasso=[true],
-                                                    alpha=collect(0.1:0.1:1),
-                                                    missing_penalty=[2.0,4.0,6.0,8.0,12.0,16.0])
-            R2, OSR2 = PHD.evaluate(Y, X_augmented, linear2)
-            push!(results_table, [dname, SNR, k, k_missing, iter, "Static", OSR2])
-            CSV.write(savedir*filename, results_table)
+            if do_static || do_affine
+                println("Adaptive methods...")
+                println("###################")
+                ## Method 2: Static Adaptability
+                df = deepcopy(X_missing)
+                df[!,:Test] = test_ind
+                start = time()
+                X_augmented = hcat(PHD.zeroimpute(df), PHD.indicatemissing(df, removezerocols=true))
+                linear2, bestparams2 = PHD.regress_cv(Y, X_augmented, lasso=[true],
+                                                        alpha=collect(0.1:0.1:1),
+                                                        missing_penalty=[2.0,4.0,6.0,8.0,12.0,16.0])
+                δt = (time() - start)
+                R2, OSR2 = PHD.evaluate(Y, X_augmented, linear2)
+                push!(results_table, [dname, SNR, k, k_missing, iter, "Static", R2, OSR2, δt])
+                CSV.write(savedir*filename, results_table)
 
-            ## Method 3: Affine Adaptability
-            df = deepcopy(X_missing)
-            df[!,:Test] = test_ind
-            X_affine = PHD.augmentaffine(df, removezerocols=true)
-            linear3, bestparams3 = PHD.regress_cv(Y, X_affine, lasso=[true], alpha=collect(0.1:0.1:1),
-                                                  missing_penalty=[2.0,4.0,6.0,8.0,12.0,16.0])
-            R2, OSR2 = PHD.evaluate(Y, X_affine, linear3)
-            push!(results_table, [dname, SNR, k, k_missing, iter, "Affine", OSR2])
-            CSV.write(savedir*filename, results_table)
+                ## Method 3: Affine Adaptability
+                df = deepcopy(X_missing)
+                df[!,:Test] = test_ind
+                sub_features = names(df)
+                if affine_on_static_only
+                    aux = names(X_augmented)[findall(abs.(convert(Array, linear2[1,:])) .> 0)]
+                    sub_features = intersect(sub_features, unique(map(t -> split(t, "_missing")[1], aux)))
+                    push!(sub_features, "Test")
+                end
+                sub_features = unique(sub_features)
+                println("Affine with $(length(sub_features)) features")
+                start = time()
+                X_affine = PHD.augmentaffine(df[:,sub_features], removezerocols=true)
+                linear3, bestparams3 = PHD.regress_cv(Y, X_affine, lasso=[true], alpha=collect(0.1:0.1:1),
+                                                      missing_penalty=[1.0,2.0,4.0,6.0,8.0])
+                δt = (time() - start)
+                R2, OSR2 = PHD.evaluate(Y, X_affine, linear3)
+                push!(results_table, [dname, SNR, k, k_missing, iter, "Affine", R2, OSR2, δt])
+                CSV.write(savedir*filename, results_table)
+            end
+
+            if do_finite
+                df = deepcopy(X_missing)
+                df[!,:Test] = test_ind
+                start = time()
+                X_missing_std = PHD.standardize(df)
+                X_missing_zero_std = PHD.zeroimpute(X_missing_std)
+                gm2 = PHD.trainGreedyModel(Y, X_missing_zero_std,
+                                                 maxdepth = 8, tolerance = 0.05, minbucket = 20, missingdata = X_missing)
+                δt = (time() - start)
+                R2, OSR2 = PHD.evaluate(Y, X_missing_zero_std, gm2, X_missing_std)
+                push!(results_table, [dname, SNR, k, k_missing, iter, "Finite", R2, OSR2, δt])
+                CSV.write(savedir*filename, results_table)
+            end
         end
     end
 end
