@@ -82,32 +82,49 @@ data %>%
   # filter(osr2 < 0) %>%
   View()
 
-data %>%
+plot_data = data %>%
   filter(method %in% c("Affine", "Static", "Oracle XM", "Imp-then-Reg 4",
                        "Complete Features")) %>%
-  left_join(patterns) %>%
-  filter(Good_Turing_Prob > -5) %>%
-  # filter(k > 5) %>%
-  # filter((dataset %in% c("sleep", "thyroid-disease-thyroid-0387",
-  #                         "thyroid-disease-allbp",
-  #                         "thyroid-disease-allhyper",
-  #                         "thyroid-disease-allhypo",
-  #                         "thyroid-disease-allrep",
-  #                         "thyroid-disease-dis",
-  #                         "thyroid-disease-sick"))) %>%
   mutate(fraction = kMissing) %>%
   group_by(method, kMissing) %>%
   summarize(meanr2 = mean(r2), stdr2 = sd(r2) / sqrt(n()),
             q1r2 = quantile(osr2, 0.25), q3r2 = quantile(osr2, 0.75),
-            meanosr2 = mean(osr2), stdosr2 = sd(osr2) / sqrt(n())) %>%
+            meanosr2 = mean(osr2), stdosr2 = sd(osr2) / sqrt(n()))
+plot_data$method = recode_factor(plot_data$method,
+                                 `Oracle XM` = "Oracle",
+                                 `Complete Features` = "Compl. feat.",
+                                 `Imp-then-Reg 4` = "Mean-imp.",
+                                 Affine = "Affine",
+                                 Static = "Static")
+
+plot_data %>%
   ggplot() +
   aes(x = kMissing, y = meanr2, fill=method, group=method, color=method, linetype=method) +
-  geom_line() +
+  geom_line(size=2) +
   geom_ribbon(aes(x = kMissing, y = meanr2,
-                  #ymin=q1r2, ymax=q3r2
-                  ymin=meanr2-stdr2, ymax=meanr2+stdr2
-                  ),
-              alpha=0.3)
+                  ymin=meanr2-stdr2, ymax=meanr2+stdr2),
+              alpha=0.3) +
+  scale_fill_brewer(palette = "Set2", name = "Method") +
+  scale_color_brewer(palette = "Set2", name = "Method") +
+  labs(linetype = "Method", x = "Missing features in signal",
+       y = "In-sample R2") +
+  scale_x_continuous(breaks = c(0, 2, 4, 6, 8, 10)) +
+  theme(legend.position = c(0.15, 0.27), legend.text = element_text(size=22),
+        legend.title = element_text(size=22), axis.title = element_text(size=22), 
+        axis.text = element_text(size=22),
+        #legend.background = element_rect(color="white"),
+        legend.box.background = element_rect(color="black"),
+        panel.border = element_blank(),
+        panel.background = element_blank(),
+        panel.grid.major = element_line(colour = "gray", linetype="dashed"),
+        panel.grid.minor = element_blank(),
+        axis.line = element_line(colour = "black"),
+        legend.box.margin = margin(0, 0, 0, 0),
+        #legend.spacing.y = unit(1, "line"),
+        legend.key.height = unit(2, "line"),
+        legend.key.width = unit(2, "line"))
+
+ggsave("../results/plots/in-sample-nmar.png")
 
 data %>%
   group_by(dataset, k, kMissing, splitnum) %>%
@@ -140,6 +157,6 @@ data %>%
         legend.box.margin = margin(0, 0, 10, 0),
         legend.spacing.y = unit(2, "line"))
 
-ggsave("~/Desktop/winrate.png")
+ggsave("../results/plots/winrate.pdf")
 
 
