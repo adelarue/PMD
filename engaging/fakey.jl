@@ -79,7 +79,8 @@ for ARG in ARGS
 
             # Split train / test
             Random.seed!(56802+767*iter)
-            test_ind = rand(nrow(X_missing)) .< test_prop ;
+            # test_ind = rand(nrow(X_missing)) .< test_prop ;
+            test_ind = PHD.split_dataset(X_missing, test_fraction = test_prop)
 
             if do_benchmark
                 ## Method Oracle
