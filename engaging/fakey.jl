@@ -73,6 +73,7 @@ for ARG in ARGS
     if k_missing == k_missingsignal #If not enough missing features to generate Y with k_missingsignal, abort (already done)
 
         for iter in 1:10
+            @show iter
             results_table = similar(results_main,0)
 
             filename = string(dname, "_SNR_", SNR, "_nmiss_", k_missingsignal, "_$iter.csv")
