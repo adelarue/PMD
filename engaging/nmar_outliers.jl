@@ -94,14 +94,15 @@ for dname in dataset_list, k in k_list, k_missingsignal in 0:k
 	# test_ind = rand(nrow(X_missing)) .< test_prop ;
 
 	for iter in 1:10
-        results_table = similar(results_main,0)
+		@show iter
 
+        results_table = similar(results_main,0)
         filename = string(dname, "_k_", k, "_kmiss_", k_missingsignal, "_iter_$iter.csv")
 
         # Split train / test
         Random.seed!(56802+767*iter)
         test_ind = PHD.split_dataset(X_missing, test_fraction = test_prop)
-        @show sum(test_ind) / length(test_ind)
+        # @show sum(test_ind) / length(test_ind)
 
         if do_benchmark
 			println("Benchmark methods...")
