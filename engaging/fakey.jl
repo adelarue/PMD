@@ -83,6 +83,8 @@ for ARG in ARGS
             test_ind = PHD.split_dataset(X_missing, test_fraction = test_prop)
 
             if do_benchmark
+                println("Benchmark methods...")
+                println("####################")
                 ## Method Oracle
                 df = X_full[:,:]
                 df[!,:Test] = test_ind
@@ -119,6 +121,8 @@ for ARG in ARGS
             end
 
             if do_impthenreg
+                println("Impute-then-regress methods...")
+                println("###############################")
                 ## Method 1.1
                 start = time()
                 X_imputed = PHD.mice_bruteforce(X_missing);
@@ -213,6 +217,8 @@ for ARG in ARGS
             end
 
             if do_static || do_affine
+                println("Adaptive methods...")
+                println("###################")
                 ## Method 2: Static Adaptability
                 df = deepcopy(X_missing)
                 df[!,:Test] = test_ind

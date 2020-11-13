@@ -104,6 +104,8 @@ for dname in dataset_list, k in k_list, k_missingsignal in 0:k
         @show sum(test_ind) / length(test_ind)
 
         if do_benchmark
+			println("Benchmark methods...")
+			println("####################")
             ## Method Oracle
             println("Oracle")
             df = X_full[:,:]
@@ -141,6 +143,8 @@ for dname in dataset_list, k in k_list, k_missingsignal in 0:k
         end
 
         if do_impthenreg
+			println("Impute-then-regress methods...")
+			println("###############################")
             ## Method 1.1
             println("Method 1.1")
             start = time()
@@ -228,6 +232,8 @@ for dname in dataset_list, k in k_list, k_missingsignal in 0:k
         end
 
         if do_static || do_affine
+            println("Adaptive methods...")
+            println("###################")
             ## Method 2: Static Adaptability
             println("Method 2")
             df = deepcopy(X_missing)
