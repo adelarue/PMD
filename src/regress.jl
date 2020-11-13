@@ -25,17 +25,24 @@ function regress(Y::Array{Float64}, df::DataFrame;
 	y = convert(Array, Y[df[!, :Test] .== 0])
 	coefficients = DataFrame()
 	if lasso
-		penalty_factor = ones(length(cols))
-		for (i, col) in enumerate(cols)
-			if occursin("_missing", string(col))
-				penalty_factor[i] = missing_penalty
+		try
+			penalty_factor = ones(length(cols))
+			for (i, col) in enumerate(cols)
+				if occursin("_missing", string(col))
+					penalty_factor[i] = missing_penalty
+				end
 			end
+			cv = glmnetcv(X, y, alpha=alpha, penalty_factor=penalty_factor)
+			for (i, col) in enumerate(cols)
+				coefficients[!,col] = ([cv.path.betas[i, argmin(cv.meanloss)]])
+			end
+			coefficients[:Offset] = cv.path.a0[argmin(cv.meanloss)]
+		catch
+			for col in cols
+				coefficients[!,col] = [0.]
+			end
+			coefficients[:Offset] = [mean(y)]
 		end
-		cv = glmnetcv(X, y, alpha=alpha, penalty_factor=penalty_factor)
-		for (i, col) in enumerate(cols)
-			coefficients[!,col] = ([cv.path.betas[i, argmin(cv.meanloss)]])
-		end
-		coefficients[:Offset] = cv.path.a0[argmin(cv.meanloss)]
 	else
 		path = glmnet(X, y)
 		for (i, col) in enumerate(cols)
@@ -57,18 +64,25 @@ function regress(Y::BitArray{1}, df::DataFrame;
 	w = (1/freq).*Y .+ (1/(1 - freq)).*(1. .- Y); #class weights
 	coefficients = DataFrame()
 	if lasso
-		penalty_factor = ones(length(cols))
-		for (i, col) in enumerate(cols)
-			if occursin("_missing", string(col))
-				penalty_factor[i] = missing_penalty
+		try
+			penalty_factor = ones(length(cols))
+			for (i, col) in enumerate(cols)
+				if occursin("_missing", string(col))
+					penalty_factor[i] = missing_penalty
+				end
 			end
+			cv = glmnetcv(X, hcat(Float64.(.!y), Float64.(y)), GLMNet.Binomial(),
+			              alpha=alpha, penalty_factor=penalty_factor, weights=w)
+			for (i, col) in enumerate(cols)
+				coefficients[!,col] = ([cv.path.betas[i, argmin(cv.meanloss)]])
+			end
+			coefficients[:Offset] = cv.path.a0[argmin(cv.meanloss)]
+		catch
+			for col in cols
+				coefficients[!,col] = [0.]
+			end
+			coefficients[:Offset] = [mean(y)]
 		end
-		cv = glmnetcv(X, hcat(Float64.(.!y), Float64.(y)), GLMNet.Binomial(),
-		              alpha=alpha, penalty_factor=penalty_factor, weights=w)
-		for (i, col) in enumerate(cols)
-			coefficients[!,col] = ([cv.path.betas[i, argmin(cv.meanloss)]])
-		end
-		coefficients[:Offset] = cv.path.a0[argmin(cv.meanloss)]
 	else
 		path = glmnet(X, hcat(Float64.(.!y), Float64.(y)), GLMNet.Binomial(), weights=w)
 		for (i, col) in enumerate(cols)

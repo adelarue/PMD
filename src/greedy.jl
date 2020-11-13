@@ -4,7 +4,7 @@
 ## Author: Arthur Delarue, Jean Pauphilet, 2019
 ###################################################
 
-import Base.<
+# import Base.<
 
 abstract type Node end
 
@@ -90,7 +90,8 @@ struct SplitCandidate
 	"New right coeffs"
 	rightCoeffs::Vector{Float64}
 end
-<(e1::SplitCandidate, e2::SplitCandidate) = e1.improvement < e2.improvement
+Base.:<(e1::SplitCandidate, e2::SplitCandidate) = e1.improvement < e2.improvement
+Base.isless(e1::SplitCandidate, e2::SplitCandidate) = e1.improvement < e2.improvement
 
 """
 	Train greedy regression model
@@ -107,7 +108,7 @@ function trainGreedyModel(Y::Union{Vector, BitArray{1}}, data::DataFrame;
 	gm = initializeGreedyModel(Y, data)
 	maxdepth == 1 && return gm
 	trainIndices = findall(data[!, :Test] .== 0)
-	heap = BinaryMaxHeap([bestSplit(gm, Y, data, 1, trainIndices,
+	heap = BinaryMaxHeap{SplitCandidate}([bestSplit(gm, Y, data, 1, trainIndices,
 	                                gm.nodes[1].featuresIn, minbucket, missingdata)])
 	while !isempty(heap)
 		leafToSplit = pop!(heap)
@@ -160,6 +161,7 @@ function bestSplit(gm::GreedyModel, Y::Union{Vector, BitArray{1}}, data::DataFra
 	X = Matrix(data[points, Not([:Test, :Id])])
 	y = Y[points]
 	X = Float64.(X[:, currentNode.featuresIn])
+
 	pred = currentNode.intercept .+ X * currentNode.coeffs[currentNode.featuresIn]
 	currentLoss = gm.logistic ? logloss(y, sigmoid.(pred)) : sum((y .- pred) .^ 2)
 	bestLoss = currentLoss
@@ -402,6 +404,3 @@ function evaluate(Y::BitArray{1}, df::DataFrame, model::GreedyModel, missingdata
 		error("Cannot evaluate a linear model on binary labels")
 	end
 end
-
-
-

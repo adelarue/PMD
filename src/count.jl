@@ -63,8 +63,10 @@ end
 function list_datasets(; p_min::Int = 0)
 	dlist = String[]
 	for dname in readdir("$(@__DIR__)/../datasets")
-		if count_missing_columns(dname) >= p_min
-			push!(dlist, dname)
+		if !startswith(dname, ".")
+			if count_missing_columns(dname) >= p_min
+				push!(dlist, dname)
+			end
 		end
 	end
 	return sort(dlist)
