@@ -115,22 +115,26 @@ for ARG in ARGS
         test_ind = PHD.split_dataset(X_missing, test_fraction = test_prop) #rand(nrow(X_missing)) .< test_prop ;
 
         if do_benchmark
-                ## Method 0
-                try
-                    df = X_missing[:,.!canbemissing] #This step can raise an error if all features can be missing
-                    df[!,:Test] = test_ind
-                    start = time()
-                    linear, bestparams = PHD.regress_cv(Y, df, lasso=[true], alpha=collect(0.1:0.1:1))
-                    δt = (time() - start)
-                    R2, OSR2 = PHD.evaluate(Y, df, linear)
-                    push!(results_table, [dname, iter, "Complete Features", R2, OSR2, δt])
-                catch #In this case, simply predict the mean - which leads to 0. OSR2
-                    push!(results_table, [dname, iter, "Complete Features", 0., 0., 0.])
-                end
-                CSV.write(savedir*filename, results_table)
+            println("Benchmark methods...")
+            println("####################")
+            ## Method 0
+            try
+                df = X_missing[:,.!canbemissing] #This step can raise an error if all features can be missing
+                df[!,:Test] = test_ind
+                start = time()
+                linear, bestparams = PHD.regress_cv(Y, df, lasso=[true], alpha=collect(0.1:0.1:1))
+                δt = (time() - start)
+                R2, OSR2 = PHD.evaluate(Y, df, linear)
+                push!(results_table, [dname, iter, "Complete Features", R2, OSR2, δt])
+            catch #In this case, simply predict the mean - which leads to 0. OSR2
+                push!(results_table, [dname, iter, "Complete Features", 0., 0., 0.])
+            end
+            CSV.write(savedir*filename, results_table)
         end
 
         if do_impthenreg
+            println("Impute-then-regress methods...")
+            println("###############################")
             ## Method 1.1
             start = time()
             X_imputed = PHD.mice_bruteforce(X_missing);
@@ -213,6 +217,8 @@ for ARG in ARGS
         end
 
         if do_static || do_affine
+            println("Adaptive methods...")
+            println("###################")
             ## Method 2: Static Adaptability
             df = deepcopy(X_missing)
             df[!,:Test] = test_ind
