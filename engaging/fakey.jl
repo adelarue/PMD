@@ -27,6 +27,9 @@ do_affine = false
 affine_on_static_only = true
 do_finite = true
 
+# whether to split the data randomly
+random_split = true
+
 results_main = DataFrame(dataset=[], SNR=[], k=[], kMissing=[], splitnum=[], method=[],
                                 r2=[], osr2=[], time=[])
 
@@ -84,6 +87,9 @@ for ARG in ARGS
                 Random.seed!(56802+767*iter)
                 # test_ind = rand(nrow(X_missing)) .< test_prop ;
                 test_ind = PHD.split_dataset(X_missing, test_fraction = test_prop)
+                if !random_split
+                	test_ind = PHD.split_dataset_nonrandom(X_missing, test_fraction = test_prop)
+                end
 
                 if do_benchmark
                     println("Benchmark methods...")
