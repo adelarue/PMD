@@ -154,3 +154,30 @@ function split_dataset(df::DataFrame; test_fraction::Real = 0.3)
 	test_ind[test[1]] .= true
 	return test_ind
 end
+
+"""
+	Split dataset in non-random way, with as many missing values as possible
+		in the testing set
+"""
+function split_dataset_nonrandom(df::DataFrame; test_fraction::Real = 0.3)
+	cols = setdiff(Symbol.(names(df)), [:Id, :Test, :Y])
+	patterns, counts = missing_patterns_countmap(df)
+	patternidx = [findfirst(x -> x == ismissing.(convert(Vector, df[i, cols])),
+	                        patterns) for i = 1:nrow(df)]
+	p = reverse(sortperm(patterns, by=sum))
+	test_ind = falses(nrow(df))
+	test = Int[]
+	for j in p
+		datapoints = findall(x -> x == j, patternidx)
+		if length(datapoints) + length(test) < test_fraction * length(test_ind)
+			append!(test, datapoints)
+		else
+			num_datapoints = Int(ceil(test_fraction * length(test_ind)) - length(test))
+			append!(test, shuffle(datapoints)[1:num_datapoints])
+			break
+		end
+	end
+	test_ind[test] .= true
+	return test_ind
+end
+
