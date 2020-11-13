@@ -231,12 +231,10 @@ for ARG in ARGS
                 sub_features = names(df)
                 if affine_on_static_only
                     aux = names(X_augmented)[findall(abs.(convert(Array, linear2[1,:])) .> 0)]
-                    @show aux
                     sub_features = intersect(sub_features, unique(map(t -> split(t, "_missing")[1], aux)))
                     push!(sub_features, "Test")
                 end
                 sub_features = unique(sub_features)
-                @show sort(sub_features)
                 println("Affine with $(length(sub_features)) features")
                 start = time()
                 X_affine = PHD.augmentaffine(df[:,sub_features], removezerocols=true)
