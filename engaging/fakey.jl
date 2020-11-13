@@ -20,10 +20,10 @@ if !isdir(savedir)
 end
 SNR = 2
 
-do_benchmark = false
-do_impthenreg = false
-do_static = false
-do_affine = false
+do_benchmark = true
+do_impthenreg = true
+do_static = true
+do_affine = true
 affine_on_static_only = true
 do_finite = true
 
