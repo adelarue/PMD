@@ -42,7 +42,7 @@ for ARG in ARGS
     @show dname, k_missingsignal
 
     longtime_list = ["communities-and-crime-2", "mlmRev-star"]
-    if  dname ∈ longtime_list
+    if  true #dname ∈ longtime_list
         # Read in a data file.
         X_missing = PHD.standardize_colnames(DataFrame(CSV.read("../datasets/"*dname*"/X_missing.csv", missingstrings=["", "NaN"]))) #df with missing values
 
@@ -79,7 +79,7 @@ for ARG in ARGS
         if k_missing == k_missingsignal #If not enough missing features to generate Y with k_missingsignal, abort (already done)
             test_prop = .3
 
-            for iter in 7:10
+            for iter in 1:10
                 @show iter
 
                 results_table = similar(results_main,0)
