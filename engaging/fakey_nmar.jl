@@ -237,6 +237,9 @@ for ARG in ARGS
                         push!(sub_features, "Test")
                     end
                     sub_features = unique(sub_features)
+                    if length(sub_features) <= 2 #if only Id and Test, undo
+                        sub_features = names(df)
+                    end
                     println("Affine with $(length(sub_features)) features")
                     start = time()
                     X_affine = PHD.augmentaffine(df[:,sub_features], removezerocols=true)
