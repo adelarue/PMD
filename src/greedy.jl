@@ -167,7 +167,7 @@ function bestSplit(gm::GreedyModel, Y::Union{Vector, BitArray{1}}, data::DataFra
 	bestLoss = currentLoss
 	bestFeature = 1
 	bestCoeffs = (0., zeros(p), 0., zeros(p))
-	for j = 1:p
+	for j = findall([any(ismissing.(missingdata[:,j])) for j in 1:size(missingdata,2)]) #Search only through the features that can be missing
 		# if j in features
 		# 	continue
 		# end
