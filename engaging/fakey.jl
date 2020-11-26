@@ -20,10 +20,10 @@ if !isdir(savedir)
 end
 SNR = 2
 
-do_benchmark = false
-do_impthenreg = false
-do_static = false
-do_affine = false
+do_benchmark = true
+do_impthenreg = true
+do_static = true
+do_affine = true
 affine_on_static_only = true
 do_finite = true
 
@@ -42,8 +42,8 @@ for ARG in ARGS
     k_missingsignal = missingsignal_list[aux_num]
     @show dname, k_missingsignal
 
-    longtime_list = ["communities-and-crime-2", "mlmRev-star"]
-    if  true #dname ∈ longtime_list || (dname == "ozone-level-detection-one" && k_missingsignal == 1)
+    longtime_list = ["mlmRev-star"]
+    if  dname ∈ longtime_list #|| (dname == "ozone-level-detection-one" && k_missingsignal == 1)
         # Read in a data file.
         X_missing = PHD.standardize_colnames(DataFrame(CSV.read("../datasets/"*dname*"/X_missing.csv", missingstrings=["", "NaN"]))) #df with missing values
 
@@ -77,7 +77,7 @@ for ARG in ARGS
         test_prop = .3
         if k_missing == k_missingsignal #If not enough missing features to generate Y with k_missingsignal, abort (already done)
 
-            for iter in 1:10
+            for iter in [3,4,5,6,10]
                 @show iter
                 results_table = similar(results_main,0)
 
