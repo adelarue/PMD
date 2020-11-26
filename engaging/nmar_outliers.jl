@@ -93,7 +93,7 @@ for dname in dataset_list, k in k_list, k_missingsignal in 0:k
 	test_prop = .3
 	# test_ind = rand(nrow(X_missing)) .< test_prop ;
 
-	for iter in 1:10
+	for iter in 9:10
 		@show iter
 
         results_table = similar(results_main,0)
