@@ -43,7 +43,7 @@ for ARG in ARGS
     @show dname, k_missingsignal
 
     longtime_list = ["mlmRev-star"]
-    if  dname ∈ longtime_list #|| (dname == "ozone-level-detection-one" && k_missingsignal == 1)
+    if  true #dname ∈ longtime_list #|| (dname == "ozone-level-detection-one" && k_missingsignal == 1)
         # Read in a data file.
         X_missing = PHD.standardize_colnames(DataFrame(CSV.read("../datasets/"*dname*"/X_missing.csv", missingstrings=["", "NaN"]))) #df with missing values
 
