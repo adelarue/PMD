@@ -40,66 +40,65 @@ counter = 0
 # 	if counter != id
 # 		continue
 # 	end
-for _ in 1:1
-	array_num = id
-	d_num = mod(array_num, length(dataset_list)) + 1
-	aux_num = div(array_num, length(dataset_list)) + 1
+array_num = id
+d_num = mod(array_num, length(dataset_list)) + 1
+aux_num = div(array_num, length(dataset_list)) + 1
 
-	dname = dataset_list[d_num]#"dermatology" #"""thyroid-disease-thyroid-0387" #dataset_list[1]
-	k_missingsignal = collect(0:k)[aux_num]
-	@show dname, k_missingsignal
+dname = dataset_list[d_num]#"dermatology" #"""thyroid-disease-thyroid-0387" #dataset_list[1]
+k_missingsignal = collect(0:k)[aux_num]
+@show dname, k_missingsignal
 
 
-	# @show dname, k, k_missingsignal
+# @show dname, k, k_missingsignal
 
-	# Read in a data file
-	X_missing = PHD.standardize_colnames(DataFrame(CSV.read("../datasets/"*dname*"/X_missing.csv",
-	                                                        missingstrings=["", "NaN"])));
+# Read in a data file
+X_missing = PHD.standardize_colnames(DataFrame(CSV.read("../datasets/"*dname*"/X_missing.csv",
+                                                        missingstrings=["", "NaN"])));
 
-    # Clean up : to be checked, some datasets have strings in features
-    delete_obs = trues(Base.size(X_missing,1))
-    for j in names(X_missing)
-        if Symbol(j) != :Id && (eltype(X_missing[:,j]) == String || eltype(X_missing[:,j]) == Union{Missing,String})
-            newcol = tryparse.(Float64, X_missing[:,j])
-            delete_obs[newcol .== nothing] .= false
-            newcol = convert(Array{Union{Float64,Missing,Nothing}}, newcol)
-            newcol[newcol .== nothing] .= missing
-            newcol = convert(Array{Union{Float64,Missing}}, newcol)
-            X_missing[!,j] = newcol
-        end
+# Clean up : to be checked, some datasets have strings in features
+delete_obs = trues(Base.size(X_missing,1))
+for j in names(X_missing)
+    if Symbol(j) != :Id && (eltype(X_missing[:,j]) == String || eltype(X_missing[:,j]) == Union{Missing,String})
+        newcol = tryparse.(Float64, X_missing[:,j])
+        delete_obs[newcol .== nothing] .= false
+        newcol = convert(Array{Union{Float64,Missing,Nothing}}, newcol)
+        newcol[newcol .== nothing] .= missing
+        newcol = convert(Array{Union{Float64,Missing}}, newcol)
+        X_missing[!,j] = newcol
     end
-    for j in PHD.unique_missing_patterns(X_missing)
-        delete_obs[j] = false
-    end
-	X_missing = X_missing[delete_obs, :];
+end
+for j in PHD.unique_missing_patterns(X_missing)
+    delete_obs[j] = false
+end
+X_missing = X_missing[delete_obs, :];
 
-    #Remove intrinsic indicators
-    keep_cols = names(X_missing)
-    for l in values(PHD.intrinsic_indicators(X_missing, correlation_threshold=0.9))
-        setdiff!(keep_cols, l)
-    end
-    select!(X_missing, keep_cols)
+#Remove intrinsic indicators
+keep_cols = names(X_missing)
+for l in values(PHD.intrinsic_indicators(X_missing, correlation_threshold=0.9))
+    setdiff!(keep_cols, l)
+end
+select!(X_missing, keep_cols)
 
-	X_full = PHD.standardize_colnames(DataFrame(CSV.read("../datasets/"*dname*"/X_full.csv")))[:,:];
-	X_full = X_full[delete_obs, keep_cols];
-	@show nrow(X_missing), ncol(X_missing)
-	@show nrow(X_full), ncol(X_full)
+X_full = PHD.standardize_colnames(DataFrame(CSV.read("../datasets/"*dname*"/X_full.csv")))[:,:];
+X_full = X_full[delete_obs, keep_cols];
+@show nrow(X_missing), ncol(X_missing)
+@show nrow(X_full), ncol(X_full)
 
-	# optimize missingness pattern for outlier suppression
-	X_missing = PHD.optimize_missingness(X_missing, X_full);
+# optimize missingness pattern for outlier suppression
+X_missing = PHD.optimize_missingness(X_missing, X_full);
 
-	# which columns can be missing
-	canbemissing = [any(ismissing.(X_missing[:,j])) for j in names(X_missing)]
+# which columns can be missing
+canbemissing = [any(ismissing.(X_missing[:,j])) for j in names(X_missing)]
 
-	# Generate target
-	Random.seed!(5234)
-	@time Y, k, k_missing = PHD.linear_y(X_full, X_missing, k=k, SNR=SNR, canbemissing=canbemissing,
-	                                     k_missing_in_signal=k_missingsignal, mar=true);
-	@show k_missingsignal, k_missing
-	if k_missing != k_missingsignal
-		println("")
-		break
-	end
+# Generate target
+Random.seed!(5234)
+@time Y, k, k_missing = PHD.linear_y(X_full, X_missing, k=k, SNR=SNR, canbemissing=canbemissing,
+                                     k_missing_in_signal=k_missingsignal, mar=true);
+@show k_missingsignal, k_missing
+if k_missing == k_missingsignal
+# 	println("")
+# 	break
+# end
 	test_prop = .3
 	# test_ind = rand(nrow(X_missing)) .< test_prop ;
 
