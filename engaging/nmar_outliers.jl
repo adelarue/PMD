@@ -102,7 +102,7 @@ counter = 0
 	test_prop = .3
 	# test_ind = rand(nrow(X_missing)) .< test_prop ;
 
-	for iter in 1:10
+	for iter in 3:10
 		@show iter
 
         results_table = similar(results_main,0)
