@@ -8,7 +8,7 @@ using Random, Statistics, CSV, DataFrames, LinearAlgebra
 dataset_list = [d for d in split.(read(`ls ../datasets/`, String), "\n") if length(d) > 0]
 sort!(dataset_list)
 
-k_list = [10]
+k = 10
 SNR = 2
 
 # save information
@@ -35,11 +35,20 @@ if length(ARGS) > 0
 end
 
 counter = 0
-for dname in dataset_list, k in k_list, k_missingsignal in 0:k
-	global counter += 1
-	if counter != id
-		continue
-	end
+# for dname in dataset_list, k in k_list, k_missingsignal in 0:k
+# 	global counter += 1
+# 	if counter != id
+# 		continue
+# 	end
+	array_num = id
+	d_num = mod(array_num, length(dataset_list)) + 1
+	aux_num = div(array_num, length(dataset_list)) + 1
+
+	dname = dataset_list[d_num]#"dermatology" #"""thyroid-disease-thyroid-0387" #dataset_list[1]
+	k_missingsignal = collect(0:k)[aux_num]
+	@show dname, k_missingsignal
+
+
 	@show dname, k, k_missingsignal
 
 	# Read in a data file
@@ -93,7 +102,7 @@ for dname in dataset_list, k in k_list, k_missingsignal in 0:k
 	test_prop = .3
 	# test_ind = rand(nrow(X_missing)) .< test_prop ;
 
-	for iter in 4:10
+	for iter in 3:10
 		@show iter
 
         results_table = similar(results_main,0)
@@ -288,4 +297,4 @@ for dname in dataset_list, k in k_list, k_missingsignal in 0:k
             CSV.write(savedir*filename, results_table)
         end
     end
-end
+# end
