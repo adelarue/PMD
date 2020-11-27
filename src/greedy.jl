@@ -247,6 +247,11 @@ function regressionCoefficients(Y::BitArray{1}, data::DataFrame, points::Vector{
 								features::Vector{Int})
 	p = Base.size(data, 2) - 1
 	coeffs = zeros(p)
+	if var(Y) .<= 1e10
+		Y0 = round(Int, mean(Y))
+		β_0 = 100*(2*Y0-1)
+		return β_0, coeffs, logloss(Y[points], Y0)
+	end
 	if length(features) == 0
 		β_0 = log(mean(Y[points]) / (1 - mean(Y[points])))
 		return β_0, coeffs, logloss(Y[points], mean(Y[points]))
