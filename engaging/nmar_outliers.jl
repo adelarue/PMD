@@ -40,6 +40,7 @@ counter = 0
 # 	if counter != id
 # 		continue
 # 	end
+for _ in 1:1
 	array_num = id
 	d_num = mod(array_num, length(dataset_list)) + 1
 	aux_num = div(array_num, length(dataset_list)) + 1
@@ -49,7 +50,7 @@ counter = 0
 	@show dname, k_missingsignal
 
 
-	@show dname, k, k_missingsignal
+	# @show dname, k, k_missingsignal
 
 	# Read in a data file
 	X_missing = PHD.standardize_colnames(DataFrame(CSV.read("../datasets/"*dname*"/X_missing.csv",
@@ -94,7 +95,7 @@ counter = 0
 	Random.seed!(5234)
 	@time Y, k, k_missing = PHD.linear_y(X_full, X_missing, k=k, SNR=SNR, canbemissing=canbemissing,
 	                                     k_missing_in_signal=k_missingsignal, mar=true);
-	@show k_missing
+	@show k_missingsignal, k_missing
 	if k_missing != k_missingsignal
 		println("")
 		break
@@ -297,4 +298,4 @@ counter = 0
             CSV.write(savedir*filename, results_table)
         end
     end
-# end
+end
