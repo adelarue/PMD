@@ -79,7 +79,7 @@ for ARG in ARGS
         if k_missing == k_missingsignal #If not enough missing features to generate Y with k_missingsignal, abort (already done)
             test_prop = .3
 
-            for iter in 4:6
+            for iter in 8:10
                 @show iter
 
                 results_table = similar(results_main,0)
