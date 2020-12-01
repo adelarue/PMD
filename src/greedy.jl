@@ -112,7 +112,7 @@ function trainGreedyModel(Y::Union{Vector, BitArray{1}}, data::DataFrame;
 	                                gm.nodes[1].featuresIn, minbucket, missingdata)])
 	while !isempty(heap)
 		leafToSplit = pop!(heap)
-		if leafToSplit.improvement > tolerance * length(trainIndices)
+		if leafToSplit.improvement > tolerance #* length(trainIndices)
 			split!(gm, leafToSplit.leaf, leafToSplit.feature, leafToSplit.leftIntercept,
 			       leafToSplit.leftCoeffs, leafToSplit.rightIntercept, leafToSplit.rightCoeffs,
 			       leafToSplit.leftFeatures, gm.nodes[leafToSplit.leaf].featuresOut,
@@ -171,15 +171,19 @@ function bestSplit(gm::GreedyModel, Y::Union{Vector, BitArray{1}}, data::DataFra
 		# if j in features
 		# 	continue
 		# end
-		featuresLeft = sort(collect(Set(vcat(features, j))))
+		featuresLeft = sort(collect(Set(vcat(features, j)))) #Not needed since using zero-impute rather than complete features within each leaf
 		# featuresLeft = sort(vcat(features, j))
 		pointsLeft = points[.!ismissing.(missingdata[points, j])]
 		length(pointsLeft) < minbucket && continue
-		intLeft, coeffsLeft, lossLeft = regressionCoefficients(Y, data, pointsLeft, featuresLeft)
+
 		featuresRight = features
 		pointsRight = points[ismissing.(missingdata[points, j])]
 		length(pointsRight) < minbucket && continue
+
+		intLeft, coeffsLeft, lossLeft = regressionCoefficients(Y, data, pointsLeft, featuresLeft)
+
 		intRight, coeffsRight, lossRight = regressionCoefficients(Y, data, pointsRight, featuresRight)
+
 		newLoss = lossLeft + lossRight
 		if newLoss < bestLoss
 			bestLoss = newLoss
@@ -187,7 +191,7 @@ function bestSplit(gm::GreedyModel, Y::Union{Vector, BitArray{1}}, data::DataFra
 			bestCoeffs = intLeft, coeffsLeft, intRight, coeffsRight
 		end
 	end
-	return SplitCandidate(node, abs(bestLoss - currentLoss), bestFeature,
+	return SplitCandidate(node, abs(bestLoss - currentLoss)/abs(currentLoss), bestFeature,
 	                      points[.!ismissing.(missingdata[points, bestFeature])],
 	                      points[ismissing.(missingdata[points, bestFeature])],
 	                      sort(collect(Set(vcat(features, bestFeature)))), features,
