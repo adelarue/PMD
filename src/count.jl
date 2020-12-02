@@ -144,7 +144,10 @@ end
 	Split dataset into in-sample and out-of-sample using stratified sampling
 	Returns a vector with value true if in test set and false otherwise
 """
-function split_dataset(df::DataFrame; test_fraction::Real = 0.3)
+function split_dataset(df::DataFrame; test_fraction::Real = 0.3, random::Bool = false)
+	if !random
+		return split_dataset_nonrandom(df, test_fraction=test_fraction)
+	end
 	cols = setdiff(Symbol.(names(df)), [:Id, :Test, :Y])
 	patterns, counts = missing_patterns_countmap(df)
 	patternidx = [findfirst(x -> x == ismissing.(convert(Vector, df[i, cols])),
@@ -181,3 +184,29 @@ function split_dataset_nonrandom(df::DataFrame; test_fraction::Real = 0.3)
 	return test_ind
 end
 
+"""
+	Swap missingness patterns in order to maximize total sum of missing values
+"""
+function optimize_missingness(X_missing::DataFrame, X_full::DataFrame)
+    cols = setdiff(Symbol.(names(X_missing)), [:Id])
+    patterns, counts = missing_patterns_countmap(X_missing)
+    model = Model(with_optimizer(Gurobi.Optimizer, TimeLimit=10, OutputFlag=0))
+    @variable(model, z[i = 1:nrow(X_full), j=eachindex(patterns)], Bin)
+    @constraint(model, [i = 1:nrow(X_full)], sum(z[i, j] for j = eachindex(patterns)) == 1)
+    @constraint(model, [j = eachindex(patterns)], sum(z[i, j] for i = 1:nrow(X_full)) == counts[j])
+    @objective(model, Max, sum(z[i, j] * sum(X_full[i, name] * patterns[j][k] for (k, name) in enumerate(cols))
+                               for i = 1:nrow(X_full), j = eachindex(patterns)))
+    optimize!(model)
+    new_X_missing = deepcopy(X_full)
+    allowmissing!(new_X_missing)
+    for i = 1:nrow(X_full), j=eachindex(patterns)
+        if value(z[i, j]) > 0.5
+            for (k, name) in enumerate(cols)
+                if patterns[j][k]
+                    new_X_missing[i, name] = missing
+                end
+            end
+        end
+    end
+    return new_X_missing
+end
