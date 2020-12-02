@@ -112,7 +112,7 @@ function trainGreedyModel(Y::Union{Vector, BitArray{1}}, data::DataFrame;
 	                                gm.nodes[1].featuresIn, minbucket, missingdata)])
 	while !isempty(heap)
 		leafToSplit = pop!(heap)
-		if leafToSplit.improvement > tolerance * length(trainIndices)
+		if leafToSplit.improvement > tolerance #* length(trainIndices)
 			split!(gm, leafToSplit.leaf, leafToSplit.feature, leafToSplit.leftIntercept,
 			       leafToSplit.leftCoeffs, leafToSplit.rightIntercept, leafToSplit.rightCoeffs,
 			       leafToSplit.leftFeatures, gm.nodes[leafToSplit.leaf].featuresOut,
@@ -167,19 +167,23 @@ function bestSplit(gm::GreedyModel, Y::Union{Vector, BitArray{1}}, data::DataFra
 	bestLoss = currentLoss
 	bestFeature = 1
 	bestCoeffs = (0., zeros(p), 0., zeros(p))
-	for j = 1:p
+	for j = findall([any(ismissing.(missingdata[:,j])) for j in 1:Base.size(missingdata,2)]) #Search only through the features that can be missing
 		# if j in features
 		# 	continue
 		# end
-		featuresLeft = sort(collect(Set(vcat(features, j))))
+		featuresLeft = sort(collect(Set(vcat(features, j)))) #Not needed since using zero-impute rather than complete features within each leaf
 		# featuresLeft = sort(vcat(features, j))
 		pointsLeft = points[.!ismissing.(missingdata[points, j])]
 		length(pointsLeft) < minbucket && continue
-		intLeft, coeffsLeft, lossLeft = regressionCoefficients(Y, data, pointsLeft, featuresLeft)
+
 		featuresRight = features
 		pointsRight = points[ismissing.(missingdata[points, j])]
 		length(pointsRight) < minbucket && continue
+
+		intLeft, coeffsLeft, lossLeft = regressionCoefficients(Y, data, pointsLeft, featuresLeft)
+
 		intRight, coeffsRight, lossRight = regressionCoefficients(Y, data, pointsRight, featuresRight)
+
 		newLoss = lossLeft + lossRight
 		if newLoss < bestLoss
 			bestLoss = newLoss
@@ -187,7 +191,7 @@ function bestSplit(gm::GreedyModel, Y::Union{Vector, BitArray{1}}, data::DataFra
 			bestCoeffs = intLeft, coeffsLeft, intRight, coeffsRight
 		end
 	end
-	return SplitCandidate(node, abs(bestLoss - currentLoss), bestFeature,
+	return SplitCandidate(node, abs(bestLoss - currentLoss)/abs(currentLoss), bestFeature,
 	                      points[.!ismissing.(missingdata[points, bestFeature])],
 	                      points[ismissing.(missingdata[points, bestFeature])],
 	                      sort(collect(Set(vcat(features, bestFeature)))), features,
@@ -247,6 +251,11 @@ function regressionCoefficients(Y::BitArray{1}, data::DataFrame, points::Vector{
 								features::Vector{Int})
 	p = Base.size(data, 2) - 1
 	coeffs = zeros(p)
+	if var(Y) .<= 1e10
+		Y0 = round(Int, mean(Y))
+		β_0 = 100*(2*Y0-1)
+		return β_0, coeffs, logloss(Y[points], Y0)
+	end
 	if length(features) == 0
 		β_0 = log(mean(Y[points]) / (1 - mean(Y[points])))
 		return β_0, coeffs, logloss(Y[points], mean(Y[points]))
