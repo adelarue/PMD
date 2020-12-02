@@ -18,7 +18,7 @@ function removezerocolumns(df::DataFrame)
 end
 
 """
-	Create the matrix Z such that Z_ij = 1 if X_ij is missing and 0 otherwise
+	Create the matrix M such that M_ij = 1 if X_ij is missing and 0 otherwise
 """
 function indicatemissing(df::DataFrame; removezerocols::Bool=false)
 	result = DataFrame()
