@@ -8,7 +8,7 @@ using Random, Statistics, CSV, DataFrames, LinearAlgebra
 dataset_list = [d for d in split.(read(`ls ../datasets/`, String), "\n") if length(d) > 0]
 sort!(dataset_list)
 
-k_list = [10]
+k = 10
 SNR = 2
 
 # save information
@@ -22,11 +22,11 @@ end
 results_main = DataFrame(dataset=[], SNR=[], k=[], kMissing=[], splitnum=[], method=[],
                          r2 = [], osr2=[], time=[])
 
-do_benchmark = true
-do_impthenreg = true
-do_static = true
+do_benchmark = false
+do_impthenreg = false
+do_static = false
 do_affine = true
-affine_on_static_only = true
+affine_on_static_only = false
 do_finite = true
 
 id = 1
@@ -35,61 +35,70 @@ if length(ARGS) > 0
 end
 
 counter = 0
-for dname in dataset_list, k in k_list, k_missingsignal in 0:k
-	global counter += 1
-	if counter != id
-		continue
-	end
-	@show dname, k, k_missingsignal
+# for dname in dataset_list, k in k_list, k_missingsignal in 0:k
+# 	global counter += 1
+# 	if counter != id
+# 		continue
+# 	end
+array_num = id
+d_num = mod(array_num, length(dataset_list)) + 1
+aux_num = div(array_num, length(dataset_list)) + 1
 
-	# Read in a data file
-	X_missing = PHD.standardize_colnames(DataFrame(CSV.read("../datasets/"*dname*"/X_missing.csv",
-	                                                        missingstrings=["", "NaN"])));
+dname = dataset_list[d_num]#"dermatology" #"""thyroid-disease-thyroid-0387" #dataset_list[1]
+k_missingsignal = collect(0:k)[aux_num]
+@show dname, k_missingsignal
 
-    # Clean up : to be checked, some datasets have strings in features
-    delete_obs = trues(Base.size(X_missing,1))
-    for j in names(X_missing)
-        if Symbol(j) != :Id && (eltype(X_missing[:,j]) == String || eltype(X_missing[:,j]) == Union{Missing,String})
-            newcol = tryparse.(Float64, X_missing[:,j])
-            delete_obs[newcol .== nothing] .= false
-            newcol = convert(Array{Union{Float64,Missing,Nothing}}, newcol)
-            newcol[newcol .== nothing] .= missing
-            newcol = convert(Array{Union{Float64,Missing}}, newcol)
-            X_missing[!,j] = newcol
-        end
+
+# @show dname, k, k_missingsignal
+
+# Read in a data file
+X_missing = PHD.standardize_colnames(DataFrame(CSV.read("../datasets/"*dname*"/X_missing.csv",
+                                                        missingstrings=["", "NaN"])));
+
+# Clean up : to be checked, some datasets have strings in features
+delete_obs = trues(Base.size(X_missing,1))
+for j in names(X_missing)
+    if Symbol(j) != :Id && (eltype(X_missing[:,j]) == String || eltype(X_missing[:,j]) == Union{Missing,String})
+        newcol = tryparse.(Float64, X_missing[:,j])
+        delete_obs[newcol .== nothing] .= false
+        newcol = convert(Array{Union{Float64,Missing,Nothing}}, newcol)
+        newcol[newcol .== nothing] .= missing
+        newcol = convert(Array{Union{Float64,Missing}}, newcol)
+        X_missing[!,j] = newcol
     end
-    for j in PHD.unique_missing_patterns(X_missing)
-        delete_obs[j] = false
-    end
-	X_missing = X_missing[delete_obs, :];
+end
+for j in PHD.unique_missing_patterns(X_missing)
+    delete_obs[j] = false
+end
+X_missing = X_missing[delete_obs, :];
 
-    #Remove intrinsic indicators
-    keep_cols = names(X_missing)
-    for l in values(PHD.intrinsic_indicators(X_missing, correlation_threshold=0.9))
-        setdiff!(keep_cols, l)
-    end
-    select!(X_missing, keep_cols)
+#Remove intrinsic indicators
+keep_cols = names(X_missing)
+for l in values(PHD.intrinsic_indicators(X_missing, correlation_threshold=0.9))
+    setdiff!(keep_cols, l)
+end
+select!(X_missing, keep_cols)
 
-	X_full = PHD.standardize_colnames(DataFrame(CSV.read("../datasets/"*dname*"/X_full.csv")))[:,:];
-	X_full = X_full[delete_obs, keep_cols];
-	@show nrow(X_missing), ncol(X_missing)
-	@show nrow(X_full), ncol(X_full)
+X_full = PHD.standardize_colnames(DataFrame(CSV.read("../datasets/"*dname*"/X_full.csv")))[:,:];
+X_full = X_full[delete_obs, keep_cols];
+@show nrow(X_missing), ncol(X_missing)
+@show nrow(X_full), ncol(X_full)
 
-	# optimize missingness pattern for outlier suppression
-	X_missing = PHD.optimize_missingness(X_missing, X_full);
+# optimize missingness pattern for outlier suppression
+X_missing = PHD.optimize_missingness(X_missing, X_full);
 
-	# which columns can be missing
-	canbemissing = [any(ismissing.(X_missing[:,j])) for j in names(X_missing)]
+# which columns can be missing
+canbemissing = [any(ismissing.(X_missing[:,j])) for j in names(X_missing)]
 
-	# Generate target
-	Random.seed!(5234)
-	@time Y, k, k_missing = PHD.linear_y(X_full, X_missing, k=k, SNR=SNR, canbemissing=canbemissing,
-	                                     k_missing_in_signal=k_missingsignal, mar=true);
-	@show k_missing
-	if k_missing != k_missingsignal
-		println("")
-		break
-	end
+# Generate target
+Random.seed!(5234)
+@time Y, k, k_missing = PHD.linear_y(X_full, X_missing, k=k, SNR=SNR, canbemissing=canbemissing,
+                                     k_missing_in_signal=k_missingsignal, mar=true);
+@show k_missingsignal, k_missing
+if k_missing == k_missingsignal
+# 	println("")
+# 	break
+# end
 	test_prop = .3
 	# test_ind = rand(nrow(X_missing)) .< test_prop ;
 
@@ -260,6 +269,9 @@ for dname in dataset_list, k in k_list, k_missingsignal in 0:k
                 push!(sub_features, "Test")
             end
             sub_features = unique(sub_features)
+            if length(sub_features) <= 2 #if only Id and Test, undo
+                sub_features = names(df)
+            end
             start = time()
             X_affine = PHD.augmentaffine(df[:,sub_features], removezerocols=true)
             linear3, bestparams3 = PHD.regress_cv(Y, X_affine, lasso=[true], alpha=collect(0.1:0.1:1),

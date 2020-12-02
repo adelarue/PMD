@@ -242,6 +242,9 @@ for ARG in ARGS
                 push!(sub_features, "Test")
             end
             sub_features = unique(sub_features)
+            if length(sub_features) <= 2 #if only Id and Test, undo
+                sub_features = names(df)
+            end
             start = time()
             X_affine = PHD.augmentaffine(df[:,sub_features], removezerocols=true)
             linear3, bestparams3 = PHD.regress_cv(Y, X_affine, lasso=[true], alpha=collect(0.1:0.1:1),

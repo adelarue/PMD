@@ -41,7 +41,7 @@ for ARG in ARGS
     k_missingsignal = missingsignal_list[aux_num]
     @show dname, k_missingsignal
 
-    longtime_list = ["communities-and-crime-2", "mlmRev-star"]
+    longtime_list = ["communities-and-crime", "communities-and-crime-2", "mlmRev-star"]
     if  true #dname ∈ longtime_list
         # Read in a data file.
         X_missing = PHD.standardize_colnames(DataFrame(CSV.read("../datasets/"*dname*"/X_missing.csv", missingstrings=["", "NaN"]))) #df with missing values
@@ -237,6 +237,9 @@ for ARG in ARGS
                         push!(sub_features, "Test")
                     end
                     sub_features = unique(sub_features)
+                    if length(sub_features) <= 2 #if only Id and Test, undo
+                        sub_features = names(df)
+                    end
                     println("Affine with $(length(sub_features)) features")
                     start = time()
                     X_affine = PHD.augmentaffine(df[:,sub_features], removezerocols=true)

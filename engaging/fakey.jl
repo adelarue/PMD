@@ -20,10 +20,10 @@ if !isdir(savedir)
 end
 SNR = 2
 
-do_benchmark = false
-do_impthenreg = false
-do_static = false
-do_affine = false
+do_benchmark = true
+do_impthenreg = true
+do_static = true
+do_affine = true
 affine_on_static_only = true
 do_finite = true
 
@@ -42,8 +42,8 @@ for ARG in ARGS
     k_missingsignal = missingsignal_list[aux_num]
     @show dname, k_missingsignal
 
-    longtime_list = ["communities-and-crime-2", "mlmRev-star"]
-    if  true #dname ∈ longtime_list || (dname == "ozone-level-detection-one" && k_missingsignal == 1)
+    longtime_list = ["pscl-politicalInformation", "mlmRev-star"]
+    if  true #dname ∈ longtime_list #|| (dname == "ozone-level-detection-one" && k_missingsignal == 1)
         # Read in a data file.
         X_missing = PHD.standardize_colnames(DataFrame(CSV.read("../datasets/"*dname*"/X_missing.csv", missingstrings=["", "NaN"]))) #df with missing values
 
@@ -250,6 +250,9 @@ for ARG in ARGS
                         push!(sub_features, "Test")
                     end
                     sub_features = unique(sub_features)
+                    if length(sub_features) <= 2 #if only Id and Test, undo
+                        sub_features = names(df)
+                    end
                     start = time()
                     X_affine = PHD.augmentaffine(df[:,sub_features], removezerocols=true)
                     linear3, bestparams3 = PHD.regress_cv(Y, X_affine, lasso=[true], alpha=collect(0.1:0.1:1),
