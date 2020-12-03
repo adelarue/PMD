@@ -27,9 +27,9 @@ do_finite = true
 
 for ARG in ARGS
     array_num = parse(Int, ARG)
-    d_num = array_num
-    # d_num = mod(array_num, 71) + 1
-    # iter = div(array_num,71) + 1
+    # d_num = array_num
+    d_num = mod(array_num, 71) + 1
+    iter = div(array_num,71) + 1
 
     dname = dataset_list[d_num]#"dermatology" #"""thyroid-disease-thyroid-0387" #dataset_list[1]
 
@@ -108,8 +108,7 @@ for ARG in ARGS
             Y = convert(BitArray, Y)
         end
 
-
-        for iter in 1:10
+        # for iter in 1:10
             results_table = similar(results_main,0)
             filename = string(dname, "_real_Y", "_$iter.csv")
 
@@ -271,6 +270,6 @@ for ARG in ARGS
                 push!(results_table, [dname, iter, "Finite", R2, OSR2, δt])
                 CSV.write(savedir*filename, results_table)
             end
-        end
+        # end
     end
 end
