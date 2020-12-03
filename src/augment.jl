@@ -11,7 +11,7 @@ function removezerocolumns(df::DataFrame)
 	tokeep = []
 	for name in Symbol.(names(df))
 		# if name ∈ [:Id, :Test, :Y] || (!all(abs.(df[!,name]) .< 1e-9))
-		if name ∈ [:Id, :Test, :Y] || (var(df[:,name]) > 1e-9)) #remove constant value columns
+		if name ∈ [:Id, :Test, :Y] || (var(df[:,name]) > 1e-9) #remove constant value columns
 			push!(tokeep, name)
 		end
 	end
