@@ -26,7 +26,7 @@ do_benchmark = false
 do_impthenreg = false
 do_static = false
 do_affine = true
-affine_on_static_only = false
+affine_on_static_only = true
 do_finite = true
 
 id = 1
@@ -250,9 +250,10 @@ if k_missing == k_missingsignal
             df[!,:Test] = test_ind
             start = time()
             X_augmented = hcat(PHD.zeroimpute(df), PHD.indicatemissing(df, removezerocols=true))
+            X_augmented = hcat(PHD.zeroimpute(df), PHD.indicatemissing(df, removezerocols=true))
             linear2, bestparams2 = PHD.regress_cv(Y, X_augmented, lasso=[true],
                                                     alpha=collect(0.1:0.1:1),
-                                                    missing_penalty=[2.0,4.0,6.0,8.0,12.0,16.0])
+                                                    missing_penalty=[1.0,2.0,4.0,6.0,8.0,12.0,16.0])
             δt = (time() - start)
             R2, OSR2 = PHD.evaluate(Y, X_augmented, linear2)
             push!(results_table, [dname, SNR, k, k_missing, iter, "Static", R2, OSR2, δt])
@@ -275,7 +276,7 @@ if k_missing == k_missingsignal
             start = time()
             X_affine = PHD.augmentaffine(df[:,sub_features], removezerocols=true)
             linear3, bestparams3 = PHD.regress_cv(Y, X_affine, lasso=[true], alpha=collect(0.1:0.1:1),
-                                                  missing_penalty=[2.0,4.0,6.0,8.0,12.0,16.0])
+                                                  missing_penalty=[1.0,2.0,4.0,6.0,8.0,12.0,16.0])
             δt = (time() - start)
             R2, OSR2 = PHD.evaluate(Y, X_affine, linear3)
             push!(results_table, [dname, SNR, k, k_missing, iter, "Affine", R2, OSR2, δt])
@@ -290,7 +291,7 @@ if k_missing == k_missingsignal
             X_missing_zero_std = PHD.zeroimpute(X_missing_std)
 
             gm2 = PHD.trainGreedyModel(Y, X_missing_zero_std,
-                                             maxdepth = 8, tolerance = 0.05, minbucket = 20, missingdata = X_missing)
+                                             maxdepth = 8, tolerance = 0.01, minbucket = 20, missingdata = X_missing)
             δt = (time() - start)
             R2, OSR2 = PHD.evaluate(Y, X_missing_zero_std, gm2, X_missing_std)
             push!(results_table, [dname, SNR, k, k_missing, iter, "Finite", R2, OSR2, δt])
