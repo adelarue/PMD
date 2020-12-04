@@ -15,16 +15,17 @@ SNR = 2
 if !isdir("../results")
     mkdir("../results")
 end
-savedir = "../results/nmar_outliers/"
+# savedir = "../results/nmar_outliers/"
+savedir = "./"
 if !isdir(savedir)
     mkdir(savedir)
 end
 results_main = DataFrame(dataset=[], SNR=[], k=[], kMissing=[], splitnum=[], method=[],
                          r2 = [], osr2=[], time=[])
 
-do_benchmark = false
-do_impthenreg = false
-do_static = false
+do_benchmark = true
+do_impthenreg = true
+do_static = true
 do_affine = true
 affine_on_static_only = true
 do_finite = true
@@ -127,7 +128,7 @@ if k_missing == k_missingsignal
             push!(results_table, [dname, SNR, k, k_missing, iter, "Oracle", R2, OSR2, δt])
             CSV.write(savedir*filename, results_table)
 
-            df = [X_full[:,:] PHD.indicatemissing(X_missing[:,:]; removezerocols=true)]
+            df = [X_full[:,:] PHD.indicatemissing(X_missing[:,:]; removecols=:Constant)]
             df[!,:Test] = test_ind
             start = time()
             linear, bestparams = PHD.regress_cv(Y, df, lasso=[true], alpha=collect(0.1:0.1:1))
@@ -245,7 +246,7 @@ if k_missing == k_missingsignal
             println("Adaptive methods...")
             println("###################")
             ## Method 2: Static Adaptability
-            println("Method 2")
+            println("Method Static")
             df = deepcopy(X_missing)
             df[!,:Test] = test_ind
             start = time()
@@ -260,21 +261,30 @@ if k_missing == k_missingsignal
             CSV.write(savedir*filename, results_table)
 
             ## Method 3: Affine Adaptability
-            println("Method 3")
+            println("Method Affine")
             df = deepcopy(X_missing)
             df[!,:Test] = test_ind
-            sub_features = names(df)
+
+            model = names(df)
             if affine_on_static_only
-                aux = names(X_augmented)[findall(abs.(convert(Array, linear2[1,:])) .> 0)]
-                sub_features = intersect(sub_features, unique(map(t -> split(t, "_missing")[1], aux)))
-                push!(sub_features, "Test")
+                model2 = names(linear2)[findall(abs.(convert(Array, linear2[1,:])) .> 0)]
+                model2 = intersect(model2, names(df))
+                if length(model2) > 0
+                    model = model2[:]
+                end
             end
-            sub_features = unique(sub_features)
-            if length(sub_features) <= 2 #if only Id and Test, undo
-                sub_features = names(df)
-            end
+            # if affine_on_static_only
+            #     model2 = names(X_augmented)[findall(abs.(convert(Array, linear2[1,:])) .> 0)]
+            #     aux = names(X_augmented)[findall(abs.(convert(Array, linear2[1,:])) .> 0)]
+            #     sub_features = intersect(sub_features, unique(map(t -> split(t, "_missing")[1], aux)))
+            #     push!(sub_features, "Test")
+            # end
+            # sub_features = unique(sub_features)
+            # if length(sub_features) <= 2 #if only Id and Test, undo
+            #     sub_features = names(df)
+            # end
             start = time()
-            X_affine = PHD.augmentaffine(df[:,sub_features], removezerocols=true)
+            X_affine = PHD.augmentaffine(df, model=Symbol.(model), removecols=:Constant)
             linear3, bestparams3 = PHD.regress_cv(Y, X_affine, lasso=[true], alpha=collect(0.1:0.1:1),
                                                   missing_penalty=[1.0,2.0,4.0,6.0,8.0,12.0,16.0])
             δt = (time() - start)
@@ -284,6 +294,7 @@ if k_missing == k_missingsignal
         end
 
         if do_finite
+            println("Method Finite")
             df = deepcopy(X_missing)
             df[!,:Test] = test_ind
             start = time()
