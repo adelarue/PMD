@@ -15,8 +15,8 @@ SNR = 2
 if !isdir("../results")
     mkdir("../results")
 end
-# savedir = "../results/nmar_outliers/"
-savedir = "./"
+savedir = "../results/nmar_outliers/"
+# savedir = "./"
 if !isdir(savedir)
     mkdir(savedir)
 end
