@@ -24,7 +24,7 @@ function regress_cv(Y::Vector, data::DataFrame;
 	newdata = filter(row -> row[:Test] == 0, data)
 	# designate some of training as testing/validation
 	# val_indices = shuffle(1:nrow(newdata))[1:Int(floor(val_fraction * nrow(newdata)))]
-	val_indices = findall(split_dataset(newdata; test_fraction = val_fraction))
+	val_indices = findall(split_dataset(newdata; test_fraction = val_fraction, random=true))
 	newdata[val_indices, :Test] .= 1
 	bestmodel = regress(newY, newdata, lasso = lasso[1], alpha = alpha[1],
 	                    missing_penalty = missing_penalty[1])

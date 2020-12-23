@@ -111,7 +111,7 @@ if k_missing == k_missingsignal
 
         # Split train / test
         Random.seed!(56802+767*iter)
-        test_ind = PHD.split_dataset(X_missing, test_fraction = test_prop)
+        test_ind = PHD.split_dataset(X_missing, test_fraction = test_prop, random=true)
         # @show sum(test_ind) / length(test_ind)
 
         if do_benchmark
