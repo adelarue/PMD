@@ -27,7 +27,7 @@ do_benchmark = false
 do_impthenreg = false
 do_static = true
 do_affine = true
-affine_on_static_only = false
+affine_on_static_only = true
 do_finite = true
 
 id = 1

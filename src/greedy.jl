@@ -27,6 +27,8 @@ struct SplitNode <: Node
 	intercept::Float64
 	"Regression coefficients"
 	coeffs::Vector{Float64}
+	"Current out-of-sample error"
+	current_error::Float64
 	"Parent node"
 	parent::Int
 end
@@ -47,6 +49,8 @@ struct LeafNode <: Node
 	featuresIn::Vector{Int}
 	"Features excluded"
 	featuresOut::Vector{Int}
+	"Current out-of-sample error"
+	currentError::Float64
 	"Parent node"
 	parent::Int
 end
@@ -89,6 +93,10 @@ struct SplitCandidate
 	rightIntercept::Float64
 	"New right coeffs"
 	rightCoeffs::Vector{Float64}
+	"New right out-of-sample error"
+	rightError::Float64
+	"New left out-of-sample error"
+	leftError::Float64
 end
 Base.:<(e1::SplitCandidate, e2::SplitCandidate) = e1.improvement < e2.improvement
 Base.isless(e1::SplitCandidate, e2::SplitCandidate) = e1.improvement < e2.improvement
@@ -138,7 +146,7 @@ function initializeGreedyModel(Y::Vector, data::DataFrame)
 				if !any(ismissing.(data[!, name]))]
 	points = findall(data[!, :Test] .== 0)
 	intercept, coeffs, SSE = regressionCoefficients(Y, data, points, features)
-	root = LeafNode(1, 1, intercept, coeffs, features, Int[], 0)
+	root = LeafNode(1, 1, intercept, coeffs, features, Int[], SSE, 0)
 	return GreedyModel([root], Set([1]), false)
 end
 function initializeGreedyModel(Y::BitArray{1}, data::DataFrame)
@@ -146,7 +154,7 @@ function initializeGreedyModel(Y::BitArray{1}, data::DataFrame)
 				if !any(ismissing.(data[!, name]))]
 	points = findall(data[!, :Test] .== 0)
 	intercept, coeffs, LL = regressionCoefficients(Y, data, points, features)
-	root = LeafNode(1, 1, intercept, coeffs, features, Int[], 0)
+	root = LeafNode(1, 1, intercept, coeffs, features, Int[], LL, 0)
 	return GreedyModel([root], Set([1]), true)
 end
 
@@ -163,8 +171,8 @@ function bestSplit(gm::GreedyModel, Y::Union{Vector, BitArray{1}}, data::DataFra
 	X = Float64.(X[:, currentNode.featuresIn])
 
 	pred = currentNode.intercept .+ X * currentNode.coeffs[currentNode.featuresIn]
-	currentLoss = gm.logistic ? logloss(y, sigmoid.(pred)) : sum((y .- pred) .^ 2)
-	bestLoss = currentLoss
+	currentLoss = currentNode.currentError #gm.logistic ? logloss(y, sigmoid.(pred)) : sum((y .- pred) .^ 2)
+	bestLoss = currentLoss, currentLoss, 0.
 	bestFeature = 1
 	bestCoeffs = (0., zeros(p), 0., zeros(p))
 	for j = findall([any(ismissing.(missingdata[:,j])) for j in 1:Base.size(missingdata,2)]) #Search only through the features that can be missing
@@ -185,17 +193,18 @@ function bestSplit(gm::GreedyModel, Y::Union{Vector, BitArray{1}}, data::DataFra
 		intRight, coeffsRight, lossRight = regressionCoefficients(Y, data, pointsRight, featuresRight)
 
 		newLoss = lossLeft + lossRight
-		if newLoss < bestLoss
-			bestLoss = newLoss
+		if newLoss < bestLoss[1]
+			bestLoss = newLoss, lossLeft, lossRight
 			bestFeature = j
 			bestCoeffs = intLeft, coeffsLeft, intRight, coeffsRight
 		end
 	end
-	return SplitCandidate(node, abs(bestLoss - currentLoss)/abs(currentLoss), bestFeature,
+	return SplitCandidate(node, abs(bestLoss[1] - currentLoss)/abs(currentLoss), bestFeature,
 	                      points[.!ismissing.(missingdata[points, bestFeature])],
 	                      points[ismissing.(missingdata[points, bestFeature])],
 	                      sort(collect(Set(vcat(features, bestFeature)))), features,
-	                      bestCoeffs[1], bestCoeffs[2], bestCoeffs[3], bestCoeffs[4])
+	                      bestCoeffs[1], bestCoeffs[2], bestCoeffs[3], bestCoeffs[4],
+						  bestLoss[2], bestLoss[3])
 end
 
 """
@@ -205,15 +214,16 @@ function split!(gm::GreedyModel, node::Int, feature::Int,
 				intLeft::Float64, coeffsLeft::Vector{Float64},
 				intRight::Float64, coeffsRight::Vector{Float64},
 				featuresInLeft::Vector{Int}, featuresOutLeft::Vector{Int},
-				featuresInRight::Vector{Int}, featuresOutRight::Vector{Int})
+				featuresInRight::Vector{Int}, featuresOutRight::Vector{Int},
+				errorLeft::Float64, errorRight::Float64)
 	parentNode = gm.nodes[node]
 	leftNode = LeafNode(length(gm.nodes) + 1, parentNode.depth + 1,
-	                    intLeft, coeffsLeft, featuresInLeft, featuresOutLeft, parentNode.id)
+	                    intLeft, coeffsLeft, featuresInLeft, featuresOutLeft, errorLeft, parentNode.id)
 	rightNode = LeafNode(length(gm.nodes) + 2, parentNode.depth + 1,
-	                     intRight, coeffsRight, featuresInRight, featuresOutRight, parentNode.id)
+	                     intRight, coeffsRight, featuresInRight, featuresOutRight, errorRight, parentNode.id)
 	parentNode = SplitNode(parentNode.id, parentNode.depth, feature,
 	                       length(gm.nodes) + 1, length(gm.nodes) + 2,
-	                       parentNode.intercept, parentNode.coeffs, parentNode.parent)
+	                       parentNode.intercept, parentNode.coeffs, parentNode.currentError, parentNode.parent)
 	gm.nodes[node] = parentNode
 	push!(gm.leaves, length(gm.nodes) + 1)
 	push!(gm.leaves, length(gm.nodes) + 2)
@@ -244,7 +254,8 @@ function regressionCoefficients(Y::Vector, data::DataFrame, points::Vector{Int},
 	cv = glmnetcv(X, y)
 	β_0 = cv.path.a0[argmin(cv.meanloss)]
 	coeffs[features] = cv.path.betas[:, argmin(cv.meanloss)]
-	SSE = sum((X * coeffs[features] - y .+ β_0) .^ 2)
+	# SSE = sum((X * coeffs[features] - y .+ β_0) .^ 2)
+	SSE = argmin(cv.meanloss) #Log loss corresponds to out-of-sample predictive power
 	return β_0, coeffs, SSE
 end
 function regressionCoefficients(Y::BitArray{1}, data::DataFrame, points::Vector{Int},
@@ -267,7 +278,8 @@ function regressionCoefficients(Y::BitArray{1}, data::DataFrame, points::Vector{
 	β_0 = cv.path.a0[argmin(cv.meanloss)]
 	coeffs[features] = cv.path.betas[:, argmin(cv.meanloss)]
 	pred = sigmoid.(β_0 .+ X * coeffs[features])
-	LL = logloss(y, pred)
+	# LL = logloss(y, pred)
+	LL = argmin(cv.meanloss)
 	return β_0, coeffs, LL
 end
 
