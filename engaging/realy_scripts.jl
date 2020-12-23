@@ -18,8 +18,8 @@ if !isdir(savedir)
 end
 results_main = DataFrame(dataset=[], splitnum=[], method=[], r2=[], osr2=[], time=[])
 
-do_benchmark = true
-do_impthenreg = true
+do_benchmark = false
+do_impthenreg = false
 do_static = true
 do_affine = true
 affine_on_static_only = true
@@ -114,7 +114,7 @@ for ARG in ARGS
 
             Random.seed!(2142+767*iter)
             # Split train / test
-            test_ind = PHD.split_dataset(X_missing, test_fraction = test_prop) #rand(nrow(X_missing)) .< test_prop ;
+            test_ind = PHD.split_dataset(X_missing, test_fraction=test_prop, random=true) #rand(nrow(X_missing)) .< test_prop ;
 
             if do_benchmark
                 println("Benchmark methods...")
@@ -225,7 +225,8 @@ for ARG in ARGS
                 df = deepcopy(X_missing)
                 df[!,:Test] = test_ind
                 start = time()
-                X_augmented = hcat(PHD.zeroimpute(df), PHD.indicatemissing(df, removezerocols=true))
+                # X_augmented = hcat(PHD.zeroimpute(df), PHD.indicatemissing(df, removezerocols=true))
+                X_augmented = PHD.zeroimpute(df)
                 linear2, bestparams2 = PHD.regress_cv(Y, X_augmented, lasso=[true],
                                                         alpha=collect(0.1:0.1:1),
                                                         missing_penalty=[1.0,2.0,4.0,6.0,8.0])
@@ -237,20 +238,20 @@ for ARG in ARGS
                 ## Method 3: Affine Adaptability
                 df = deepcopy(X_missing)
                 df[!,:Test] = test_ind
-                sub_features = names(df)
+
+                model = names(df)
                 if affine_on_static_only
-                    aux = names(X_augmented)[findall(abs.(convert(Array, linear2[1,:])) .> 0)]
-                    sub_features = intersect(sub_features, unique(map(t -> split(t, "_missing")[1], aux)))
-                    push!(sub_features, "Test")
-                end
-                sub_features = unique(sub_features)
-                if length(sub_features) <= 2 #if only Id and Test, undo
-                    sub_features = names(df)
+                    model2 = names(linear2)[findall(abs.(convert(Array, linear2[1,:])) .> 0)]
+                    model2 = intersect(model2, names(df))
+                    if length(model2) > 0
+                        model = model2[:]
+                    end
                 end
                 start = time()
-                X_affine = PHD.augmentaffine(df[:,sub_features], removezerocols=true)
+                X_affine = PHD.augmentaffine(df, model=String.(model), removecols=:Constant)
+
                 linear3, bestparams3 = PHD.regress_cv(Y, X_affine, lasso=[true], alpha=collect(0.1:0.1:1),
-                                                      missing_penalty=[2.0,4.0,6.0,8.0,12.0,16.0])
+                                                      missing_penalty=[1.0,2.0,4.0,6.0,8.0,12.0,16.0])
                 δt = (time() - start)
                 R2, OSR2 = PHD.evaluate(Y, X_affine, linear3)
                 push!(results_table, [dname, iter, "Affine", R2, OSR2, δt])
@@ -264,7 +265,7 @@ for ARG in ARGS
                 X_missing_std = PHD.standardize(df)
                 X_missing_zero_std = PHD.zeroimpute(X_missing_std)
                 gm2 = PHD.trainGreedyModel(Y, X_missing_zero_std,
-                                                 maxdepth = 8, tolerance = 0.05, minbucket = 20, missingdata = X_missing)
+                                                 maxdepth = 8, tolerance = 0.01, minbucket = 20, missingdata = X_missing)
                 δt = (time() - start)
                 R2, OSR2 = PHD.evaluate(Y, X_missing_zero_std, gm2, X_missing_std)
                 push!(results_table, [dname, iter, "Finite", R2, OSR2, δt])
