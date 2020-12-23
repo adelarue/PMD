@@ -284,7 +284,7 @@ if k_missing == k_missingsignal
             #     sub_features = names(df)
             # end
             start = time()
-            X_affine = PHD.augmentaffine(df, model=Symbol.(model), removecols=:Constant)
+            X_affine = PHD.augmentaffine(df, model=String.(model), removecols=:Constant)
             linear3, bestparams3 = PHD.regress_cv(Y, X_affine, lasso=[true], alpha=collect(0.1:0.1:1),
                                                   missing_penalty=[1.0,2.0,4.0,6.0,8.0,12.0,16.0])
             δt = (time() - start)
