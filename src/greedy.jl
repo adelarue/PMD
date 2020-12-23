@@ -125,7 +125,8 @@ function trainGreedyModel(Y::Union{Vector, BitArray{1}}, data::DataFrame;
 			       leafToSplit.leftCoeffs, leafToSplit.rightIntercept, leafToSplit.rightCoeffs,
 			       leafToSplit.leftFeatures, gm.nodes[leafToSplit.leaf].featuresOut,
 			       leafToSplit.rightFeatures,
-			       sort(vcat(gm.nodes[leafToSplit.leaf].featuresOut, leafToSplit.feature)))
+			       sort(vcat(gm.nodes[leafToSplit.leaf].featuresOut, leafToSplit.feature)),
+				   leafToSplit.rightError, leafToSplit.leftError)
 			L = length(gm.nodes)
 			if gm.nodes[L].depth < maxdepth # only add to heap if below max depth
 				push!(heap, bestSplit(gm, Y, data, L-1, leafToSplit.leftPoints,
@@ -199,7 +200,7 @@ function bestSplit(gm::GreedyModel, Y::Union{Vector, BitArray{1}}, data::DataFra
 			bestCoeffs = intLeft, coeffsLeft, intRight, coeffsRight
 		end
 	end
-	return SplitCandidate(node, abs(bestLoss[1] - currentLoss)/abs(currentLoss), bestFeature,
+	return SplitCandidate(node, (currentLoss - bestLoss[1])/abs(currentLoss), bestFeature,
 	                      points[.!ismissing.(missingdata[points, bestFeature])],
 	                      points[ismissing.(missingdata[points, bestFeature])],
 	                      sort(collect(Set(vcat(features, bestFeature)))), features,
@@ -255,7 +256,7 @@ function regressionCoefficients(Y::Vector, data::DataFrame, points::Vector{Int},
 	β_0 = cv.path.a0[argmin(cv.meanloss)]
 	coeffs[features] = cv.path.betas[:, argmin(cv.meanloss)]
 	# SSE = sum((X * coeffs[features] - y .+ β_0) .^ 2)
-	SSE = argmin(cv.meanloss) #Log loss corresponds to out-of-sample predictive power
+	SSE = argmin(cv.meanloss)*Base.size(X,1) #Log loss corresponds to out-of-sample predictive power
 	return β_0, coeffs, SSE
 end
 function regressionCoefficients(Y::BitArray{1}, data::DataFrame, points::Vector{Int},
@@ -279,7 +280,7 @@ function regressionCoefficients(Y::BitArray{1}, data::DataFrame, points::Vector{
 	coeffs[features] = cv.path.betas[:, argmin(cv.meanloss)]
 	pred = sigmoid.(β_0 .+ X * coeffs[features])
 	# LL = logloss(y, pred)
-	LL = argmin(cv.meanloss)
+	LL = argmin(cv.meanloss)*Base.size(X,1)
 	return β_0, coeffs, LL
 end
 
