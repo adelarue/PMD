@@ -38,6 +38,7 @@ function regress(Y::Array{Float64}, df::DataFrame;
 			end
 			coefficients[:Offset] = cv.path.a0[argmin(cv.meanloss)]
 		catch
+			println("Error in regression")
 			for col in cols
 				coefficients[!,col] = [0.]
 			end
