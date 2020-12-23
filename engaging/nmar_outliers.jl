@@ -273,16 +273,6 @@ if k_missing == k_missingsignal
                     model = model2[:]
                 end
             end
-            # if affine_on_static_only
-            #     model2 = names(X_augmented)[findall(abs.(convert(Array, linear2[1,:])) .> 0)]
-            #     aux = names(X_augmented)[findall(abs.(convert(Array, linear2[1,:])) .> 0)]
-            #     sub_features = intersect(sub_features, unique(map(t -> split(t, "_missing")[1], aux)))
-            #     push!(sub_features, "Test")
-            # end
-            # sub_features = unique(sub_features)
-            # if length(sub_features) <= 2 #if only Id and Test, undo
-            #     sub_features = names(df)
-            # end
             start = time()
             X_affine = PHD.augmentaffine(df, model=String.(model), removecols=:Constant)
             linear3, bestparams3 = PHD.regress_cv(Y, X_affine, lasso=[true], alpha=collect(0.1:0.1:1),
