@@ -23,11 +23,11 @@ end
 results_main = DataFrame(dataset=[], SNR=[], k=[], kMissing=[], splitnum=[], method=[],
                          r2 = [], osr2=[], time=[])
 
-do_benchmark = true
-do_impthenreg = true
+do_benchmark = false
+do_impthenreg = false
 do_static = true
 do_affine = true
-affine_on_static_only = true
+affine_on_static_only = false
 do_finite = true
 
 id = 1
@@ -250,7 +250,7 @@ if k_missing == k_missingsignal
             df = deepcopy(X_missing)
             df[!,:Test] = test_ind
             start = time()
-            # X_augmented = hcat(PHD.zeroimpute(df), PHD.indicatemissing(df, removezerocols=true))
+            # X_augmented = hcat(PHD.zeroimpute(df), PHD.indicatemissing(df, removecols=:Zero))
             X_augmented = PHD.zeroimpute(df)
             linear2, bestparams2 = PHD.regress_cv(Y, X_augmented, lasso=[true],
                                                     alpha=collect(0.1:0.1:1),
