@@ -232,8 +232,8 @@ for ARG in ARGS
                     df = deepcopy(X_missing)
                     df[!,:Test] = test_ind
                     start = time()
-                    # X_augmented = hcat(PHD.zeroimpute(df), PHD.indicatemissing(df, removezerocols=true))
-                    X_augmented = PHD.zeroimpute(df)
+                    X_augmented = hcat(PHD.zeroimpute(df), PHD.indicatemissing(df, removezerocols=true))
+                    # X_augmented = PHD.zeroimpute(df)
                     linear2, bestparams2 = PHD.regress_cv(Y, X_augmented, lasso=[true], alpha=collect(0.1:0.1:1),
                                                             missing_penalty=[1.0,2.0,4.0,6.0,8.0,12.0,16.0])
                     δt = (time() - start)
