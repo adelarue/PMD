@@ -46,12 +46,12 @@ end
 """
 	Create the outer product between the data matrix and the missingness indicators
 """
-function augmentaffine(df::DataFrame; model::Array{Symbol}=Symbol.(names(df)), removecols::Symbol=:None)
+function augmentaffine(df::DataFrame; model::Array{String}=String.(names(df)), removecols::Symbol=:None)
 	newdf = zeroimpute(df)
 	Z = indicatemissing(df, removecols=:Constant)
 	result = hcat(newdf, Z) #Start with zero imputation + offset adaptive rule
-	for name in intersect(Symbol.(names(df)), model) #W_{jk} where j is the feature from the model to correct
-		for missingname in Symbol.(names(Z)) 		#and k is the potentially missing feature triggering correction
+	for name in intersect(String.(names(df)), model) #W_{jk} where j is the feature from the model to correct
+		for missingname in String.(names(Z)) 		#and k is the potentially missing feature triggering correction
 			result[!, Symbol("$(name)_$missingname")] = newdf[:, name] .* Z[:, missingname]
 		end
 	end
