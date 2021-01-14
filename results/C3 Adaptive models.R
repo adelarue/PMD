@@ -2,10 +2,10 @@ library(tidyverse)
 library(RColorBrewer)
 library(readr)
 setwd("Dropbox (MIT)/1 - Research/PHD/results/")
-df <- read_csv("fakey/all_results_new.csv")
-df <- read_csv("fakey_nmar/all_results_new.csv")
-df <- read_csv("nmar_outliers/all_results_new.csv")
-df <- read_csv("realy/all_results_new.csv") %>%  mutate(kMissing = 1)
+df <- read_csv("fakey/all_results.csv")
+df <- read_csv("fakey_nmar/all_results.csv")
+df <- read_csv("nmar_outliers/all_results.csv")
+df <- read_csv("realy/all_results.csv") %>%  mutate(kMissing = 1)
 
 
 patterns = read_csv("pattern_counts_numonly.csv") %>% rename(dataset=Name) %>%  filter(p_miss > 0)
@@ -41,24 +41,28 @@ plot_data %>%
   labs(linetype = "Method", x = "Missing features in signal",
        y = "Out-of-sample R2") +
   scale_x_continuous(breaks = c(0, 2, 4, 6, 8, 10)) +
-  theme(#legend.position = c(0.15, 0.27), 
-        legend.text = element_text(size=22),
-        legend.title = element_text(size=22), axis.title = element_text(size=22), 
-        axis.text = element_text(size=22),
+  theme(
+        legend.position = "bottom", 
+        legend.text = element_text(size=32),
+        legend.title = element_text(size=32), 
+        axis.title = element_text(size=32), 
+        axis.text = element_text(size=32),
+        axis.line = element_line(colour = "black"),
         #legend.background = element_rect(color="white"),
-        legend.box.background = element_rect(color="black"),
         panel.border = element_blank(),
         panel.background = element_blank(),
         panel.grid.major = element_line(colour = "gray", linetype="dashed"),
         panel.grid.minor = element_blank(),
-        axis.line = element_line(colour = "black"),
         legend.box.margin = margin(0, 0, 0, 0),
+        legend.box.background = element_rect(color="black"),
         #legend.spacing.y = unit(1, "line"),
         legend.key.height = unit(2, "line"),
         legend.key.width = unit(2, "line"))
 
-ggsave("out-of-sample-nmar-outliers.png",  width = 20, height = 15, dpi = 300,)
+ggsave("out-of-sample-mar.png",  width = 20, height = 15, dpi = 300)
 
+ggsave("out-of-sample-nmar.png",  width = 20, height = 15, dpi = 300,)
+ggsave("out-of-sample-nmar-outliers.png",  width = 20, height = 15, dpi = 300,)
 
 #Plot 3: Win rate
 df <- read_csv("fakey/all_results_new.csv") %>%  
