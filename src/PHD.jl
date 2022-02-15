@@ -11,6 +11,7 @@ using GLMNet
 using Statistics, LinearAlgebra, Printf, Random
 using DataStructures, StatsBase, MLDataPattern
 using JuMP, Gurobi
+using Flux
 
 "Helper function to load R packages and install them if necessary"
 function load_R_library(name::AbstractString)
@@ -31,6 +32,7 @@ include("impute.jl")
 include("augment.jl")
 include("generate_y.jl")
 include("regress.jl")
+include("regress_nonlinear.jl")
 include("greedy.jl")
 include("validate.jl")
 
