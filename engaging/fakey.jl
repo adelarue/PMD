@@ -45,7 +45,7 @@ for ARG in ARGS
     longtime_list = ["pscl-politicalInformation", "mlmRev-star"]
     if  true #dname ∈ longtime_list #|| (dname == "ozone-level-detection-one" && k_missingsignal == 1)
         # Read in a data file.
-        X_missing = PHD.standardize_colnames(DataFrame(CSV.read("../datasets/"*dname*"/X_missing.csv", missingstrings=["", "NaN"]))) #df with missing values
+        X_missing = PHD.standardize_colnames(DataFrame(CSV.read("../datasets/"*dname*"/X_missing.csv", DataFrame, missingstrings=["", "NaN"]))) #df with missing values
 
         # Clean up : to be checked, some datasets have strings in features
         delete_obs = trues(Base.size(X_missing,1))
@@ -68,7 +68,7 @@ for ARG in ARGS
         end
         select!(X_missing, keep_cols)
         canbemissing = [any(ismissing.(X_missing[:,j])) for j in names(X_missing)] #indicator of missing features
-        X_full = PHD.standardize_colnames(DataFrame(CSV.read("../datasets/"*dname*"/X_full.csv")))[delete_obs,keep_cols] #ground truth df
+        X_full = PHD.standardize_colnames(DataFrame(CSV.read("../datasets/"*dname*"/X_full.csv", DataFrame)))[delete_obs,keep_cols] #ground truth df
 
         # Create output
         Random.seed!(549)
