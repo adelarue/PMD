@@ -5,7 +5,7 @@ Pkg.activate("..")
 using PHD
 using Random, Statistics, CSV, DataFrames, LinearAlgebra
 
-dataset_list = [d for d in split.(read(`ls ../datasets/`, String), "\n") if length(d) > 0]
+dataset_list = [d for d in readdir("../datasets/") if !startswith(d, ".")]
 sort!(dataset_list)
 
 savedir = "../results/realy/fix/"
@@ -30,7 +30,7 @@ for ARG in ARGS
 
     @show dname
     pb_list =  ["communities-and-crime-2", "cylinder-bands", "trains"]
-    if true #dname ∈ pb_list
+    if string(dname, "_real_Y", "_1.csv") ∉ pb_list #dname ∈ pb_list
         # Read in a data file.
         X_missing = PHD.standardize_colnames(CSV.read("../datasets/"*dname*"/X_missing.csv", missingstrings=["", "NaN"], DataFrame)) #df with missing values
 
@@ -74,8 +74,13 @@ for ARG in ARGS
         # @time Y, k, k_missing = PHD.linear_y(X_full, soft_threshold=0.1, SNR=SNR, canbemissing=canbemissing, n_missing_in_signal=n_missingsignal) ;
         test_prop = .3
 
-        target_list = names(CSV.read("../datasets/"*dname*"/Y.csv", missingstrings=["", "NaN"], DataFrame))
-        # @show length(target_list)
+        # try 
+            target_list = names(CSV.read("../datasets/"*dname*"/Y.csv", missingstrings=["", "NaN"], DataFrame))
+        # catch
+        #     println("No real Y for this dataset")
+        #     break
+        # end
+            # @show length(target_list)
 
         Y = zeros(Base.size(X_missing,1))
         if length(target_list) <= 2
