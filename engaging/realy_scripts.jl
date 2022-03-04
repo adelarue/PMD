@@ -1,7 +1,5 @@
 using Pkg
 Pkg.activate("..")
-Pkg.update()
-Pkg.build()
 
 using Revise
 using PHD

@@ -20,18 +20,19 @@ function regress_cv(Y::Vector, data::DataFrame;
 					alpha::Vector{Float64}=[0.8],
 					missing_penalty::Vector{Float64}=[1.0])
 	# isolate training set
+	regtype = map(t -> t ? :lasso : :none, lasso)
 	newY = Y[data[!, :Test] .== 0]
 	newdata = filter(row -> row[:Test] == 0, data)
 	# designate some of training as testing/validation
 	# val_indices = shuffle(1:nrow(newdata))[1:Int(floor(val_fraction * nrow(newdata)))]
 	val_indices = findall(split_dataset(newdata; test_fraction = val_fraction, random=true))
 	newdata[val_indices, :Test] .= 1
-	bestmodel = regress(newY, newdata, lasso = lasso[1], alpha = alpha[1],
+	bestmodel = regress(newY, newdata, regtype = regtype[1], alpha = alpha[1],
 	                    missing_penalty = missing_penalty[1])
 	bestOSR2 = evaluate(newY, newdata, bestmodel)[2]
-	bestparams = (lasso[1], alpha[1], missing_penalty[1])
-	for l in lasso, a in alpha, mp in missing_penalty
-		newmodel = regress(newY, newdata, lasso = l, alpha = a, missing_penalty = mp)
+	bestparams = (regtype[1], alpha[1], missing_penalty[1])
+	for l in regtype, a in alpha, mp in missing_penalty
+		newmodel = regress(newY, newdata, regtype = l, alpha = a, missing_penalty = mp)
 		newOSR2 = evaluate(newY, newdata, newmodel)[2]
 		if newOSR2 > bestOSR2
 			bestOSR2 = newOSR2
@@ -39,7 +40,7 @@ function regress_cv(Y::Vector, data::DataFrame;
 		end
 	end
 	# train model on full dataset using best parameters
-	bestmodel = regress(Y, data, lasso = bestparams[1], alpha = bestparams[2],
+	bestmodel = regress(Y, data, regtype = bestparams[1], alpha = bestparams[2],
 	                    missing_penalty = bestparams[3])
 	return bestmodel, bestparams
 end
@@ -49,17 +50,19 @@ function regress_cv(Y::BitArray{1}, data::DataFrame;
 					alpha::Vector{Float64}=[0.8],
 					missing_penalty::Vector{Float64}=[1.0])
 	# isolate training set
+	regtype = map(t -> t ? :lasso : :none, lasso)
+
 	newY = Y[data[!, :Test] .== 0]
 	newdata = filter(row -> row[:Test] == 0, data)
 	# designate some of training as testing/validation
 	val_indices = shuffle(1:nrow(newdata))[1:Int(floor(val_fraction * nrow(newdata)))]
 	newdata[val_indices, :Test] .= 1
-	bestmodel = regress(newY, newdata, lasso = lasso[1], alpha = alpha[1],
+	bestmodel = regress(newY, newdata, regtype = regtype[1], alpha = alpha[1],
 	                    missing_penalty = missing_penalty[1])
 	bestlogloss = evaluate(newY, newdata, bestmodel)[2]
-	bestparams = (lasso[1], alpha[1], missing_penalty[1])
-	for l in lasso, a in alpha, mp in missing_penalty
-		newmodel = regress(newY, newdata, lasso = l, alpha = a, missing_penalty = mp)
+	bestparams = (regtype[1], alpha[1], missing_penalty[1])
+	for l in regtype, a in alpha, mp in missing_penalty
+		newmodel = regress(newY, newdata, regtype = l, alpha = a, missing_penalty = mp)
 		newlogloss = evaluate(newY, newdata, newmodel)[2]
 		if newlogloss < bestlogloss
 			bestlogloss = newlogloss
@@ -67,7 +70,7 @@ function regress_cv(Y::BitArray{1}, data::DataFrame;
 		end
 	end
 	# train model on full dataset using best parameters
-	bestmodel = regress(Y, data, lasso = bestparams[1], alpha = bestparams[2],
+	bestmodel = regress(Y, data, regtype = bestparams[1], alpha = bestparams[2],
 	                    missing_penalty = bestparams[3])
 	return bestmodel, bestparams
 end

@@ -19,7 +19,7 @@
 		except Test, and an additional Offset containing the constant term
 """
 #KEPT FOR COMPATIBILITY: CHOOSE REG WITH BOOL ARG "lasso", NOW REPLACED BY SYMBOL ARG "regtype"
-function regress(Y, df::DataFrame;
+function regress(Y::Array{Float64}, df::DataFrame;
 	lasso::Bool=false, alpha::Real=0.8, missing_penalty::Real=1.0)
 	return regress(Y, df; regtype= lasso ? :lasso : :none, alpha=alpha, missing_penalty=missing_penalty)
 end
@@ -93,6 +93,10 @@ function regress(Y::Array{Float64}, df::DataFrame;
 	return coefficients
 end
 
+function regress(Y::BitArray{1}, df::DataFrame;
+	lasso::Bool=false, alpha::Real=0.8, missing_penalty::Real=1.0)
+	return regress(Y, df; regtype= lasso ? :lasso : :none, alpha=alpha, missing_penalty=missing_penalty)
+end
 function regress(Y::BitArray{1}, df::DataFrame;
 				 regtype::Symbol=:lasso, alpha::Real=0.8, missing_penalty::Real=1.0)
 	cols = setdiff(Symbol.(names(df)), [:Id, :Test])
