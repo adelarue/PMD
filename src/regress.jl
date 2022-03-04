@@ -68,7 +68,6 @@ function regress(Y::Array{Float64}, df::DataFrame;
 			if length(kj_influenced) == 0
 				@show j
 			end 
-			@show kj ∈ kj_influenced
 			for i in kj_influenced
 				push!(D_list, (counter, i, 1))
 			end
