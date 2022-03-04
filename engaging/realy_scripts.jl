@@ -30,7 +30,7 @@ for ARG in ARGS
 
     @show dname
     pb_list =  ["communities-and-crime-2", "cylinder-bands", "trains"]
-    if true #string(dname, "_real_Y", "_1.csv") ∉ pb_list #dname ∈ pb_list
+    # if true #string(dname, "_real_Y", "_1.csv") ∉ pb_list #dname ∈ pb_list
         # Read in a data file.
         X_missing = PHD.standardize_colnames(CSV.read("../datasets/"*dname*"/X_missing.csv", missingstrings=["", "NaN"], DataFrame)) #df with missing values
 
@@ -108,7 +108,11 @@ for ARG in ARGS
             Y = convert(BitArray, Y)
         end
 
-        for iter in 1:10
+        savedfiles = filter(t -> startswith(t, string(dname,"_real_Y_")), readdir(savedir))
+        map!(t -> replace(replace(t, ".csv" => ""), string(dname,"_real_Y_") => ""), savedfiles, savedfiles)
+        
+        for iter in setdiff(1:10, parse.(Int, savedfiles))
+        # for iter in 1:10
             results_table = similar(results_main,0)
             filename = string(dname, "_real_Y", "_$iter.csv")
 
@@ -276,5 +280,5 @@ for ARG in ARGS
                 CSV.write(savedir*filename, results_table)
             end
         end
-    end
+    # end
 end
