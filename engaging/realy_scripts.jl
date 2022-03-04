@@ -1,5 +1,7 @@
 using Pkg
-Pkg.activate(".")
+Pkg.activate("..")
+Pkg.update()
+Pkg.build()
 
 using Revise
 using PHD
@@ -9,7 +11,7 @@ using Random, Statistics, CSV, DataFrames, LinearAlgebra
 dataset_list = [d for d in split.(read(`ls ../datasets/`, String), "\n") if length(d) > 0]
 sort!(dataset_list)
 
-savedir = "../results/realy/"
+savedir = "../results/realy/fix/"
 mkpath(savedir)
 
 results_main = DataFrame(dataset=[], splitnum=[], method=[], r2=[], osr2=[], time=[])
@@ -104,7 +106,7 @@ for ARG in ARGS
             Y = convert(BitArray, Y)
         end
 
-        for iter in 1:10
+        # for iter in 1:10
             results_table = similar(results_main,0)
             filename = string(dname, "_real_Y", "_$iter.csv")
 
@@ -267,6 +269,6 @@ for ARG in ARGS
                 push!(results_table, [dname, iter, "Finite", R2, OSR2, δt])
                 CSV.write(savedir*filename, results_table)
             end
-        end
+        # end
     end
 end
