@@ -17,7 +17,7 @@ do_benchmark = false
 do_impthenreg = false
 do_static = true
 do_affine = false
-affine_on_static_only = false
+affine_on_static_only = true
 do_finite = false
 
 for ARG in ARGS
@@ -230,27 +230,29 @@ for ARG in ARGS
                 push!(results_table, [dname, iter, "Static", R2, OSR2, δt])
                 CSV.write(savedir*filename, results_table)
 
-                ## Method 3: Affine Adaptability
-                df = deepcopy(X_missing)
-                df[!,:Test] = test_ind
+                if do_affine
+                    ## Method 3: Affine Adaptability
+                    df = deepcopy(X_missing)
+                    df[!,:Test] = test_ind
 
-                model = names(df)
-                if affine_on_static_only
-                    model2 = names(linear2)[findall(abs.(convert(Array, linear2[1,:])) .> 0)]
-                    model2 = intersect(model2, names(df))
-                    if length(model2) > 0
-                        model = model2[:]
+                    model = names(df)
+                    if affine_on_static_only
+                        model2 = names(linear2)[findall(abs.([linear2[1,c] for c in names(linear2)]) .> 0)]
+                        model2 = intersect(model2, names(df))
+                        if length(model2) > 0
+                            model = model2[:]
+                        end
                     end
-                end
-                start = time()
-                X_affine = PHD.augmentaffine(df, model=String.(model), removecols=:Constant)
+                    start = time()
+                    X_affine = PHD.augmentaffine(df, model=String.(model), removecols=:Constant)
 
-                linear3, bestparams3 = PHD.regress_cv(Y, X_affine, regtype=[:genlasso], alpha=collect(0.1:0.1:1),
-                                                      missing_penalty=[1.0,2.0,4.0,6.0,8.0,12.0,16.0])
-                δt = (time() - start)
-                R2, OSR2 = PHD.evaluate(Y, X_affine, linear3)
-                push!(results_table, [dname, iter, "Affine", R2, OSR2, δt])
-                CSV.write(savedir*filename, results_table)
+                    linear3, bestparams3 = PHD.regress_cv(Y, X_affine, regtype=[:genlasso], alpha=collect(0.1:0.1:1),
+                                                        missing_penalty=[1.0,2.0,4.0,6.0,8.0,12.0,16.0])
+                    δt = (time() - start)
+                    R2, OSR2 = PHD.evaluate(Y, X_affine, linear3)
+                    push!(results_table, [dname, iter, "Affine", R2, OSR2, δt])
+                    CSV.write(savedir*filename, results_table)
+                end
             end
 
             if do_finite

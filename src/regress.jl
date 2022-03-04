@@ -57,19 +57,30 @@ function regress(Y::Array{Float64}, df::DataFrame;
 	elseif regtype == :genlasso
 		cols = union(["Offset"], String.(cols))
 		X = [ones(Base.size(X,1)) X] #Adding intercept because genlasso does not support
-		unique_cols = unique(map(t -> replace(t, "_missing" => ""), cols))
+		unique_cols = intersect(unique(map(t -> replace(t, "_missing" => ""), cols)),cols)
 		counter = 0 
 		D_list = []
 		for j in setdiff(unique_cols, ["Offset"])
 			kj = findfirst(cols .== j)    
-			kj_missing = findfirst(cols .== j*"_missing")
 			#Lasso penalty on feature j
 			counter += 1
-			push!(D_list, (counter, kj, 1))
-			if kj_missing !== nothing && missing_penalty > 0
+			kj_influenced = findall( map(t -> startswith(t, j), cols) )
+			if length(kj_influenced) == 0
+				@show j
+			end 
+			@show kj ∈ kj_influenced
+			for i in kj_influenced
+				push!(D_list, (counter, i, 1))
+			end
+
+			#Lasso penalty on feature j missing
+			kj_missing = findall( map(t -> endswith(t, j*"_missing"), cols) )
+			if length(kj_missing) > 0 && missing_penalty > 0
 				counter += 1
+				for i in kj_missing
+					push!(D_list, (counter, i, missing_penalty))
+				end
 				push!(D_list, (counter, kj, -alpha*missing_penalty)); 
-				push!(D_list, (counter, kj_missing, missing_penalty))
 			end
 		end
 		D  = sparse([d[1] for d in D_list],[d[2] for d in D_list],[Float64(d[3]) for d in D_list], counter, Base.size(X,2))
