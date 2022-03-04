@@ -63,22 +63,20 @@ function regress(Y::Array{Float64}, df::DataFrame;
 		for j in setdiff(unique_cols, ["Offset"])
 			kj = findfirst(cols .== j)    
 			kj_missing = findfirst(cols .== j*"_missing")
-			if kj_missing !== nothing 
+			#Lasso penalty on feature j
+			counter += 1
+			push!(D_list, (counter, kj, 1))
+			if kj_missing !== nothing && missing_penalty > 0
 				counter += 1
-				push!(D_list, (counter, kj, -alpha)); push!(D_list, (counter, kj_missing, alpha))
-				counter += 1
-				push!(D_list, (counter, kj, 1))
-				counter += 1
+				push!(D_list, (counter, kj, -alpha*missing_penalty)); 
 				push!(D_list, (counter, kj_missing, missing_penalty))
 			end
 		end
 		D  = sparse([d[1] for d in D_list],[d[2] for d in D_list],[Float64(d[3]) for d in D_list], counter, Base.size(X,2))
 
-		@rput y
-		@rput X
-		@rput D
+		# @rput y X D
 		R"""library(genlasso)
-			genlassopath <- genlasso(y, X, as.matrix(D), verbose=F)"""
+			genlassopath <- genlasso($y, as.matrix($X), ($D), verbose=F, eps=0.1, svd=T)"""
 		@rget genlassopath
 
 		for (i, col) in enumerate(cols)
