@@ -1,6 +1,6 @@
 using Pkg
 Pkg.activate("..")
-
+Pkg.add("StatsFuns")
 using Revise
 using PHD
 
