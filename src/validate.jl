@@ -16,11 +16,15 @@
 """
 function regress_cv(Y::Vector, data::DataFrame;
 					val_fraction::Real=0.2,
+					regtype::Vector{Symbol}=[:none],
 					lasso::Vector{Bool}=[false],
 					alpha::Vector{Float64}=[0.8],
-					missing_penalty::Vector{Float64}=[1.0])
+					missing_penalty::Vector{Float64}=[1.0])	
+	if length(regtype) < length(lasso) || (length(regtype) == 1 && regtype[1] == :none)#If lasso provides more options or regtype nothing particular
+		regtype = map(t -> t ? :lasso : :none, lasso)
+	end
+
 	# isolate training set
-	regtype = map(t -> t ? :lasso : :none, lasso)
 	newY = Y[data[!, :Test] .== 0]
 	newdata = filter(row -> row[:Test] == 0, data)
 	# designate some of training as testing/validation
@@ -47,11 +51,15 @@ end
 function regress_cv(Y::BitArray{1}, data::DataFrame;
 					val_fraction::Real=0.2,
 					lasso::Vector{Bool}=[false],
+					regtype::Vector{Symbol}=[:none],
 					alpha::Vector{Float64}=[0.8],
 					missing_penalty::Vector{Float64}=[1.0])
-	# isolate training set
+	if length(regtype) < length(lasso) || (length(regtype) == 1 && regtype[1] == :none)#If lasso provides more options or regtype nothing particular
+		regtype = map(t -> t ? :lasso : :none, lasso)
+	end
 	regtype = map(t -> t ? :lasso : :none, lasso)
 
+	# isolate training set
 	newY = Y[data[!, :Test] .== 0]
 	newdata = filter(row -> row[:Test] == 0, data)
 	# designate some of training as testing/validation

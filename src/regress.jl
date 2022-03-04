@@ -25,6 +25,7 @@ function regress(Y::Array{Float64}, df::DataFrame;
 end
 
 using RCall, SparseArrays
+R"""install.packages("genlasso")"""
 R"""library(genlasso)"""
 
 function regress(Y::Array{Float64}, df::DataFrame;
@@ -64,7 +65,7 @@ function regress(Y::Array{Float64}, df::DataFrame;
 			kj_missing = findfirst(cols .== j*"_missing")
 			if kj_missing !== nothing 
 				counter += 1
-				push!(D_list, (counter, kj, -1)); push!(D_list, (counter, kj_missing, 1))
+				push!(D_list, (counter, kj, -alpha)); push!(D_list, (counter, kj_missing, alpha))
 				counter += 1
 				push!(D_list, (counter, kj, 1))
 				counter += 1
