@@ -103,7 +103,7 @@ for ARG in ARGS
             Y = convert(BitArray, Y)
         end
 
-        for iter in 1:1
+        for iter in 1:10
             results_table = similar(results_main,0)
             filename = string(dname, "_real_Y", "_$iter.csv")
 
