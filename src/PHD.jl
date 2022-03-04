@@ -4,7 +4,7 @@
 
 module PHD
 
-using DataFrames, CSV
+using StatsFuns, SparseArrays, DataFrames, CSV
 using RDatasets
 using RCall
 using GLMNet

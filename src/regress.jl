@@ -25,7 +25,7 @@ function regress(Y::Array{Float64}, df::DataFrame;
 end
 
 using RCall, SparseArrays
-R"""install.packages("genlasso")"""
+# R"""install.packages("genlasso")"""
 R"""library(genlasso)"""
 
 function regress(Y::Array{Float64}, df::DataFrame;
