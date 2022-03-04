@@ -18,6 +18,43 @@
 		- a dataframe with a single row, with the same column names as the data
 		except Test, and an additional Offset containing the constant term
 """
+
+using MLDataPattern
+R"""library(genlasso)"""
+R"""options(warn = - 1) """
+function genlassocv(X, y, D; kfolds =10,method=:kcv)
+	R"""library(genlasso)"""
+	R"""options(warn = - 1) """
+
+    R"""genlassopath <- genlasso($y, as.matrix($X), ($D), verbose=F, eps=0.1)"""
+    @rget genlassopath
+    
+    λ = genlassopath[:lambda]
+    oo_performance = zeros(length(λ),kfolds)
+    
+    i_fold = 0
+    for ((Xtrain, ytrain), (Xval, yval)) in MLDataPattern.kfolds((X',y), k=kfolds)
+        i_fold += 1
+        Xtrain = Xtrain'; Xval = Xval'
+        R"""modeltrain <- genlasso($ytrain, as.matrix($Xtrain), ($D), verbose=F, eps=0.1)
+            betatrain = coef(modeltrain, $λ)
+        """
+        @rget betatrain
+        pred_val = Xval*betatrain[:beta] 
+        oo_performance[:,i_fold] .= sum((pred_val .- yval*ones(length(λ))').^2, dims=1)[:]
+		# if length(unique(yval)) == 2
+		# 	for lval = 1:length(λ)
+		# 		oo_performance[lval,i_fold] = 1-auc(convert(BitArray, yval), pred_val[:,lval])
+		# 	end
+		# end
+    end
+
+    genlassopath[:oo_mse] = mean(oo_performance,dims=2)[:]
+    
+    return genlassopath
+end
+
+
 #KEPT FOR COMPATIBILITY: CHOOSE REG WITH BOOL ARG "lasso", NOW REPLACED BY SYMBOL ARG "regtype"
 function regress(Y::Array{Float64}, df::DataFrame;
 	lasso::Bool=false, alpha::Real=0.8, missing_penalty::Real=1.0)
@@ -84,13 +121,16 @@ function regress(Y::Array{Float64}, df::DataFrame;
 		end
 		D  = sparse([d[1] for d in D_list],[d[2] for d in D_list],[Float64(d[3]) for d in D_list], counter, Base.size(X,2))
 
-		# @rput y X D
-		R"""library(genlasso)
-			genlassopath <- genlasso($y, as.matrix($X), ($D), verbose=F, eps=0.1, svd=T)"""
-		@rget genlassopath
+		# # @rput y X D
+		# R"""library(genlasso)
+		# 	genlassopath <- genlasso($y, as.matrix($X), ($D), verbose=F, eps=0.1, svd=T)"""
+		# @rget genlassopath
+		
+		genlassopath = genlassocv(X, y, D)
+		best_lambda = argmin(genlassopath[:oo_mse])
 
 		for (i, col) in enumerate(cols)
-			coefficients[!,col] = [genlassopath[:beta][i,end]]
+			coefficients[!,col] = [genlassopath[:beta][i,best_lambda]]
 		end
 	else
 		path = glmnet(X, y)
