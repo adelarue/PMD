@@ -78,7 +78,7 @@ function regress(Y::Array{Float64}, df::DataFrame;
 		@rput X
 		@rput D
 		R"""library(genlasso)
-			genlassopath <- genlasso(y, X, D, verbose=F)"""
+			genlassopath <- genlasso(y, X, as.matrix(D), verbose=F)"""
 		@rget genlassopath
 
 		for (i, col) in enumerate(cols)
