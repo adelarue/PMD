@@ -110,14 +110,14 @@ end
 function regress(Y::BitArray{1}, df::DataFrame;
 				 regtype::Symbol=:lasso, alpha::Real=0.8, missing_penalty::Real=1.0)
 	cols = setdiff(Symbol.(names(df)), [:Id, :Test])
-	X = convert(Matrix, df[df[!, :Test] .== 0, cols])
+	X = Matrix(df[df[:, :Test] .== 0, cols])
 	y = convert(Array, Y[df[!, :Test] .== 0])
 
-	freq = mean(1.0.*Y)
-	w = (1/freq).*Y .+ (1/(1 - freq)).*(1. .- Y); #class weights
+	freq = mean(1.0.*y)
+	w = (1/freq).*y .+ (1/(1 - freq)).*(1. .- y); #class weights
 	coefficients = DataFrame()
 	if regtype == :lasso
-		try
+		# try
 			penalty_factor = ones(length(cols))
 			for (i, col) in enumerate(cols)
 				if occursin("_missing", string(col))
@@ -127,15 +127,15 @@ function regress(Y::BitArray{1}, df::DataFrame;
 			cv = glmnetcv(X, hcat(Float64.(.!y), Float64.(y)), GLMNet.Binomial(),
 			              alpha=alpha, penalty_factor=penalty_factor, weights=w)
 			for (i, col) in enumerate(cols)
-				coefficients[!,col] = ([cv.path.betas[i, argmin(cv.meanloss)]])
+				coefficients[!,col] = [cv.path.betas[i, argmin(cv.meanloss)]]
 			end
-			coefficients[!,:Offset] = cv.path.a0[argmin(cv.meanloss)]
-		catch
-			for col in cols
-				coefficients[!,col] = [0.]
-			end
-			coefficients[!,:Offset] = [mean(y)]
-		end
+			coefficients[!,:Offset] = [cv.path.a0[argmin(cv.meanloss)]]
+		# catch
+		# 	for col in cols
+		# 		coefficients[!,col] = [0.]
+		# 	end
+		# 	coefficients[!,:Offset] = [mean(y)]
+		# end
 	elseif regtype == :genlasso
 		coefficients = regress(1.0*Y, df; regtype=:genlasso, alpha=alpha, missing_penalty=missing_penalty)
 		select!(coefficients, Not(:Logistic))
