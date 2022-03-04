@@ -4,7 +4,7 @@
 
 module PHD
 
-using StatsFuns, SparseArrays, DataFrames, CSV
+using IrrationalConstants,SparseArrays, DataFrames, CSV
 using RDatasets
 using RCall
 using GLMNet

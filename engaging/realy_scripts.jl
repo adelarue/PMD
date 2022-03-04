@@ -1,7 +1,7 @@
 using Pkg
 Pkg.activate("..")
 
-using Revise
+# using Revise
 using PHD
 
 using Random, Statistics, CSV, DataFrames, LinearAlgebra
