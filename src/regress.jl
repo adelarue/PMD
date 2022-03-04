@@ -18,13 +18,22 @@
 		- a dataframe with a single row, with the same column names as the data
 		except Test, and an additional Offset containing the constant term
 """
+#KEPT FOR COMPATIBILITY: CHOOSE REG WITH BOOL ARG "lasso", NOW REPLACED BY SYMBOL ARG "regtype"
+function regress(Y, df::DataFrame;
+	lasso::Bool=false, alpha::Real=0.8, missing_penalty::Real=1.0)
+	return regress(Y, df; regtype= lasso ? :lasso : :none, alpha=alpha, missing_penalty=missing_penalty)
+end
+
+using RCall, SparseArrays
+R"""library(genlasso)"""
+
 function regress(Y::Array{Float64}, df::DataFrame;
-				 lasso::Bool=false, alpha::Real=0.8, missing_penalty::Real=1.0)
+				regtype::Symbol=:none, alpha::Real=0.8, missing_penalty::Real=1.0)
 	cols = setdiff(Symbol.(names(df)), [:Id, :Test])
-	X = convert(Matrix, df[df[!, :Test] .== 0, cols])
-	y = convert(Array, Y[df[!, :Test] .== 0])
+	X = Matrix(df[df[:, :Test] .== 0, cols])
+	y = convert(Array, Y[df[:,:Test] .== 0])
 	coefficients = DataFrame()
-	if lasso
+	if regtype == :lasso
 		try
 			penalty_factor = ones(length(cols))
 			for (i, col) in enumerate(cols)
@@ -36,27 +45,56 @@ function regress(Y::Array{Float64}, df::DataFrame;
 			for (i, col) in enumerate(cols)
 				coefficients[!,col] = ([cv.path.betas[i, argmin(cv.meanloss)]])
 			end
-			coefficients[:Offset] = cv.path.a0[argmin(cv.meanloss)]
+			coefficients[!,:Offset] = [cv.path.a0[argmin(cv.meanloss)]]
 		catch
 			println("Error in regression")
 			for col in cols
-				coefficients[!,col] = [0.]
+				coefficients[!,col] .= 0.
 			end
-			coefficients[:Offset] = [mean(y)]
+			coefficients[!,:Offset] .= mean(y)
+		end
+	elseif regtype == :genlasso
+		cols = union(["Offset"], String.(cols))
+		X = [ones(Base.size(X,1)) X] #Adding intercept because genlasso does not support
+		unique_cols = unique(map(t -> replace(t, "_missing" => ""), cols))
+		counter = 0 
+		D_list = []
+		for j in setdiff(unique_cols, ["Offset"])
+			kj = findfirst(cols .== j)    
+			kj_missing = findfirst(cols .== j*"_missing")
+			if kj_missing !== nothing 
+				counter += 1
+				push!(D_list, (counter, kj, -1)); push!(D_list, (counter, kj_missing, 1))
+				counter += 1
+				push!(D_list, (counter, kj, 1))
+				counter += 1
+				push!(D_list, (counter, kj_missing, missing_penalty))
+			end
+		end
+		D  = sparse([d[1] for d in D_list],[d[2] for d in D_list],[Float64(d[3]) for d in D_list], counter, Base.size(X,2))
+
+		@rput y
+		@rput X
+		@rput D
+		R"""genlassopath <- genlasso(y, X, D, verbose=F)"""
+		@rget genlassopath
+
+		for (i, col) in enumerate(cols)
+			coefficients[!,col] = [genlassopath[:beta][i,end]]
 		end
 	else
 		path = glmnet(X, y)
 		for (i, col) in enumerate(cols)
 			coefficients[!,col] = [path.betas[i, end]]
 		end
-		coefficients[:Offset] = path.a0[end]
+		coefficients[!,:Offset] = [path.a0[end]]
 	end
-	coefficients[:Logistic] = false
+	coefficients[!,:Logistic] = [false]
 	return coefficients
 end
 
 function regress(Y::BitArray{1}, df::DataFrame;
-				 lasso::Bool=false, alpha::Real=0.8, missing_penalty::Real=1.0)
+				 regtype::Symbol=:lasso, alpha::Real=0.8, missing_penalty::Real=1.0)
 	cols = setdiff(Symbol.(names(df)), [:Id, :Test])
 	X = convert(Matrix, df[df[!, :Test] .== 0, cols])
 	y = convert(Array, Y[df[!, :Test] .== 0])
@@ -64,7 +102,7 @@ function regress(Y::BitArray{1}, df::DataFrame;
 	freq = mean(1.0.*Y)
 	w = (1/freq).*Y .+ (1/(1 - freq)).*(1. .- Y); #class weights
 	coefficients = DataFrame()
-	if lasso
+	if regtype == :lasso
 		try
 			penalty_factor = ones(length(cols))
 			for (i, col) in enumerate(cols)
@@ -77,21 +115,24 @@ function regress(Y::BitArray{1}, df::DataFrame;
 			for (i, col) in enumerate(cols)
 				coefficients[!,col] = ([cv.path.betas[i, argmin(cv.meanloss)]])
 			end
-			coefficients[:Offset] = cv.path.a0[argmin(cv.meanloss)]
+			coefficients[!,:Offset] = cv.path.a0[argmin(cv.meanloss)]
 		catch
 			for col in cols
 				coefficients[!,col] = [0.]
 			end
-			coefficients[:Offset] = [mean(y)]
+			coefficients[!,:Offset] = [mean(y)]
 		end
+	elseif regtype == :genlasso
+		coefficients = regress(1.0*Y, df; regtype=:genlasso, alpha=alpha, missing_penalty=missing_penalty)
+		select!(coefficients, Not(:Logistic))
 	else
 		path = glmnet(X, hcat(Float64.(.!y), Float64.(y)), GLMNet.Binomial(), weights=w)
 		for (i, col) in enumerate(cols)
 			coefficients[!,col] = [path.betas[i, end]]
 		end
-		coefficients[:Offset] = path.a0[end]
+		coefficients[!,:Offset] = [path.a0[end]]
 	end
-	coefficients[:Logistic] = true
+	coefficients[!, :Logistic] = [true]
 	return coefficients
 end
 
