@@ -31,7 +31,7 @@ for i = 1:nrow(patterndata)
 	patterndata[i, :Most_Frequent_Count] = counts[1]
 	patterndata[i, :Least_Frequent_Count] = counts[end]
 	fully_observed_idx = findfirst(x -> all(.!x), patterns)
-	if fully_observed_idx != nothing
+	if fully_observed_idx !== nothing
 		patterndata[i, :Fully_Observed_Count] = counts[fully_observed_idx]
 	else
 		patterndata[i, :Fully_Observed_Count] = 0
