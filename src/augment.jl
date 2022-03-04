@@ -30,7 +30,7 @@ function indicatemissing(df::DataFrame; removecols::Symbol=:None)
 	result = DataFrame()
 	for name in Symbol.(names(df))
 		if !startswith(String(name), "C") && !(name in [:Y, :Test, :Id]) #if not categorical nor Test/Y
-			result[:,Symbol("$(name)_missing")] = (Int.(ismissing.(df[name])))
+			result[!,Symbol("$(name)_missing")] = (Int.(ismissing.(df[:,name])))
 		end
 	end
 

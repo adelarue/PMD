@@ -1,5 +1,5 @@
 using Pkg
-Pkg.activate("..")
+Pkg.activate(".")
 
 using Revise
 using PHD
@@ -9,21 +9,17 @@ using Random, Statistics, CSV, DataFrames, LinearAlgebra
 dataset_list = [d for d in split.(read(`ls ../datasets/`, String), "\n") if length(d) > 0]
 sort!(dataset_list)
 
-if !isdir("../results")
-    mkdir("../results")
-end
 savedir = "../results/realy/"
-if !isdir(savedir)
-    mkdir(savedir)
-end
+mkpath(savedir)
+
 results_main = DataFrame(dataset=[], splitnum=[], method=[], r2=[], osr2=[], time=[])
 
 do_benchmark = false
 do_impthenreg = false
 do_static = true
-do_affine = true
-affine_on_static_only = true
-do_finite = true
+do_affine = false
+affine_on_static_only = false
+do_finite = false
 
 for ARG in ARGS
     array_num = parse(Int, ARG)
@@ -37,7 +33,7 @@ for ARG in ARGS
     pb_list =  ["communities-and-crime-2", "cylinder-bands", "trains"]
     if true #dname ∈ pb_list
         # Read in a data file.
-        X_missing = PHD.standardize_colnames(DataFrame(CSV.read("../datasets/"*dname*"/X_missing.csv", missingstrings=["", "NaN"]))) #df with missing values
+        X_missing = PHD.standardize_colnames(CSV.read("../datasets/"*dname*"/X_missing.csv", missingstrings=["", "NaN"], DataFrame)) #df with missing values
 
         # deleterows = PHD.unique_missing_patterns(X_missing)
         # X_missing = X_missing[setdiff(1:nrow(X_missing), deleterows), :];
@@ -67,9 +63,9 @@ for ARG in ARGS
         select!(X_missing, keep_cols)
         canbemissing = [any(ismissing.(X_missing[:,j])) for j in names(X_missing)] #indicator of missing features
 
-        # X_full = PHD.standardize_colnames(DataFrame(CSV.read("../datasets/"*dname*"/X_full.csv")))[:,:];
+        # X_full = PHD.standardize_colnames(CSV.read("../datasets/"*dname*"/X_full.csv", DataFrame))[:,:];
         # X_full = X_full[delete_obs, keep_cols];
-        # X_full = PHD.standardize_colnames(DataFrame(CSV.read("../datasets/"*dname*"/X_full.csv"))) #ground truth df
+        # X_full = PHD.standardize_colnames(CSV.read("../datasets/"*dname*"/X_full.csv", DataFrame)) #ground truth df
         # X_full = X_full[findall(delete_obs),:]
         # select!(X_full, keep_cols)
 
@@ -79,17 +75,17 @@ for ARG in ARGS
         # @time Y, k, k_missing = PHD.linear_y(X_full, soft_threshold=0.1, SNR=SNR, canbemissing=canbemissing, n_missing_in_signal=n_missingsignal) ;
         test_prop = .3
 
-        target_list = names(DataFrame(CSV.read("../datasets/"*dname*"/Y.csv", missingstrings=["", "NaN"])))
+        target_list = names(CSV.read("../datasets/"*dname*"/Y.csv", missingstrings=["", "NaN"], DataFrame))
         # @show length(target_list)
 
         Y = zeros(Base.size(X_missing,1))
         if length(target_list) <= 2
             target_name = setdiff(target_list, [:Id])[1]
-            Y = DataFrame(CSV.read("../datasets/"*dname*"/Y.csv", missingstrings=["", "NaN"]))[findall(delete_obs),target_name]
+            Y = CSV.read("../datasets/"*dname*"/Y.csv", missingstrings=["", "NaN"], DataFrame)[findall(delete_obs),target_name]
         else
             setdiff!(target_list, [:Id, :target])
             sort!(target_list)
-            Y = DataFrame(CSV.read("../datasets/"*dname*"/Y.csv", missingstrings=["", "NaN"]))[findall(delete_obs),target_list[1]]
+            Y = CSV.read("../datasets/"*dname*"/Y.csv", missingstrings=["", "NaN"], DataFrame)[findall(delete_obs),target_list[1]]
         end
         if eltype(Y) ∉ [Float64, Int64, Union{Float64,Missing}, Union{Int64,Missing}]
             using StatsBase
@@ -108,7 +104,7 @@ for ARG in ARGS
             Y = convert(BitArray, Y)
         end
 
-        # for iter in 1:10
+        for iter in 1:10
             results_table = similar(results_main,0)
             filename = string(dname, "_real_Y", "_$iter.csv")
 
@@ -271,6 +267,6 @@ for ARG in ARGS
                 push!(results_table, [dname, iter, "Finite", R2, OSR2, δt])
                 CSV.write(savedir*filename, results_table)
             end
-        # end
+        end
     end
 end

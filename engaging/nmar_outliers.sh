@@ -1,11 +1,8 @@
 #!/bin/bash
-#SBATCH -a 500-789
-#SBATCH -J rmv
-#SBATCH --cpus-per-task=1
-#SBATCH --mem-per-cpu=4GB
+#SBATCH -a 0-0
+#SBATCH -J flow
+#SBATCH --cpus-per-task=2
+#SBATCH --mem-per-cpu=8GB
 #SBATCH -p sched_mit_sloan_batch
-#SBATCH --time=0-04:00
-srun julia nmar_outliers.jl $SLURM_ARRAY_TASK_ID
-
-# Total experiments: 59 * (11 + 6) = 1003
-# Total experiments: 71 * (11) = 781
+#SBATCH --time=0-01:00
+srun julia spBed_Assignement.jl $SLURM_ARRAY_TASK_ID

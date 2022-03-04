@@ -86,7 +86,8 @@ count_missing_patterns(df::DataFrame) = length(missing_patterns(df))
 """
 function missing_patterns_countmap(df::DataFrame)
 	cols = setdiff(Symbol.(names(df)), [:Id, :Test, :Y])
-	patterns = [ismissing.(convert(Vector, df[i, cols])) for i = 1:nrow(df)]
+	patterns = [ismissing.(convert(Vector, [df[i, j] for j in cols])) for i = 1:nrow(df)]
+
 	patternmap = StatsBase.countmap(patterns)
 	patterns = collect(keys(patternmap))
 	counts = Int[]
@@ -105,7 +106,7 @@ function unique_missing_patterns(df::DataFrame)
 	cols = setdiff(Symbol.(names(df)), [:Id, :Test, :Y])
 	unique_rows = Int[]
 	for i = 1:nrow(df)
-		pattern = ismissing.(convert(Vector, df[i, cols]))
+		pattern = ismissing.(convert(Vector, [df[i, j] for j in cols]))
 		idx = findfirst(x -> x == pattern, patterns)
 		if counts[idx] == 1
 			push!(unique_rows, i)
@@ -150,7 +151,7 @@ function split_dataset(df::DataFrame; test_fraction::Real = 0.3, random::Bool = 
 	end
 	cols = setdiff(Symbol.(names(df)), [:Id, :Test, :Y])
 	patterns, counts = missing_patterns_countmap(df)
-	patternidx = [findfirst(x -> x == ismissing.(convert(Vector, df[i, cols])),
+	patternidx = [findfirst(x -> x == ismissing.(convert(Vector, [df[i, j] for j in cols])),
 	                        patterns) for i = 1:nrow(df)]
 	train, test = MLDataPattern.stratifiedobs((eachindex(patternidx), patternidx), 1 - test_fraction)
 	test_ind = falses(nrow(df))
@@ -165,7 +166,7 @@ end
 function split_dataset_nonrandom(df::DataFrame; test_fraction::Real = 0.3)
 	cols = setdiff(Symbol.(names(df)), [:Id, :Test, :Y])
 	patterns, counts = missing_patterns_countmap(df)
-	patternidx = [findfirst(x -> x == ismissing.(convert(Vector, df[i, cols])),
+	patternidx = [findfirst(x -> x == ismissing.(convert(Vector, [df[i,j] for j in cols])),
 	                        patterns) for i = 1:nrow(df)]
 	p = reverse(sortperm(patterns, by=sum))
 	test_ind = falses(nrow(df))

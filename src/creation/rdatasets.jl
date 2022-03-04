@@ -322,7 +322,7 @@ function create_r_datasets()
         if n ∉ folderlist || "X_missing.csv" ∉ readdir("$(@__DIR__)/../../datasets/"*n*"/")
             @show n
     		df = format_dataset(p, d)
-    		if df != nothing
+    		if df !== nothing
 				df = onehotencode(df) #One-hot encode categorical columns
 	    		if any(.!completecases(df)) || any([endswith(k,"_Missing") for k in String.(names(df))])
 	                select!(df, Not(intersect(Symbol.(names(df)), [:id])))
