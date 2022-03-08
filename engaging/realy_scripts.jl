@@ -8,17 +8,17 @@ using Random, Statistics, CSV, DataFrames, LinearAlgebra
 dataset_list = [d for d in readdir("../datasets/") if !startswith(d, ".")]
 sort!(dataset_list)
 
-savedir = "../results/realy/finite/"
+savedir = "../results/realy/penalty/"
 mkpath(savedir)
 
 results_main = DataFrame(dataset=[], splitnum=[], method=[], r2=[], osr2=[], time=[])
 
 do_benchmark = false
 do_impthenreg = false
-do_static = false
-do_affine = false
+do_static = true
+do_affine = true
 affine_on_static_only = false
-do_finite = true
+do_finite = false
 
 for ARG in ARGS
     array_num = parse(Int, ARG)
