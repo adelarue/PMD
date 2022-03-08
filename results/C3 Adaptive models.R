@@ -5,7 +5,7 @@ setwd("Dropbox (MIT)/1 - Research/PHD/results/")
 df <- read_csv("fakey/all_results.csv")
 df <- read_csv("fakey_nmar/all_results.csv")
 df <- read_csv("nmar_outliers/all_results.csv")
-df <- read_csv("realy/all_results.csv") %>%  mutate(kMissing = 1)
+df <- read_csv("realy/all_results_rev.csv") %>%  mutate(kMissing = 1)
 
 
 patterns = read_csv("pattern_counts_numonly.csv") %>% rename(dataset=Name) %>%  filter(p_miss > 0)
@@ -17,8 +17,9 @@ plot_data = df %>%
   mutate(fraction = kMissing) %>%
   group_by(method, kMissing) %>%
   summarize(meanr2 = mean(r2), stdr2 = sd(r2) / sqrt(n()),
-            q1r2 = quantile(osr2, 0.25), q3r2 = quantile(osr2, 0.75),
-            meanosr2 = median(osr2), stdosr2 = (q3r2 - q1r2)/2)
+            q1r2 = quantile(osr2, 0.25, na.rm=T), 
+            q3r2 = quantile(osr2, 0.75, na.rm=T),
+            meanosr2 = median(osr2, na.rm=T), stdosr2 = (q3r2 - q1r2)/2)
 #            meanosr2 = mean(osr2), stdosr2 = sd(osr2) / sqrt(n()))
 plot_data$method = recode_factor(plot_data$method,
                                  `Oracle XM` = "Oracle",
@@ -88,8 +89,8 @@ df_syn <- df %>%
   select(setting, dataset, winpct)
 
 
-df <- read_csv("realy/all_results_new.csv") %>%  
-  mutate(setting = "4 - Real")
+df <- read_csv("realy/all_results_rev.csv") %>%  
+  mutate(setting = "4 - Real") 
 df_real <- df %>%
   left_join(patterns) %>%
   filter(!is.na(p)) %>%

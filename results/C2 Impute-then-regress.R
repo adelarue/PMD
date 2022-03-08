@@ -4,7 +4,7 @@ setwd("Dropbox (MIT)/1 - Research/PHD/results/")
 df <- read_csv("fakey/all_results.csv")
 df <- read_csv("fakey_nmar/all_results.csv")
 df <- read_csv("nmar_outliers/all_results.csv")
-df <- read_csv("realy/all_results.csv") %>%  mutate(kMissing = 1)
+df <- read_csv("realy/all_results_rev.csv") %>%  mutate(kMissing = 1)
 
 #Claim 2: Mean impute not so bad
 dataset_list <- read_csv("pattern_counts_numonly.csv") %>% 
@@ -46,6 +46,7 @@ t.test(itr_df_wide$`1`, itr_df_wide$`0`, paired=TRUE)
 mean(itr_df_wide$`1`-itr_df_wide$`0`, na.rm=T)
 
 wilcox.test(itr_df_wide$`1`, itr_df_wide$`0`, paired=TRUE, conf.int=TRUE)
+median(itr_df_wide$`1`-itr_df_wide$`0`, na.rm=T)
 
 
 
@@ -59,7 +60,7 @@ df <- rbind(df, read_csv("fakey_nmar/all_results.csv") %>%
 df <- rbind(df, read_csv("nmar_outliers/all_results.csv") %>%  
   mutate(setting = "3 - Syn MAR adv") %>% 
   select(-SNR,-k,-kMissing,-pMissing))
-df <- rbind(df, read_csv("realy/all_results.csv") %>%  mutate(setting = "4 - Real"))
+df <- rbind(df, read_csv("realy/all_results_rev.csv") %>%  mutate(setting = "4 - Real"))
 
 library(ggplot2)
 library(stringr)
@@ -84,3 +85,4 @@ df %>%
     axis.line = element_line(colour = "black"),
     #legend.box.margin = margin(0, 0, 0, 0),
     legend.spacing.y = unit(2, "line"))
+
