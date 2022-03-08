@@ -99,7 +99,7 @@ function regress(Y::Array{Float64}, df::DataFrame;
 		D_list = []
 		for j in setdiff(unique_cols, ["Offset"])
 			kj = findfirst(cols .== j)    
-			#Lasso penalty on feature j
+			#Lasso penalty on feature j (x_j)
 			counter += 1
 			kj_influenced = findall( map(t -> startswith(t, j), cols) )
 			if length(kj_influenced) == 0
@@ -109,7 +109,7 @@ function regress(Y::Array{Float64}, df::DataFrame;
 				push!(D_list, (counter, i, 1))
 			end
 
-			#Lasso penalty on feature j missing
+			#Lasso penalty on feature j missing (m_j)
 			kj_missing = findall( map(t -> endswith(t, j*"_missing"), cols) )
 			if length(kj_missing) > 0 && missing_penalty > 0
 				counter += 1
@@ -174,7 +174,7 @@ function regress(Y::BitArray{1}, df::DataFrame;
 		# 	for col in cols
 		# 		coefficients[!,col] = [0.]
 		# 	end
-		# 	coefficients[!,:Offset] = [mean(y)]
+		# 	coefficients[!,:Offset] = [log(mean(y) / (1-mean(y))]
 		# end
 	elseif regtype == :genlasso
 		coefficients = regress(1.0*Y, df; regtype=:genlasso, alpha=alpha, missing_penalty=missing_penalty)
@@ -245,6 +245,8 @@ end
 function safelog(x)
 	if x < 1e-10
 		return log(1e-10)
+	elseif x > 1e10 
+		return log(1e10)
 	else 
 		return log(x)
 	end

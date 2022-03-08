@@ -269,16 +269,14 @@ function regressionCoefficients(Y::BitArray{1}, data::DataFrame, points::Vector{
 	# 	@show Y0, β_0
 	# 	return β_0, coeffs, logloss(Y[points], Y0)
 	# end
-	@show var(Y)
 	if var(Y) .<= 1e-10
 		Y0 = mean(Y)
-		β_0 = log(mean(Y0) / (1 - mean(Y0)))
-		@show Y0, β_0
+		β_0 = safelog(mean(Y0) / (1 - mean(Y0)))
 		return β_0, coeffs, logloss(Y[points], Y0)
 		# return β_0, coeffs, 0.5
 	end
 	if length(features) == 0
-		β_0 = log(mean(Y[points]) / (1 - mean(Y[points])))
+		β_0 = safelog(mean(Y[points]) / (1 - mean(Y[points])))
 		return β_0, coeffs, logloss(Y[points], mean(Y[points]))
 		# return β_0, coeffs, 0.5
 	end
@@ -288,7 +286,6 @@ function regressionCoefficients(Y::BitArray{1}, data::DataFrame, points::Vector{
 	cv = glmnetcv(X, hcat(Float64.(.!y), Float64.(y)), GLMNet.Binomial())
 	β_0 = cv.path.a0[argmin(cv.meanloss)]
 	coeffs[features] = cv.path.betas[:, argmin(cv.meanloss)]
-	@show coeffs[features]
 	pred = sigmoid.(β_0 .+ X * coeffs[features])
 	# LL = logloss(y, pred)
 	LL = argmin(cv.meanloss)*Base.size(X,1)

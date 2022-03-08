@@ -5,8 +5,11 @@ setwd("Dropbox (MIT)/1 - Research/PHD/results/")
 df <- read_csv("fakey/all_results.csv")
 df <- read_csv("fakey_nmar/all_results.csv")
 df <- read_csv("nmar_outliers/all_results.csv")
-df <- read_csv("realy/all_results_rev.csv") %>%  mutate(kMissing = 1)
 
+df <- read_csv("realy/all_results.csv") %>%  mutate(kMissing = 1) %>% mutate(penalty = "Lasso")
+
+df <- rbind(read_csv("realy/all_results_rev.csv") %>% mutate(penalty = "Lasso"),
+            read_csv("realy/all_results_genlasso.csv") %>% mutate(penalty = "GenLasso")) %>%  mutate(kMissing = 1)
 
 patterns = read_csv("pattern_counts_numonly.csv") %>% rename(dataset=Name) %>%  filter(p_miss > 0)
   
@@ -15,7 +18,7 @@ plot_data = df %>%
   filter(!is.na(p)) %>%
   filter(method %in% c("Affine", "Static", "Finite", "Oracle XM", "Imp-then-Reg 4", "Complete Features")) %>%
   mutate(fraction = kMissing) %>%
-  group_by(method, kMissing) %>%
+  group_by(method, penalty, kMissing) %>%
   summarize(meanr2 = mean(r2), stdr2 = sd(r2) / sqrt(n()),
             q1r2 = quantile(osr2, 0.25, na.rm=T), 
             q3r2 = quantile(osr2, 0.75, na.rm=T),
@@ -89,8 +92,12 @@ df_syn <- df %>%
   select(setting, dataset, winpct)
 
 
-df <- read_csv("realy/all_results_rev.csv") %>%  
+df<- rbind(read_csv("realy/all_results_genlasso.csv"), 
+           read_csv("realy/all_results.csv") %>% filter(method=="Finite")) %>%  
   mutate(setting = "4 - Real") 
+df<- read_csv("realy/all_results.csv") %>%  
+  mutate(setting = "4 - Real") 
+
 df_real <- df %>%
   left_join(patterns) %>%
   filter(!is.na(p)) %>%
@@ -99,18 +106,15 @@ df_real <- df %>%
   spread(key = method, value=osr2) %>%
   filter(!is.na(Affine)) %>%
   filter(!is.na(Finite)) %>%
-  #mutate(win = max(Finite,Affine, Static) > max(`Imp-then-Reg 1`,`Imp-then-Reg 2`,`Imp-then-Reg 3`,`Imp-then-Reg 4`)) %>%
+  mutate(win = max(Finite,Affine, Static) > max(`Imp-then-Reg 1`,`Imp-then-Reg 2`,`Imp-then-Reg 3`,`Imp-then-Reg 4`)) %>%
   mutate(win = max(Finite,Affine, Static) > max(`Imp-then-Reg 2`, `Imp-then-Reg 4`)) %>%
   group_by(setting, dataset) %>%
   summarize(winpct = sum(win)/n()) %>%
   ungroup() %>%
   select(setting, dataset, winpct)
 
-
-rbind(df_syn,df_real) %>%
-
+#rbind(df_syn,df_real) %>%
 df_real %>%
-rbind(df_syn,df_real) %>%
   ggplot() + aes(winpct, group=setting, color=setting, fill=setting) + 
   geom_density(alpha=0.4) +
   labs(x="Average % of wins", y = "Density") +
