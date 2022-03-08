@@ -8,17 +8,17 @@ using Random, Statistics, CSV, DataFrames, LinearAlgebra
 dataset_list = [d for d in readdir("../datasets/") if !startswith(d, ".")]
 sort!(dataset_list)
 
-savedir = "../results/realy/penalty/"
+savedir = "../results/realy/finite/"
 mkpath(savedir)
 
 results_main = DataFrame(dataset=[], splitnum=[], method=[], r2=[], osr2=[], time=[])
 
 do_benchmark = false
 do_impthenreg = false
-do_static = true
-do_affine = true
+do_static = false
+do_affine = false
 affine_on_static_only = false
-do_finite = false
+do_finite = true
 
 for ARG in ARGS
     array_num = parse(Int, ARG)
@@ -112,7 +112,7 @@ for ARG in ARGS
         map!(t -> replace(replace(t, ".csv" => ""), string(dname,"_real_Y_") => ""), savedfiles, savedfiles)
         
         for iter in setdiff(1:10, parse.(Int, savedfiles))
-        # for iter in 1:10
+        # for iter in 1:1
             results_table = similar(results_main,0)
             filename = string(dname, "_real_Y", "_$iter.csv")
 

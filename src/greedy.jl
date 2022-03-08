@@ -263,14 +263,24 @@ function regressionCoefficients(Y::BitArray{1}, data::DataFrame, points::Vector{
 								features::Vector{Int})
 	p = Base.size(data, 2) - 1
 	coeffs = zeros(p)
-	if var(Y) .<= 1e10
-		Y0 = round(Int, mean(Y))
-		β_0 = 100*(2*Y0-1)
+	# if var(Y) .<= 1e10
+	# 	Y0 = round(Int, mean(Y))
+	# 	β_0 = 100*(2*Y0-1)
+	# 	@show Y0, β_0
+	# 	return β_0, coeffs, logloss(Y[points], Y0)
+	# end
+	@show var(Y)
+	if var(Y) .<= 1e-10
+		Y0 = mean(Y)
+		β_0 = log(mean(Y0) / (1 - mean(Y0)))
+		@show Y0, β_0
 		return β_0, coeffs, logloss(Y[points], Y0)
+		# return β_0, coeffs, 0.5
 	end
 	if length(features) == 0
 		β_0 = log(mean(Y[points]) / (1 - mean(Y[points])))
 		return β_0, coeffs, logloss(Y[points], mean(Y[points]))
+		# return β_0, coeffs, 0.5
 	end
 	X = Matrix(data[points, Not([:Test, :Id])])[:, features]
 	X = Float64.(X)
@@ -278,9 +288,11 @@ function regressionCoefficients(Y::BitArray{1}, data::DataFrame, points::Vector{
 	cv = glmnetcv(X, hcat(Float64.(.!y), Float64.(y)), GLMNet.Binomial())
 	β_0 = cv.path.a0[argmin(cv.meanloss)]
 	coeffs[features] = cv.path.betas[:, argmin(cv.meanloss)]
+	@show coeffs[features]
 	pred = sigmoid.(β_0 .+ X * coeffs[features])
 	# LL = logloss(y, pred)
 	LL = argmin(cv.meanloss)*Base.size(X,1)
+	# LL = 1 - auc(y, pred)
 	return β_0, coeffs, LL
 end
 
@@ -409,7 +421,7 @@ function evaluate(Y::Array{Float64}, df::DataFrame, model::GreedyModel, missingd
 	end
 end
 function evaluate(Y::BitArray{1}, df::DataFrame, model::GreedyModel, missingdata::DataFrame=df;
-				  metric::AbstractString = "logloss")
+				  metric::AbstractString = "auc")
 	if model.logistic
 		prediction = predict(df, model, missingdata=missingdata)
 		if metric == "logloss"
