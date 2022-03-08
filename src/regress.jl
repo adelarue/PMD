@@ -242,8 +242,15 @@ function evaluate(Y::BitArray{1}, df::DataFrame, model::DataFrame;
 end
 
 "Compute logistic loss of a particular prediction"
+function safelog(x)
+	if x < 1e-10
+		return log(1e-10)
+	else 
+		return log(x)
+	end
+end
 function logloss(actual::BitArray{1}, predicted::Vector)
-	return sum(actual .* log.(predicted) .+ (1 .- actual) .* log.(1 .- predicted))
+	return sum(actual .* safelog.(predicted) .+ (1 .- actual) .* safelog.(1 .- predicted))
 end
 logloss(actual::BitArray{1}, constant::Real) = logloss(actual, constant .* ones(length(actual)))
 
