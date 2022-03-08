@@ -8,17 +8,17 @@ using Random, Statistics, CSV, DataFrames, LinearAlgebra
 dataset_list = [d for d in readdir("../datasets/") if !startswith(d, ".")]
 sort!(dataset_list)
 
-savedir = "../results/realy/fix/"
+savedir = "../results/realy/finite/"
 mkpath(savedir)
 
 results_main = DataFrame(dataset=[], splitnum=[], method=[], r2=[], osr2=[], time=[])
 
-do_benchmark = true
-do_impthenreg = true
-do_static = true
-do_affine = true
+do_benchmark = false
+do_impthenreg = false
+do_static = false
+do_affine = false
 affine_on_static_only = false
-do_finite = false
+do_finite = true
 
 for ARG in ARGS
     array_num = parse(Int, ARG)
@@ -234,7 +234,7 @@ for ARG in ARGS
                     # X_augmented = PHD.zeroimpute(df)
                     linear2, bestparams2 = PHD.regress_cv(Y, X_augmented, regtype=[regtype],
                                                             alpha=collect(0:0.1:1),
-                                                            missing_penalty=[1.0,2.0,4.0,6.0,8.0])
+                                                            missing_penalty=[1.0,2.0,4.0,6.0,8.0,12.0,16.0])
                     δt = (time() - start)
                     R2, OSR2 = PHD.evaluate(Y, X_augmented, linear2)
                     push!(results_table, [dname, iter, "Static - "*String(regtype), R2, OSR2, δt])
@@ -277,7 +277,9 @@ for ARG in ARGS
                 δt = (time() - start)
                 R2, OSR2 = PHD.evaluate(Y, X_missing_zero_std, gm2, X_missing_std)
                 push!(results_table, [dname, iter, "Finite", R2, OSR2, δt])
-                CSV.write(savedir*filename, results_table)
+                
+                @show R2, OSR2
+                CSV.write(savedir*(isnan(OSR2) ? "ERR_" : "")*filename, results_table)
             end
         end
     # end

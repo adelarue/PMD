@@ -4,7 +4,7 @@ setwd("Dropbox (MIT)/1 - Research/PHD/results/")
 df <- read_csv("fakey/all_results.csv")
 df <- read_csv("fakey_nmar/all_results.csv")
 df <- read_csv("nmar_outliers/all_results.csv")
-df <- read_csv("realy/all_results.csv") %>% mutate(kMissing=1) #For realy only
+df <- read_csv("realy/all_results_rev.csv") %>% mutate(kMissing=1) #For realy only
 
 #Claim 1: Mode imputation is detrimental
 dataset_list1 <- read_csv("pattern_counts_allfeat.csv") %>% 
