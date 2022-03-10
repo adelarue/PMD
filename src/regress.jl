@@ -94,11 +94,8 @@ function regress(Y::Array{Float64}, df::DataFrame;
 	elseif regtype == :missing_weight
 		penalty_factor = ones(length(cols))
 		for (i, col) in enumerate(String.(cols))
-			if occursin("_missing", string(col))
-				penalty_factor[i] = missing_penalty
-			end
 			p = mean(X[:,i] .== 0)
-			penalty_factor[i] *= p
+			penalty_factor[i] += ( occursin("_missing", string(col)) ? missing_penalty : 1)*p
 		end
 		cv = glmnetcv(X, y, alpha=alpha, penalty_factor=penalty_factor)
 		for (i, col) in enumerate(cols)
@@ -195,11 +192,8 @@ function regress(Y::BitArray{1}, df::DataFrame;
 	elseif regtype == :missing_weight
 		penalty_factor = ones(length(cols))
 		for (i, col) in enumerate(String.(cols))
-			if occursin("_missing", string(col))
-				penalty_factor[i] = missing_penalty
-			end
 			p = mean(X[:,i] .== 0)
-			penalty_factor[i] *= p
+			penalty_factor[i] += ( occursin("_missing", string(col)) ? missing_penalty : 1)*p
 		end
 		cv = glmnetcv(X, hcat(Float64.(.!y), Float64.(y)), GLMNet.Binomial(),
 						alpha=alpha, penalty_factor=penalty_factor, weights=w)

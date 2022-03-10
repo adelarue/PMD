@@ -245,24 +245,27 @@ function regressionCoefficients(Y::Vector, data::DataFrame, points::Vector{Int},
 								features::Vector{Int})
 	p = Base.size(data, 2) - 1
 	coeffs = zeros(p)
+	β_0 = mean(Y[points])
 	if length(features) == 0
-		β_0 = mean(Y[points])
 		return β_0, coeffs, sum((β_0 .- Y[points]) .^ 2)
 	end
 	X = Matrix(data[points, Not([:Test, :Id])])[:, features]
 	X = Float64.(X)
 	y = Y[points]
 	cv = glmnetcv(X, y)
-	β_0 = cv.path.a0[argmin(cv.meanloss)]
-	coeffs[features] = cv.path.betas[:, argmin(cv.meanloss)]
-	# SSE = sum((X * coeffs[features] - y .+ β_0) .^ 2)
-	SSE = argmin(cv.meanloss)*Base.size(X,1) #Log loss corresponds to out-of-sample predictive power
+	if length(cv.meanloss) > 0
+		β_0 = cv.path.a0[argmin(cv.meanloss)]
+		coeffs[features] = cv.path.betas[:, argmin(cv.meanloss)]
+	end
+	SSE = sum((X * coeffs[features] - y .+ β_0) .^ 2)
+	# SSE = argmin(cv.meanloss)*Base.size(X,1) #Log loss corresponds to out-of-sample predictive power
 	return β_0, coeffs, SSE
 end
 function regressionCoefficients(Y::BitArray{1}, data::DataFrame, points::Vector{Int},
 								features::Vector{Int})
 	p = Base.size(data, 2) - 1
 	coeffs = zeros(p)
+	β_0 = safelog(mean(Y[points]) / (1 - mean(Y[points])))
 	# if var(Y) .<= 1e10
 	# 	Y0 = round(Int, mean(Y))
 	# 	β_0 = 100*(2*Y0-1)
@@ -270,13 +273,10 @@ function regressionCoefficients(Y::BitArray{1}, data::DataFrame, points::Vector{
 	# 	return β_0, coeffs, logloss(Y[points], Y0)
 	# end
 	if var(Y) .<= 1e-10
-		Y0 = mean(Y)
-		β_0 = safelog(mean(Y0) / (1 - mean(Y0)))
-		return β_0, coeffs, logloss(Y[points], Y0)
+		return β_0, coeffs, logloss(Y[points], mean(Y[points]))
 		# return β_0, coeffs, 0.5
 	end
 	if length(features) == 0
-		β_0 = safelog(mean(Y[points]) / (1 - mean(Y[points])))
 		return β_0, coeffs, logloss(Y[points], mean(Y[points]))
 		# return β_0, coeffs, 0.5
 	end
@@ -284,8 +284,10 @@ function regressionCoefficients(Y::BitArray{1}, data::DataFrame, points::Vector{
 	X = Float64.(X)
 	y = Y[points]
 	cv = glmnetcv(X, hcat(Float64.(.!y), Float64.(y)), GLMNet.Binomial())
-	β_0 = cv.path.a0[argmin(cv.meanloss)]
-	coeffs[features] = cv.path.betas[:, argmin(cv.meanloss)]
+	if length(cv.meanloss) > 0
+		β_0 = cv.path.a0[argmin(cv.meanloss)]
+		coeffs[features] = cv.path.betas[:, argmin(cv.meanloss)]
+	end
 	pred = sigmoid.(β_0 .+ X * coeffs[features])
 	# LL = logloss(y, pred)
 	LL = argmin(cv.meanloss)*Base.size(X,1)

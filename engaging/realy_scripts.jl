@@ -113,8 +113,8 @@ for ARG in ARGS
         savedfiles = filter(t -> startswith(t, string(dname,"_real_Y_")), readdir(savedir))
         map!(t -> replace(replace(t, ".csv" => ""), string(dname,"_real_Y_") => ""), savedfiles, savedfiles)
         
-        for iter in setdiff(1:10, parse.(Int, savedfiles))
-        # for iter in 1:1
+        # for iter in setdiff(1:10, parse.(Int, savedfiles))
+        for iter in 1:1
             results_table = similar(results_main,0)
             filename = string(dname, "_real_Y", "_$iter.csv")
 
