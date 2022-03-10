@@ -8,8 +8,7 @@ using Random, Statistics, CSV, DataFrames, LinearAlgebra
 dataset_list = [d for d in readdir("../datasets/") if !startswith(d, ".")]
 sort!(dataset_list)
 
-# savedir = "../results/realy/penalty/"
-savedir = "../results/realy/finite/"
+savedir = "../results/realy/revisions/"
 
 mkpath(savedir)
 

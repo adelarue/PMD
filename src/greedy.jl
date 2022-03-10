@@ -273,12 +273,12 @@ function regressionCoefficients(Y::BitArray{1}, data::DataFrame, points::Vector{
 	# 	return β_0, coeffs, logloss(Y[points], Y0)
 	# end
 	if var(Y) .<= 1e-10
-		return β_0, coeffs, logloss(Y[points], mean(Y[points]))
-		# return β_0, coeffs, 0.5
+		# return β_0, coeffs, logloss(Y[points], mean(Y[points]))
+		return β_0, coeffs, 0.5
 	end
 	if length(features) == 0
-		return β_0, coeffs, logloss(Y[points], mean(Y[points]))
-		# return β_0, coeffs, 0.5
+		# return β_0, coeffs, logloss(Y[points], mean(Y[points]))
+		return β_0, coeffs, 0.5
 	end
 	X = Matrix(data[points, Not([:Test, :Id])])[:, features]
 	X = Float64.(X)
@@ -290,8 +290,8 @@ function regressionCoefficients(Y::BitArray{1}, data::DataFrame, points::Vector{
 	end
 	pred = sigmoid.(β_0 .+ X * coeffs[features])
 	# LL = logloss(y, pred)
-	LL = argmin(cv.meanloss)*Base.size(X,1)
-	# LL = 1 - auc(y, pred)
+	# LL = argmin(cv.meanloss)*Base.size(X,1)
+	LL = 1 - auc(y, pred)
 	return β_0, coeffs, LL
 end
 
