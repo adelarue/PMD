@@ -8,17 +8,19 @@ using Random, Statistics, CSV, DataFrames, LinearAlgebra
 dataset_list = [d for d in readdir("../datasets/") if !startswith(d, ".")]
 sort!(dataset_list)
 
-savedir = "../results/realy/penalty/"
+# savedir = "../results/realy/penalty/"
+savedir = "../results/realy/finite/"
+
 mkpath(savedir)
 
 results_main = DataFrame(dataset=[], splitnum=[], method=[], r2=[], osr2=[], time=[])
 
 do_benchmark = false
 do_impthenreg = false
-do_static = true
-do_affine = true
+do_static = false
+do_affine = false
 affine_on_static_only = false
-do_finite = false
+do_finite = true
 
 for ARG in ARGS
     array_num = parse(Int, ARG)
@@ -111,15 +113,15 @@ for ARG in ARGS
         savedfiles = filter(t -> startswith(t, string(dname,"_real_Y_")), readdir(savedir))
         map!(t -> replace(replace(t, ".csv" => ""), string(dname,"_real_Y_") => ""), savedfiles, savedfiles)
         
-        # for iter in setdiff(1:10, parse.(Int, savedfiles))
-        for iter in 1:1
+        for iter in setdiff(1:10, parse.(Int, savedfiles))
+        # for iter in 1:1
             results_table = similar(results_main,0)
             filename = string(dname, "_real_Y", "_$iter.csv")
 
             Random.seed!(2142+767*iter)
             # Split train / test
             test_ind = PHD.split_dataset(X_missing, test_fraction=test_prop, random=true) #rand(nrow(X_missing)) .< test_prop ;
-
+            @show mean(Y[test_ind .> 0]), mean(Y[test_ind .<= 0])      
             if do_benchmark
                 println("Benchmark methods...")
                 println("####################")
