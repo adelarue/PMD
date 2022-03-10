@@ -14,10 +14,10 @@ mkpath(savedir)
 
 results_main = DataFrame(dataset=[], splitnum=[], method=[], r2=[], osr2=[], time=[])
 
-do_benchmark = false
-do_impthenreg = false
-do_static = false
-do_affine = false
+do_benchmark = true
+do_impthenreg = true
+do_static = true
+do_affine = true
 affine_on_static_only = false
 do_finite = true
 
