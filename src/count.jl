@@ -84,8 +84,8 @@ count_missing_patterns(df::DataFrame) = length(missing_patterns(df))
 """
 	Return unique missingness patterns ordered by count
 """
-function missing_patterns_countmap(df::DataFrame)
-	cols = setdiff(Symbol.(names(df)), [:Id, :Test, :Y])
+function missing_patterns_countmap(df::DataFrame; safe::Bool=true)
+	cols = safe ? setdiff(Symbol.(names(df)), [:Id, :Test, :Y]) : Symbol.(names(df))
 	patterns = [ismissing.(convert(Vector, [df[i, j] for j in cols])) for i = 1:nrow(df)]
 
 	patternmap = StatsBase.countmap(patterns)
@@ -102,8 +102,8 @@ end
 	Find rows with a unique missingness pattern
 """
 function unique_missing_patterns(df::DataFrame)
-	patterns, counts = missing_patterns_countmap(df)
 	cols = setdiff(Symbol.(names(df)), [:Id, :Test, :Y])
+	patterns, counts = missing_patterns_countmap(df[:,cols])
 	unique_rows = Int[]
 	for i = 1:nrow(df)
 		pattern = ismissing.(convert(Vector, [df[i, j] for j in cols]))
@@ -149,8 +149,9 @@ function split_dataset(df::DataFrame; test_fraction::Real = 0.3, random::Bool = 
 	if !random
 		return split_dataset_nonrandom(df, test_fraction=test_fraction)
 	end
-	cols = setdiff(Symbol.(names(df)), [:Id, :Test, :Y])
-	patterns, counts = missing_patterns_countmap(df)
+	islogistic = try length(unique(df[:,:Y])) <= 2 catch ; false end
+	cols = setdiff(Symbol.(names(df)), islogistic ? [:Id, :Test] : [:Id, :Test, :Y])
+	patterns, counts = missing_patterns_countmap(df[:,cols], safe=false)
 	patternidx = [findfirst(x -> x == ismissing.(convert(Vector, [df[i, j] for j in cols])),
 	                        patterns) for i = 1:nrow(df)]
 	train, test = MLDataPattern.stratifiedobs((eachindex(patternidx), patternidx), 1 - test_fraction)
@@ -165,7 +166,7 @@ end
 """
 function split_dataset_nonrandom(df::DataFrame; test_fraction::Real = 0.3)
 	cols = setdiff(Symbol.(names(df)), [:Id, :Test, :Y])
-	patterns, counts = missing_patterns_countmap(df)
+	patterns, counts = missing_patterns_countmap(df[:,cols])
 	patternidx = [findfirst(x -> x == ismissing.(convert(Vector, [df[i,j] for j in cols])),
 	                        patterns) for i = 1:nrow(df)]
 	p = reverse(sortperm(patterns, by=sum))
@@ -190,7 +191,7 @@ end
 """
 function optimize_missingness(X_missing::DataFrame, X_full::DataFrame)
     cols = setdiff(Symbol.(names(X_missing)), [:Id])
-    patterns, counts = missing_patterns_countmap(X_missing)
+    patterns, counts = missing_patterns_countmap(X_missing[:,cols])
     model = Model(with_optimizer(Gurobi.Optimizer, TimeLimit=10, OutputFlag=0))
     @variable(model, z[i = 1:nrow(X_full), j=eachindex(patterns)], Bin)
     @constraint(model, [i = 1:nrow(X_full)], sum(z[i, j] for j = eachindex(patterns)) == 1)
