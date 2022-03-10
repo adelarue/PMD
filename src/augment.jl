@@ -52,7 +52,9 @@ function augmentaffine(df::DataFrame; model::Array{String}=String.(names(df)), r
 	result = hcat(newdf, Z) #Start with zero imputation + offset adaptive rule
 	for name in setdiff(intersect(String.(names(df)), model), ["Id", "Y", "Test"]) #W_{jk} where j is the feature from the model to correct
 		for missingname in String.(names(Z)) 		#and k is the potentially missing feature triggering correction
-			result[!, Symbol("$(name)_$missingname")] = newdf[:, name] .* Z[:, missingname]
+			if name != missingname #No self-correction - should be captured bu removecols step as well
+				result[!, Symbol("$(name)_$missingname")] = newdf[:, name] .* Z[:, missingname]
+			end
 		end
 	end
 	if removecols == :None

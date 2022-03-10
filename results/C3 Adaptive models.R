@@ -9,7 +9,8 @@ df <- read_csv("nmar_outliers/all_results.csv")
 df <- read_csv("realy/all_results.csv") %>%  mutate(kMissing = 1) %>% mutate(penalty = "Lasso")
 
 df <- rbind(read_csv("realy/all_results_rev.csv") %>% mutate(penalty = "Lasso"),
-            read_csv("realy/all_results_genlasso.csv") %>% mutate(penalty = "GenLasso")) %>%  mutate(kMissing = 1)
+            read_csv("realy/all_results_finite.csv")%>% mutate(penalty = "None"),
+            read_csv("realy/all_results_penalty.csv")) %>%  mutate(kMissing = 1)
 
 patterns = read_csv("pattern_counts_numonly.csv") %>% rename(dataset=Name) %>%  filter(p_miss > 0)
   
@@ -92,11 +93,10 @@ df_syn <- df %>%
   select(setting, dataset, winpct)
 
 
-df<- rbind(read_csv("realy/all_results_genlasso.csv"), 
-           read_csv("realy/all_results.csv") %>% filter(method=="Finite")) %>%  
-  mutate(setting = "4 - Real") 
-df<- read_csv("realy/all_results.csv") %>%  
-  mutate(setting = "4 - Real") 
+df <- rbind(read_csv("realy/all_results_rev.csv"),
+            read_csv("realy/all_results_finite.csv"),
+            read_csv("realy/all_results_penalty.csv") %>% filter(penalty=="lasso") %>% select(-penalty)) %>%  
+      mutate(setting = "4 - Real") 
 
 df_real <- df %>%
   left_join(patterns) %>%

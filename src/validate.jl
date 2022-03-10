@@ -23,7 +23,6 @@ function regress_cv(Y::Vector, data::DataFrame;
 	if length(regtype) < length(lasso) || (length(regtype) == 1 && regtype[1] == :none)#If lasso provides more options or regtype nothing particular
 		regtype = map(t -> t ? :lasso : :none, lasso)
 	end
-
 	# isolate training set
 	newY = Y[data[!, :Test] .== 0]
 	newdata = filter(row -> row[:Test] == 0, data)
@@ -64,7 +63,6 @@ function regress_cv(Y::BitArray{1}, data::DataFrame;
 	# designate some of training as testing/validation
 	val_indices = shuffle(1:nrow(newdata))[1:Int(floor(val_fraction * nrow(newdata)))]
 	newdata[val_indices, :Test] .= 1
-	@show regtype[1]
 	bestmodel = regress(newY, newdata, regtype = regtype[1], alpha = alpha[1],
 	                    missing_penalty = missing_penalty[1])
 	bestlogloss = evaluate(newY, newdata, bestmodel)[2]
