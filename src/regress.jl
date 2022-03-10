@@ -91,6 +91,20 @@ function regress(Y::Array{Float64}, df::DataFrame;
 			end
 			coefficients[!,:Offset] .= mean(y)
 		end
+	elseif regtype == :missing_weight
+		penalty_factor = ones(length(cols))
+		for (i, col) in enumerate(String.(cols))
+			if occursin("_missing", string(col))
+				penalty_factor[i] = missing_penalty
+			end
+			p = mean(X[:,i] .== 0)
+			penalty_factor[i] *= p
+		end
+		cv = glmnetcv(X, y, alpha=alpha, penalty_factor=penalty_factor)
+		for (i, col) in enumerate(cols)
+			coefficients[!,col] = ([cv.path.betas[i, argmin(cv.meanloss)]])
+		end
+		coefficients[!,:Offset] = [cv.path.a0[argmin(cv.meanloss)]]
 	elseif regtype == :genlasso
 		cols = union(["Offset"], String.(cols))
 		X = [ones(Base.size(X,1)) X] #Adding intercept because genlasso does not support
@@ -114,9 +128,11 @@ function regress(Y::Array{Float64}, df::DataFrame;
 			if length(kj_missing) > 0 && missing_penalty > 0
 				counter += 1
 				for i in kj_missing
+					push!(D_list, (counter, i, -alpha*missing_penalty))
+				end
+				for i in setdiff(kj_influenced,kj_missing)
 					push!(D_list, (counter, i, missing_penalty))
 				end
-				push!(D_list, (counter, kj, -alpha*missing_penalty)); 
 			end
 		end
 		D  = sparse([d[1] for d in D_list],[d[2] for d in D_list],[Float64(d[3]) for d in D_list], counter, Base.size(X,2))
@@ -176,6 +192,21 @@ function regress(Y::BitArray{1}, df::DataFrame;
 		# 	end
 		# 	coefficients[!,:Offset] = [log(mean(y) / (1-mean(y))]
 		# end
+	elseif regtype == :missing_weight
+		penalty_factor = ones(length(cols))
+		for (i, col) in enumerate(String.(cols))
+			if occursin("_missing", string(col))
+				penalty_factor[i] = missing_penalty
+			end
+			p = mean(X[:,i] .== 0)
+			penalty_factor[i] *= p
+		end
+		cv = glmnetcv(X, hcat(Float64.(.!y), Float64.(y)), GLMNet.Binomial(),
+						alpha=alpha, penalty_factor=penalty_factor, weights=w)
+		for (i, col) in enumerate(cols)
+			coefficients[!,col] = [cv.path.betas[i, argmin(cv.meanloss)]]
+		end
+		coefficients[!,:Offset] = [cv.path.a0[argmin(cv.meanloss)]]
 	elseif regtype == :genlasso
 		coefficients = regress(1.0*Y, df; regtype=:genlasso, alpha=alpha, missing_penalty=missing_penalty)
 		select!(coefficients, Not(:Logistic))

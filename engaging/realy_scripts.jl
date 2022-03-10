@@ -15,10 +15,10 @@ results_main = DataFrame(dataset=[], splitnum=[], method=[], r2=[], osr2=[], tim
 
 do_benchmark = false
 do_impthenreg = false
-do_static = false
-do_affine = false
+do_static = true
+do_affine = true
 affine_on_static_only = false
-do_finite = true
+do_finite = false
 
 for ARG in ARGS
     array_num = parse(Int, ARG)
@@ -111,8 +111,8 @@ for ARG in ARGS
         savedfiles = filter(t -> startswith(t, string(dname,"_real_Y_")), readdir(savedir))
         map!(t -> replace(replace(t, ".csv" => ""), string(dname,"_real_Y_") => ""), savedfiles, savedfiles)
         
-        for iter in setdiff(1:10, parse.(Int, savedfiles))
-        # for iter in 1:1
+        # for iter in setdiff(1:10, parse.(Int, savedfiles))
+        for iter in 1:1
             results_table = similar(results_main,0)
             filename = string(dname, "_real_Y", "_$iter.csv")
 
@@ -225,7 +225,7 @@ for ARG in ARGS
             if do_static || do_affine
                 println("Adaptive methods...")
                 println("###################")
-                for regtype in [:lasso, :genlasso]
+                for regtype in [:lasso, :genlasso, :missing_weight]
                     ## Method 2: Static Adaptability
                     df = deepcopy(X_missing)
                     df[!,:Test] = test_ind
@@ -234,7 +234,7 @@ for ARG in ARGS
                     # X_augmented = PHD.zeroimpute(df)
                     linear2, bestparams2 = PHD.regress_cv(Y, X_augmented, regtype=[regtype],
                                                             alpha=collect(0:0.1:1),
-                                                            missing_penalty=[1.0,2.0,4.0,6.0,8.0,12.0,16.0])
+                                                            missing_penalty=[1.0,2.0,4.0,6.0,8.0,12.0])
                     δt = (time() - start)
                     R2, OSR2 = PHD.evaluate(Y, X_augmented, linear2)
                     push!(results_table, [dname, iter, "Static - "*String(regtype), R2, OSR2, δt])
@@ -257,7 +257,7 @@ for ARG in ARGS
                         X_affine = PHD.augmentaffine(df, model=String.(model), removecols=:Constant)
 
                         linear3, bestparams3 = PHD.regress_cv(Y, X_affine, regtype=[regtype], alpha=collect(0.1:0.1:1),
-                                                            missing_penalty=[1.0,2.0,4.0,6.0,8.0,12.0,16.0])
+                                                            missing_penalty=[1.0,2.0,4.0,6.0,8.0,12.0])
                         δt = (time() - start)
                         R2, OSR2 = PHD.evaluate(Y, X_affine, linear3)
                         push!(results_table, [dname, iter, "Affine - "*String(regtype), R2, OSR2, δt])
