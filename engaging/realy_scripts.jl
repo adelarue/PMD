@@ -120,7 +120,7 @@ for ARG in ARGS
 
             Random.seed!(2142+767*iter)
             # Split train / test
-            test_ind = PHD.split_dataset(X_missing, test_fraction=test_prop, random=true) #rand(nrow(X_missing)) .< test_prop ;
+            test_ind = PHD.split_dataset(hcat(X_missing, DataFrame(Y=Y)), test_fraction=test_prop, random=true) #rand(nrow(X_missing)) .< test_prop ;
             @show mean(Y[test_ind .> 0]), mean(Y[test_ind .<= 0])      
             if do_benchmark
                 println("Benchmark methods...")

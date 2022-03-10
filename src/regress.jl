@@ -173,25 +173,25 @@ function regress(Y::BitArray{1}, df::DataFrame;
 	w = (1/freq).*y .+ (1/(1 - freq)).*(1. .- y); #class weights
 	coefficients = DataFrame()
 	if regtype == :lasso
-		# try
-			penalty_factor = ones(length(cols))
-			for (i, col) in enumerate(cols)
-				if occursin("_missing", string(col))
-					penalty_factor[i] = missing_penalty
-				end
+		penalty_factor = ones(length(cols))
+		for (i, col) in enumerate(cols)
+			if occursin("_missing", string(col))
+				penalty_factor[i] = missing_penalty
 			end
-			cv = glmnetcv(X, hcat(Float64.(.!y), Float64.(y)), GLMNet.Binomial(),
-			              alpha=alpha, penalty_factor=penalty_factor, weights=w)
+		end
+		cv = glmnetcv(X, hcat(Float64.(.!y), Float64.(y)), GLMNet.Binomial(),
+						alpha=alpha, penalty_factor=penalty_factor, weights=w)
+		if length(cv.meanloss) > 0
 			for (i, col) in enumerate(cols)
 				coefficients[!,col] = [cv.path.betas[i, argmin(cv.meanloss)]]
 			end
 			coefficients[!,:Offset] = [cv.path.a0[argmin(cv.meanloss)]]
-		# catch
-		# 	for col in cols
-		# 		coefficients[!,col] = [0.]
-		# 	end
-		# 	coefficients[!,:Offset] = [log(mean(y) / (1-mean(y))]
-		# end
+		else
+			for col in cols
+				coefficients[!,col] = [0.]
+			end
+			coefficients[!,:Offset] = [ log( mean(y) / (1-mean(y))) ]
+		end
 	elseif regtype == :missing_weight
 		penalty_factor = ones(length(cols))
 		for (i, col) in enumerate(String.(cols))
@@ -203,10 +203,17 @@ function regress(Y::BitArray{1}, df::DataFrame;
 		end
 		cv = glmnetcv(X, hcat(Float64.(.!y), Float64.(y)), GLMNet.Binomial(),
 						alpha=alpha, penalty_factor=penalty_factor, weights=w)
-		for (i, col) in enumerate(cols)
-			coefficients[!,col] = [cv.path.betas[i, argmin(cv.meanloss)]]
+		if length(cv.meanloss) > 0
+			for (i, col) in enumerate(cols)
+				coefficients[!,col] = [cv.path.betas[i, argmin(cv.meanloss)]]
+			end
+			coefficients[!,:Offset] = [cv.path.a0[argmin(cv.meanloss)]]
+		else
+			for col in cols
+				coefficients[!,col] = [0.]
+			end
+			coefficients[!,:Offset] = [log(mean(y) / (1-mean(y)))]
 		end
-		coefficients[!,:Offset] = [cv.path.a0[argmin(cv.meanloss)]]
 	elseif regtype == :genlasso
 		coefficients = regress(1.0*Y, df; regtype=:genlasso, alpha=alpha, missing_penalty=missing_penalty)
 		select!(coefficients, Not(:Logistic))
