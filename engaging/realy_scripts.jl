@@ -31,7 +31,6 @@ for ARG in ARGS
     dname = dataset_list[d_num]#"dermatology" #"""thyroid-disease-thyroid-0387" #dataset_list[1]
 
     @show dname
-    pb_list =  ["communities-and-crime-2", "cylinder-bands", "trains"]
     # if true #string(dname, "_real_Y", "_1.csv") ∉ pb_list #dname ∈ pb_list
         # Read in a data file.
         X_missing = PHD.standardize_colnames(CSV.read("../datasets/"*dname*"/X_missing.csv", missingstrings=["", "NaN"], DataFrame)) #df with missing values
@@ -113,8 +112,8 @@ for ARG in ARGS
         savedfiles = filter(t -> startswith(t, string(dname,"_real_Y_")), readdir(savedir))
         map!(t -> replace(replace(t, ".csv" => ""), string(dname,"_real_Y_") => ""), savedfiles, savedfiles)
         
-        # for iter in setdiff(1:10, parse.(Int, savedfiles))
-        for iter in 1:1
+        for iter in setdiff(1:10, parse.(Int, savedfiles))
+        # for iter in 1:1
             results_table = similar(results_main,0)
             filename = string(dname, "_real_Y", "_$iter.csv")
 
