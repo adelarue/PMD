@@ -95,7 +95,8 @@ df_syn <- df %>%
 
 df <- rbind(read_csv("realy/all_results_rev.csv"),
             read_csv("realy/all_results_finite.csv"),
-            read_csv("realy/all_results_penalty.csv") %>% filter(penalty=="lasso") %>% select(-penalty)) %>%  
+            read_csv("realy/all_results_penalty.csv") %>% filter(penalty=="missing_weight") %>% select(-penalty)
+            ) %>%  
       mutate(setting = "4 - Real") 
 
 df_real <- df %>%
@@ -118,6 +119,7 @@ df_real %>%
   ggplot() + aes(winpct, group=setting, color=setting, fill=setting) + 
   geom_density(alpha=0.4) +
   labs(x="Average % of wins", y = "Density") +
+  ylim(0, 2) +
   geom_vline(xintercept=0.5, size=.8, color="darkgrey") +
   geom_text(aes(x=0.45,y=1.75,label="Majority: \n 0.5"), color="darkgrey", size=6.5) +
   theme(#legend.position = c(0.86, 0.67), 
@@ -133,9 +135,10 @@ df_real %>%
       axis.line = element_line(colour = "black"),
       #legend.box.margin = margin(0, 0, 0, 0),
       legend.spacing.y = unit(2, "line"))
+ggsave("win-rate-realy-missingweight.png",  width = 17, height = 10, dpi = 300,)
+
 #ggsave("win-rate-all.png",  width = 17, height = 10, dpi = 300,)
 ggsave("win-rate-synonly.png",  width = 17, height = 10, dpi = 300,)
-ggsave("win-rate-realonly.png",  width = 17, height = 10, dpi = 300,)
 
 
 #Plot 1: In-sample R2
