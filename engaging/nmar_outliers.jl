@@ -36,8 +36,11 @@ counter = 0
 # 		continue
 # 	end
 array_num = id
-d_num = mod(array_num, length(dataset_list)) + 1
-aux_num = div(array_num, length(dataset_list)) + 1
+# d_num = mod(array_num, length(dataset_list)) + 1
+# aux_num = div(array_num, length(dataset_list)) + 1
+
+d_num = array_num + 1
+for aux_num in 1:11
 
 dname = dataset_list[d_num]#"dermatology" #"""thyroid-disease-thyroid-0387" #dataset_list[1]
 k_missingsignal = collect(0:k)[aux_num]
@@ -299,4 +302,5 @@ if k_missing == k_missingsignal
             CSV.write(savedir*filename, results_table)
         end
     end
+end
 end
