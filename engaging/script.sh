@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH -a 400-780
-#SBATCH -J rmv
+#SBATCH -J mar
 #SBATCH --cpus-per-task=1
 #SBATCH --mem-per-cpu=4GB
 #SBATCH -p sched_mit_sloan_batch
