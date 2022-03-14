@@ -47,8 +47,8 @@ k_missingsignal = collect(0:k)[aux_num]
 # @show dname, k, k_missingsignal
 
 # Read in a data file
-X_missing = PHD.standardize_colnames(DataFrame(CSV.read("../datasets/"*dname*"/X_missing.csv",
-                                                        missingstrings=["", "NaN"])));
+X_missing = PHD.standardize_colnames(CSV.read("../datasets/"*dname*"/X_missing.csv", DataFrame,
+                                                        missingstrings=["", "NaN"]));
 
 # Clean up : to be checked, some datasets have strings in features
 delete_obs = trues(Base.size(X_missing,1))
@@ -74,7 +74,7 @@ for l in values(PHD.intrinsic_indicators(X_missing, correlation_threshold=0.9))
 end
 select!(X_missing, keep_cols)
 
-X_full = PHD.standardize_colnames(DataFrame(CSV.read("../datasets/"*dname*"/X_full.csv")))[:,:];
+X_full = PHD.standardize_colnames(CSV.read("../datasets/"*dname*"/X_full.csv", DataFrame))[:,:];
 X_full = X_full[delete_obs, keep_cols];
 @show nrow(X_missing), ncol(X_missing)
 @show nrow(X_full), ncol(X_full)
