@@ -7,23 +7,18 @@ using PHD
 using Random, Statistics, CSV, DataFrames, LinearAlgebra
 
 # dataset_list = PHD.list_datasets(p_min = 1)
-dataset_list = [d for d in split.(read(`ls ../datasets/`, String), "\n") if length(d) > 0]
+dataset_list = [d for d in readdir("../datasets/") if !startswith(d, ".")]
 sort!(dataset_list)
 @show length(dataset_list)
 
 missingsignal_list = [0,1,2,3,4,5,6,7,8,9,10]
 
-if !isdir("../results")
-    mkdir("../results")
-end
-savedir = "../results/fakey_nmar/"
-if !isdir(savedir)
-    mkdir(savedir)
-end
+savedir = "../results/fakey_nmar/revisions/"
+mkpath(savedir)
 SNR = 2
 
-do_benchmark = false
-do_impthenreg = false
+do_benchmark = true
+do_impthenreg = true
 do_static = true
 do_affine = true
 affine_on_static_only = true
@@ -44,7 +39,7 @@ for ARG in ARGS
     longtime_list = ["communities-and-crime", "communities-and-crime-2", "mlmRev-star"]
     if  true #dname ∈ longtime_list
         # Read in a data file.
-        X_missing = PHD.standardize_colnames(DataFrame(CSV.read("../datasets/"*dname*"/X_missing.csv", missingstrings=["", "NaN"]))) #df with missing values
+        X_missing = PHD.standardize_colnames(CSV.read("../datasets/"*dname*"/X_missing.csv", DataFrame, missingstrings=["", "NaN"])) #df with missing values
 
         # Clean up : to be checked, some datasets have strings in features
         delete_obs = trues(Base.size(X_missing,1))
@@ -70,7 +65,7 @@ for ARG in ARGS
         end
         select!(X_missing, keep_cols)
         canbemissing = [any(ismissing.(X_missing[:,j])) for j in names(X_missing)] #indicator of missing features
-        X_full = PHD.standardize_colnames(DataFrame(CSV.read("../datasets/"*dname*"/X_full.csv")))[delete_obs,keep_cols] #ground truth df
+        X_full = PHD.standardize_colnames(CSV.read("../datasets/"*dname*"/X_full.csv", DataFrame))[delete_obs,keep_cols] #ground truth df
 
         # Create output
         Random.seed!(5234)
@@ -79,8 +74,11 @@ for ARG in ARGS
         if k_missing == k_missingsignal #If not enough missing features to generate Y with k_missingsignal, abort (already done)
             test_prop = .3
 
-            for iter in 1:10
-                @show iter
+            savedfiles = filter(t -> startswith(t, dname), readdir(savedir))
+            map!(t -> split(replace(t, ".csv" => ""), "_")[end], savedfiles, savedfiles)
+            @show savedfiles
+            for iter in setdiff(1:10, parse.(Int, savedfiles))    
+            # for iter in 1:10                @show iter
 
                 results_table = similar(results_main,0)
 
@@ -103,7 +101,7 @@ for ARG in ARGS
                     push!(results_table, [dname, SNR, k, k_missing, iter, "Oracle", R2, OSR2, δt])
                     CSV.write(savedir*filename, results_table)
 
-                    df = [X_full[:,:] PHD.indicatemissing(X_missing[:,:]; removezerocols=true)]
+                    df = [X_full[:,:] PHD.indicatemissing(X_missing[:,:]; removecols=:Zero)]
                     df[!,:Test] = test_ind
                     start = time()
                     linear, bestparams = PHD.regress_cv(Y, df, lasso=[true], alpha=collect(0.1:0.1:1))
@@ -211,6 +209,7 @@ for ARG in ARGS
                     CSV.write(savedir*filename, results_table)
                 end
 
+                regtype = :missing_weight
                 if do_static || do_affine
                     println("Adaptive methods...")
                     println("###################")
@@ -220,34 +219,36 @@ for ARG in ARGS
                     start = time()
                     X_augmented = hcat(PHD.zeroimpute(df), PHD.indicatemissing(df, removecols=:Zero))
                     # X_augmented = PHD.zeroimpute(df)
-                    linear2, bestparams2 = PHD.regress_cv(Y, X_augmented, lasso=[true],
-                                                            alpha=collect(0.1:0.1:1),
-                                                            missing_penalty=[1.0,2.0,4.0,6.0,8.0,12.0,16.0])
+                    linear2, bestparams2 = PHD.regress_cv(Y, X_augmented, regtype=[regtype],
+                                                            alpha=collect(0:0.1:1),
+                                                            missing_penalty=[1.0,2.0,4.0,6.0,8.0,12.0])
                     δt = (time() - start)
                     R2, OSR2 = PHD.evaluate(Y, X_augmented, linear2)
                     push!(results_table, [dname, SNR, k, k_missing, iter, "Static", R2, OSR2, δt])
                     CSV.write(savedir*filename, results_table)
 
-                    ## Method 3: Affine Adaptability
-                    df = deepcopy(X_missing)
-                    df[!,:Test] = test_ind
+                    if do_affine
+                        ## Method 3: Affine Adaptability
+                        df = deepcopy(X_missing)
+                        df[!,:Test] = test_ind
 
-                    model = names(df)
-                    if affine_on_static_only
-                        model2 = names(linear2)[findall(abs.(convert(Array, linear2[1,:])) .> 0)]
-                        model2 = intersect(model2, names(df))
-                        if length(model2) > 0
-                            model = model2[:]
+                        model = names(df)
+                        if affine_on_static_only
+                            model2 = names(linear2)[findall(abs.([linear2[1,c] for c in names(linear2)]) .> 0)]
+                            model2 = intersect(model2, names(df))
+                            if length(model2) > 0
+                                model = model2[:]
+                            end
                         end
+                        start = time()
+                        X_affine = PHD.augmentaffine(df, model=String.(model), removecols=:Constant)
+                        linear3, bestparams3 = PHD.regress_cv(Y, X_affine, regtype=[regtype], alpha=collect(0.1:0.1:1),
+                                                            missing_penalty=[1.0,2.0,4.0,6.0,8.0,12.0])
+                        δt = (time() - start)
+                        R2, OSR2 = PHD.evaluate(Y, X_affine, linear3)
+                        push!(results_table, [dname, SNR, k, k_missing, iter, "Affine", R2, OSR2, δt])
+                        CSV.write(savedir*filename, results_table)
                     end
-                    start = time()
-                    X_affine = PHD.augmentaffine(df, model=String.(model), removecols=:Constant)
-                    linear3, bestparams3 = PHD.regress_cv(Y, X_affine, lasso=[true], alpha=collect(0.1:0.1:1),
-                                                          missing_penalty=[1.0,2.0,4.0,6.0,8.0])
-                    δt = (time() - start)
-                    R2, OSR2 = PHD.evaluate(Y, X_affine, linear3)
-                    push!(results_table, [dname, SNR, k, k_missing, iter, "Affine", R2, OSR2, δt])
-                    CSV.write(savedir*filename, results_table)
                 end
 
                 if do_finite

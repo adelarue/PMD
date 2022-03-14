@@ -42,6 +42,9 @@ function indicatemissing(df::DataFrame; removecols::Symbol=:None)
 		return result[:,find_constantcolumns(result)]
 	end
 end
+# function indicatemissing(df::DataFrame; removezerocols::Bool=true)
+# 	indicatemissing(df, removecols = removezerocols ? :Zero : :None)
+# end
 
 """
 	Create the outer product between the data matrix and the missingness indicators
