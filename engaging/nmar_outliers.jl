@@ -5,11 +5,13 @@ using PHD
 using Random, Statistics, CSV, DataFrames, LinearAlgebra
 
 # dataset_list = PHD.list_datasets(p_min = 1)
-dataset_list = [d for d in split.(read(`ls ../datasets/`, String), "\n") if length(d) > 0]
+dataset_list = [d for d in readdir("../datasets/") if !startswith(d, ".")]
 sort!(dataset_list)
 
-k = 10
-SNR = 2
+global k = 10
+missingsignal_list = [0,1,2,3,4,5,6,7,8,9,10]
+
+global SNR = 2
 
 savedir = "../results/nmar_outliers/revisions/"
 mkpath(savedir)
@@ -41,9 +43,9 @@ array_num = id
 
 d_num = array_num + 1
 for aux_num in 1:11
-
+k = 10
 dname = dataset_list[d_num]#"dermatology" #"""thyroid-disease-thyroid-0387" #dataset_list[1]
-k_missingsignal = collect(0:k)[aux_num]
+k_missingsignal = missingsignal_list[aux_num]
 @show dname, k_missingsignal
 
 
@@ -99,10 +101,8 @@ if k_missing == k_missingsignal
 # end
 	test_prop = .3
 
-    savedfiles = filter(t -> startswith(t, dname), readdir(savedir))
-    map!(t -> replace(t, ".csv" => ""), savedfiles, savedfiles)
-    filter!(t -> parse(Int, split(t, "_")[end-1]) == k_missingsignal, savedfiles)
-    map!(t -> split(t, "_")[end], savedfiles, savedfiles)    
+    savedfiles = filter(t -> startswith(t, string(dname, "_SNR_", SNR, "_nmiss_", k_missingsignal)), readdir(savedir))
+    map!(t -> split(replace(t, ".csv" => ""), "_")[end], savedfiles, savedfiles)
     @show savedfiles
     for iter in setdiff(1:10, parse.(Int, savedfiles))    
     # for iter in 1:10

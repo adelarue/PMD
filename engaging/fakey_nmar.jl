@@ -76,10 +76,10 @@ for ARG in ARGS
         if k_missing == k_missingsignal #If not enough missing features to generate Y with k_missingsignal, abort (already done)
             test_prop = .3
 
-            savedfiles = filter(t -> startswith(t, dname), readdir(savedir))
-            map!(t -> replace(t, ".csv" => ""), savedfiles, savedfiles)
-            filter!(t -> parse(Int, split(t, "_")[end-1]) == k_missingsignal, savedfiles)
-            map!(t -> split(t, "_")[end], savedfiles, savedfiles)
+            savedfiles = filter(t -> startswith(t, string(dname, "_SNR_", SNR, "_nmiss_", k_missingsignal)), readdir(savedir))
+
+            savedfiles = filter(t -> startswith(t, string(dname, "_SNR_", SNR, "_nmiss_", k_missingsignal)), readdir(savedir))
+            map!(t -> split(replace(t, ".csv" => ""), "_")[end], savedfiles, savedfiles)
             @show savedfiles
 
             for iter in setdiff(1:10, parse.(Int, savedfiles))    
