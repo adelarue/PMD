@@ -2,15 +2,24 @@ library(tidyverse)
 library(RColorBrewer)
 library(readr)
 setwd("Dropbox (MIT)/1 - Research/PHD/results/")
+
+#MAR
 df <- read_csv("fakey/all_results.csv")
+df <- read_csv("fakey/all_results_rev.csv")
+
+#NMAR
 df <- read_csv("fakey_nmar/all_results.csv")
+df <- read_csv("fakey_nmar/all_results_rev.csv")
+
+#NMAR ADVERSARIAL
 df <- read_csv("nmar_outliers/all_results.csv")
+df <- read_csv("nmar_outliers/all_results_rev.csv")
 
+#REAL DATA
 df <- read_csv("realy/all_results.csv") %>%  mutate(kMissing = 1) %>% mutate(penalty = "Lasso")
-
 df <- rbind(read_csv("realy/all_results_rev.csv") %>% mutate(penalty = "Lasso"),
             read_csv("realy/all_results_finite.csv")%>% mutate(penalty = "None"),
-            read_csv("realy/all_results_penalty.csv")) %>%  mutate(kMissing = 1)
+            read_csv("realy/all_results_penalty2.csv")) %>%  mutate(kMissing = 1)
 
 patterns = read_csv("pattern_counts_numonly.csv") %>% rename(dataset=Name) %>%  filter(p_miss > 0)
   
@@ -19,7 +28,7 @@ plot_data = df %>%
   filter(!is.na(p)) %>%
   filter(method %in% c("Affine", "Static", "Finite", "Oracle XM", "Imp-then-Reg 4", "Complete Features")) %>%
   mutate(fraction = kMissing) %>%
-  group_by(method, penalty, kMissing) %>%
+  group_by(method, kMissing) %>%
   summarize(meanr2 = mean(r2), stdr2 = sd(r2) / sqrt(n()),
             q1r2 = quantile(osr2, 0.25, na.rm=T), 
             q3r2 = quantile(osr2, 0.75, na.rm=T),
@@ -65,16 +74,15 @@ plot_data %>%
         legend.key.width = unit(2, "line"))
 
 ggsave("out-of-sample-mar.png",  width = 20, height = 15, dpi = 300)
-
 ggsave("out-of-sample-nmar.png",  width = 20, height = 15, dpi = 300,)
 ggsave("out-of-sample-nmar-outliers.png",  width = 20, height = 15, dpi = 300,)
 
 #Plot 3: Win rate
-df <- read_csv("fakey/all_results_new.csv") %>%  
+df <- read_csv("fakey/all_results_rev.csv") %>%  
   mutate(setting = "1 - Syn MAR")
-df <- rbind(df, read_csv("fakey_nmar/all_results_new.csv") %>%  
+df <- rbind(df, read_csv("fakey_nmar/all_results_rev.csv") %>%  
               mutate(setting = "2 - Syn NMAR") )
-df <- rbind(df, read_csv("nmar_outliers/all_results_new.csv") %>%  
+df <- rbind(df, read_csv("nmar_outliers/all_results_rev.csv") %>%  
               mutate(setting = "3 - Syn MAR adv") )
 df_syn <- df %>%
   left_join(patterns) %>%
@@ -119,7 +127,7 @@ df_real %>%
   ggplot() + aes(winpct, group=setting, color=setting, fill=setting) + 
   geom_density(alpha=0.4) +
   labs(x="Average % of wins", y = "Density") +
-  ylim(0, 2) +
+  ylim(0, 2.3) +
   geom_vline(xintercept=0.5, size=.8, color="darkgrey") +
   geom_text(aes(x=0.45,y=1.75,label="Majority: \n 0.5"), color="darkgrey", size=6.5) +
   theme(#legend.position = c(0.86, 0.67), 

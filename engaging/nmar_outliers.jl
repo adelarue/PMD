@@ -13,18 +13,18 @@ missingsignal_list = [0,1,2,3,4,5,6,7,8,9,10]
 
 global SNR = 2
 
-savedir = "../results/nmar_outliers/revisions/"
+savedir = "../results/nmar_outliers/not_affine_on_static/"
 mkpath(savedir)
 
 results_main = DataFrame(dataset=[], SNR=[], k=[], kMissing=[], splitnum=[], method=[],
                          r2 = [], osr2=[], time=[])
 
-do_benchmark = true
-do_impthenreg = true
+do_benchmark = false
+do_impthenreg = false
 do_static = true
 do_affine = true
-affine_on_static_only = true
-do_finite = true
+affine_on_static_only = false
+do_finite = false
 
 id = 1
 if length(ARGS) > 0
