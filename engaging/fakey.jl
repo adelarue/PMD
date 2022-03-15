@@ -11,17 +11,17 @@ sort!(dataset_list)
 
 missingsignal_list = [0,1,2,3,4,5,6,7,8,9,10]
 
-savedir = "../results/fakey/revisions/"
+savedir = "../results/fakey/not_affine_on_static/"
 mkpath(savedir)
 
 SNR = 2
 
-do_benchmark = true
-do_impthenreg = true
+do_benchmark = false
+do_impthenreg = false
 do_static = true
 do_affine = true
-affine_on_static_only = true
-do_finite = true
+affine_on_static_only = false
+do_finite = false
 
 # whether to split the data randomly
 random_split = true
