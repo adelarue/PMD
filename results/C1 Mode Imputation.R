@@ -1,10 +1,10 @@
 library(dplyr)
 library(readr)
 setwd("Dropbox (MIT)/1 - Research/PHD/results/")
-df <- read_csv("fakey/all_results.csv")
-df <- read_csv("fakey_nmar/all_results.csv")
-df <- read_csv("nmar_outliers/all_results.csv")
-df <- read_csv("realy/all_results_rev.csv") %>% mutate(kMissing=1) #For realy only
+df <- read_csv("fakey/FINAL_results.csv")
+df <- read_csv("fakey_nmar/FINAL_results.csv")
+df <- read_csv("nmar_outliers/FINAL_results.csv")
+df <- read_csv("realy/FINAL_results.csv") %>% mutate(kMissing=1) #For realy only
 
 #Claim 1: Mode imputation is detrimental
 dataset_list1 <- read_csv("pattern_counts_allfeat.csv") %>% 
@@ -22,7 +22,10 @@ mode_df <- merge(df, dataset_list, on='dataset') %>%
   filter(keep >= 1) %>%
   mutate(clusterid = paste(dataset,kMissing))
 
+df %>% select(dataset) %>% unique() %>% nrow()
 
+mode_df %>% select(dataset) %>% unique() %>% nrow()
+  #  group_by(dataset, kMissing, method)
 #mode_df %>%
 #  group_by(dataset, kMissing, method) %>%
 #  summarize(freq = sum(kMissing >= 0)) %>%
@@ -35,7 +38,7 @@ summary(model)
 
 #Linear model: control for dataset and proportion of missing + cluster SD
 library(miceadds)
-model <- lm.cluster(osr2 ~ dataset + method , data=mode_df, cluster=mode_df$dataset)
+model <- lm.cluster(osr2 ~ dataset + method +kMissing , data=mode_df, cluster=mode_df$dataset)
 summary(model)
 
 library(reshape2)
@@ -48,5 +51,5 @@ t.test(mode_df_wide$`1`, mode_df_wide$`0`, paired=TRUE, alternative="less")
 
 wilcox.test(mode_df_wide$`1`, mode_df_wide$`0`, alternative="less", paired=TRUE, conf.int=TRUE)
 
-mean(mode_df_wide$`1`-mode_df_wide$`0`)
-median(mode_df_wide$`1`)-median(mode_df_wide$`0`)
+mean(mode_df_wide$`1`-mode_df_wide$`0`, na.rm=T)
+median(mode_df_wide$`1`, na.rm=T)-median(mode_df_wide$`0`, na.rm=T)
