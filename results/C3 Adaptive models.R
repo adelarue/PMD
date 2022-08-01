@@ -4,22 +4,16 @@ library(readr)
 setwd("Dropbox (MIT)/1 - Research/PHD/results/")
 
 #MAR
-df <- read_csv("fakey/all_results.csv")
-df <- read_csv("fakey/all_results_rev.csv")
+df <- read_csv("fakey/FINAL_results.csv")
 
 #NMAR
-df <- read_csv("fakey_nmar/all_results.csv")
-df <- read_csv("fakey_nmar/all_results_rev.csv")
+df <- read_csv("fakey_nmar/FINAL_results.csv")
 
 #NMAR ADVERSARIAL
-df <- read_csv("nmar_outliers/all_results.csv")
-df <- read_csv("nmar_outliers/all_results_rev.csv")
+df <- read_csv("nmar_outliers/FINAL_results.csv")
 
 #REAL DATA
-df <- read_csv("realy/all_results.csv") %>%  mutate(kMissing = 1) %>% mutate(penalty = "Lasso")
-df <- rbind(read_csv("realy/all_results_rev.csv") %>% mutate(penalty = "Lasso"),
-            read_csv("realy/all_results_finite.csv")%>% mutate(penalty = "None"),
-            read_csv("realy/all_results_penalty2.csv")) %>%  mutate(kMissing = 1)
+df <- read_csv("realy/FINAL_results.csv") %>%  mutate(kMissing = 1)
 
 patterns = read_csv("pattern_counts_numonly.csv") %>% rename(dataset=Name) %>%  filter(p_miss > 0)
   
@@ -78,11 +72,11 @@ ggsave("out-of-sample-nmar.png",  width = 20, height = 15, dpi = 300,)
 ggsave("out-of-sample-nmar-outliers.png",  width = 20, height = 15, dpi = 300,)
 
 #Plot 3: Win rate
-df <- read_csv("fakey/all_results_rev.csv") %>%  
+df <- read_csv("fakey/FINAL_results.csv") %>%  
   mutate(setting = "1 - Syn MAR")
-df <- rbind(df, read_csv("fakey_nmar/all_results_rev.csv") %>%  
+df <- rbind(df, read_csv("fakey_nmar/FINAL_results.csv") %>%  
               mutate(setting = "2 - Syn NMAR") )
-df <- rbind(df, read_csv("nmar_outliers/all_results_rev.csv") %>%  
+df <- rbind(df, read_csv("nmar_outliers/FINAL_results.csv") %>%  
               mutate(setting = "3 - Syn MAR adv") )
 df_syn <- df %>%
   left_join(patterns) %>%
@@ -101,10 +95,7 @@ df_syn <- df %>%
   select(setting, dataset, winpct)
 
 
-df <- rbind(read_csv("realy/all_results_rev.csv"),
-            read_csv("realy/all_results_finite.csv"),
-            read_csv("realy/all_results_penalty.csv") %>% filter(penalty=="missing_weight") %>% select(-penalty)
-            ) %>%  
+df <- read_csv("realy/FINAL_results.csv") %>%  
       mutate(setting = "4 - Real") 
 
 df_real <- df %>%
@@ -122,8 +113,9 @@ df_real <- df %>%
   ungroup() %>%
   select(setting, dataset, winpct)
 
-#rbind(df_syn,df_real) %>%
-df_real %>%
+rbind(df_syn,df_real) %>%
+#df_real %>%
+#df_syn %>%
   ggplot() + aes(winpct, group=setting, color=setting, fill=setting) + 
   geom_density(alpha=0.4) +
   labs(x="Average % of wins", y = "Density") +
@@ -143,10 +135,10 @@ df_real %>%
       axis.line = element_line(colour = "black"),
       #legend.box.margin = margin(0, 0, 0, 0),
       legend.spacing.y = unit(2, "line"))
-ggsave("win-rate-realy-missingweight.png",  width = 17, height = 10, dpi = 300,)
 
-#ggsave("win-rate-all.png",  width = 17, height = 10, dpi = 300,)
-ggsave("win-rate-synonly.png",  width = 17, height = 10, dpi = 300,)
+ggsave("win-rate-realy.png",  width = 17, height = 10, dpi = 300,)
+
+ggsave("win-rate-syn.png",  width = 17, height = 10, dpi = 300,)
 
 
 #Plot 1: In-sample R2
