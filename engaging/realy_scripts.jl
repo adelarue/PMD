@@ -38,17 +38,7 @@ for ARG in ARGS
         # X_missing = X_missing[setdiff(1:nrow(X_missing), deleterows), :];
 
         # Clean up : to be checked, some datasets have strings in features
-        delete_obs = trues(Base.size(X_missing,1))
-        for j in names(X_missing)
-            if Symbol(j) != :Id && (eltype(X_missing[:,j]) == String || eltype(X_missing[:,j]) == Union{Missing,String})
-                newcol = tryparse.(Float64, X_missing[:,j])
-                delete_obs[newcol .== nothing] .= false
-                newcol = convert(Array{Union{Float64,Missing,Nothing}}, newcol)
-                newcol[newcol .== nothing] .= missing
-                newcol = convert(Array{Union{Float64,Missing}}, newcol)
-                X_missing[!,j] = newcol
-            end
-        end
+        delete_obs = PHD.string_to_float_fix!(X_missing)
         for j in PHD.unique_missing_patterns(X_missing)
             delete_obs[j] = false
         end

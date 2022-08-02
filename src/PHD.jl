@@ -33,6 +33,7 @@ include("augment.jl")
 include("generate_y.jl")
 include("regress.jl")
 include("regress_nonlinear.jl")
+include("regress_tree.jl")
 include("greedy.jl")
 include("validate.jl")
 

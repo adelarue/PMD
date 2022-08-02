@@ -18,6 +18,25 @@ function nan_to_missing!(df::DataFrame)
 end
 
 """
+    Identify columns wrongly encoded as strings 
+"""
+function string_to_float_fix!(df::DataFrame)
+    keep_obs = trues(Base.size(df,1)) #Returns list of problematic observations where re-encoding failed
+    for j in names(df)
+        if Symbol(j) != :Id && (eltype(df[:,j]) == String || eltype(df[:,j]) == Union{Missing,String})
+            newcol = tryparse.(Float64, df[:,j])
+            keep_obs[newcol .== nothing] .= false ##If re-encoding failed -> remove observation
+            newcol = convert(Array{Union{Float64,Missing,Nothing}}, newcol) #Allow for missingness in newcol
+            newcol[newcol .== nothing] .= missing #Re-encode nothing (failed parsing) into missing
+            newcol = convert(Array{Union{Float64,Missing}}, newcol)
+            df[!,j] .= newcol #Update df
+        end
+    end
+
+    return keep_obs
+end
+
+"""
 	One-hot encode categorical variables
 	Using UCIData convention, categorical variables start with the letter 'C',
 		or contain <=5 unique values

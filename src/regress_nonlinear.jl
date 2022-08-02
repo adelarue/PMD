@@ -10,7 +10,9 @@
 function regress_nonlinear(Y::Array{Float64}, df::DataFrame;
 						   hidden_nodes::Int=10)
 	cols = setdiff(Symbol.(names(df)), [:Id, :Test])
-	X = convert(Matrix, df[df[!, :Test] .== 0, cols])
+	# X = convert(Matrix, df[df[!, :Test] .== 0, cols])
+	X = Matrix(df[df[!, :Test] .== 0, cols])
+
 	y = convert(Array, Y[df[!, :Test] .== 0])
 	data = Flux.Data.DataLoader((X', y'), batchsize=50,shuffle=true);
 	# Defining our model, optimization algorithm and loss function
@@ -34,7 +36,8 @@ end
 """
 function predict(df::DataFrame, model::Chain)
 	cols = setdiff(Symbol.(names(df)), [:Id, :Test])
-	X = convert(Matrix, df[:, cols])'
+	# X = convert(Matrix, df[:, cols])'
+	X = Matrix(df[:, cols])'
 	return model(X)'
 end
 

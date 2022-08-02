@@ -18,9 +18,8 @@
 function standardize(data::DataFrame)
 	# @assert count_missing_columns(data) == 0
 	truenames = setdiff(Symbol.(names(data)), [:Test, :Id, :Y])
-
-	μ = [mean(data[.!ismissing.(data[!, name]), name]) for name in truenames]
-	σ = [std(data[.!ismissing.(data[!, name]), name]) for name in truenames]
+	μ = [mean(data[.!ismissing.(data[:, name]), name]) for name in truenames]
+	σ = [std(data[.!ismissing.(data[:, name]), name]) for name in truenames]
 	# if a stddev is 0, the column is constant, and we should simply not rescale it
 	σ[findall(σ .== 0)] .= 1
 	newdata = DataFrame()
@@ -110,7 +109,7 @@ function binary_y(data::DataFrame, data_missing::DataFrame;
     			  sigmoid_threshold::Real=0.5)
 	Y, k1, k2 = linear_y(data, data_missing, k=k, SNR=SNR, canbemissing=canbemissing,
 	                     mar=mar, k_missing_in_signal=k_missing_in_signal)
-	@show length(Y)
+						 
 	return sigmoid.(Y) .> sigmoid_threshold, k1, k2
 end
 
