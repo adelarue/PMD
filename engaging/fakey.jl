@@ -62,12 +62,15 @@ for ARG in ARGS
         select!(X_missing, keep_cols)
         canbemissing = [any(ismissing.(X_missing[:,j])) for j in names(X_missing)] #indicator of missing features
         
+        # @show sum(canbemissing) 
         X_full = PHD.standardize_colnames(CSV.read("../datasets/"*dname*"/X_full.csv", DataFrame))[delete_obs,keep_cols] #ground truth df
         PHD.string_to_float_fix!(X_full)
 
         # Create output
         Random.seed!(549)
         @time Y, k, k_missing = PHD.linear_y(X_full, X_missing, k=10, SNR=SNR, canbemissing=canbemissing, k_missing_in_signal=k_missingsignal, mar=true) ;
+        
+        @show k, k_missing
 
         test_prop = .3
         if k_missing == k_missingsignal #If not enough missing features to generate Y with k_missingsignal, abort (already done)

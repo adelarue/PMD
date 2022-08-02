@@ -56,10 +56,12 @@ function linear_y(data::DataFrame, data_missing::DataFrame;
 
 	feature_names = Symbol.(names(data));
     nevermissing_features = feature_names[.!canbemissing]; missing_features = feature_names[canbemissing]
+	# @show length(missing_features)
 	setdiff!(feature_names, [:Test, :Id]); setdiff!(nevermissing_features, [:Test, :Id]); setdiff!(missing_features, [:Test, :Id]);
-
+	# @show length(missing_features)
 	k = min(k, length(feature_names))
     k_missing_in_signal = min(k_missing_in_signal, length(missing_features))
+	# @show k_missing_in_signal
 	k_non_missing = min(max(k - k_missing_in_signal, 0), length(nevermissing_features))
 
     #Standardize
