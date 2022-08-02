@@ -68,3 +68,26 @@ function augmentaffine(df::DataFrame; model::Array{String}=String.(names(df)), r
 		return result[:,find_constantcolumns(result)]
 	end
 end
+
+"""
+	Do ±Inf imputation for missingness (MIA-trick)
+"""
+function augment_MIA(df; bigM=1e10)
+    M = indicatemissing(df, removecols=:Constant)
+    cols_with_missing = names(M); map!(t -> split(t, "_missing")[1], cols_with_missing, cols_with_missing)
+    cols_never_missing = setdiff(names(df), cols_with_missing)
+    #Replace missing by +Inf
+	imp_plus = df[:,cols_with_missing]
+    for name in cols_with_missing
+        imp_plus[ismissing.(imp_plus[:,name]),name] .= convert(eltype(imp_plus[:,name]), bigM)
+    end
+    rename!(imp_plus, [(i => i*"_plus") for i in cols_with_missing])
+	#Replace missing by -Inf
+    imp_neg = df[:,cols_with_missing]
+    for name in cols_with_missing
+        imp_neg[ismissing.(imp_neg[:,name]),name] .= convert(eltype(imp_neg[:,name]), -bigM)
+    end
+    rename!(imp_neg, [(i => i*"_minus") for i in cols_with_missing])
+    
+    return hcat(imp_plus, imp_neg, df[:,cols_never_missing])
+end

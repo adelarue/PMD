@@ -13,14 +13,15 @@ sort!(dataset_list)
 
 missingsignal_list = [0,1,2,3,4,5,6,7,8,9,10]
 
-savedir = "../results/fakey_nmar/not_affine_on_static/"
+savedir = "../results/fakey_nmar/tree/"
 mkpath(savedir)
 SNR = 2
 
 do_benchmark = false
 do_impthenreg = false
-do_static = true
-do_affine = true
+do_tree = true
+do_static = false
+do_affine = false
 affine_on_static_only = false
 do_finite = false
 
@@ -44,17 +45,7 @@ for ARG in ARGS
         X_missing = PHD.standardize_colnames(CSV.read("../datasets/"*dname*"/X_missing.csv", DataFrame, missingstrings=["", "NaN"])) #df with missing values
 
         # Clean up : to be checked, some datasets have strings in features
-        delete_obs = trues(Base.size(X_missing,1))
-        for j in names(X_missing)
-            if Symbol(j) != :Id && (eltype(X_missing[:,j]) == String || eltype(X_missing[:,j]) == Union{Missing,String})
-                newcol = tryparse.(Float64, X_missing[:,j])
-                delete_obs[newcol .== nothing] .= false
-                newcol = convert(Array{Union{Float64,Missing,Nothing}}, newcol)
-                newcol[newcol .== nothing] .= missing
-                newcol = convert(Array{Union{Float64,Missing}}, newcol)
-                X_missing[!,j] = newcol
-            end
-        end
+        delete_obs = PHD.string_to_float_fix!(X_missing)
         for j in PHD.unique_missing_patterns(X_missing)
             delete_obs[j] = false
         end
@@ -67,7 +58,9 @@ for ARG in ARGS
         end
         select!(X_missing, keep_cols)
         canbemissing = [any(ismissing.(X_missing[:,j])) for j in names(X_missing)] #indicator of missing features
+        
         X_full = PHD.standardize_colnames(CSV.read("../datasets/"*dname*"/X_full.csv", DataFrame))[delete_obs,keep_cols] #ground truth df
+        PHD.string_to_float_fix!(X_full)
 
         # Create output
         Random.seed!(5234)
@@ -130,6 +123,20 @@ for ARG in ARGS
                     CSV.write(savedir*filename, results_table)
                 end
 
+                if do_tree
+                    println("MIA-tree method...")
+                    println("####################")
+                    
+                    df = PHD.augment_MIA(X_missing)
+                    df[!,:Test] = test_ind
+                    start = time()
+                    cartmodel, bestparams = PHD.regress_tree_cv(Y, df, maxdepthlist=collect(1:2:10))
+                    δt = (time() - start)
+                    R2, OSR2 = PHD.evaluate(Y, df, cartmodel)
+                    push!(results_table, [dname, SNR, k, k_missing, iter, "CART MIA", R2, OSR2, δt])
+                    CSV.write(savedir*filename, results_table)
+                end
+                
                 if do_impthenreg
                     println("Impute-then-regress methods...")
                     println("###############################")
