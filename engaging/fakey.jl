@@ -45,7 +45,7 @@ d_num = mod(array_num, 71) + 1
 # aux_num = div(array_num,71) + 1
 
 d_num = array_num + 1
-    for aux_num in 1:1
+    for aux_num in 1:11
 
     dname = dataset_list[d_num]#"dermatology" #"""thyroid-disease-thyroid-0387" #dataset_list[1]
     k_missingsignal = missingsignal_list[aux_num]
@@ -319,7 +319,7 @@ d_num = array_num + 1
                 end
 
                 if do_μthenreg
-                    for model in [:linear]
+                    for model in [:linear, :tree]
                         # d = Dict(:maxdepth => collect(6:2:10))
                         d = Dict(:alpha => collect(0.1:0.1:1))
 
@@ -331,7 +331,7 @@ d_num = array_num + 1
                         δt = (time() - start)
 
                         R2, OSR2 = PHD.evaluate(Y, PHD.mean_impute(df, μ), opt_imp_then_reg)
-                        push!(results_table, [dname, SNR, k, k_missing, iter, "Joint Imp-then-Reg - ", R2, OSR2, δt])
+                        push!(results_table, [dname, SNR, k, k_missing, iter, string("Joint Imp-then-Reg - ", model), R2, OSR2, δt])
                         CSV.write(savedir*filename, results_table)
                     end
                 end
