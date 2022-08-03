@@ -25,13 +25,13 @@ savedir = string("../results/fakey",
 mkpath(savedir)
 
 #Prediction methods
-do_benchmark = false
-do_impthenreg = false
-do_tree = false
-do_static = false
-do_affine = false
+do_benchmark = true
+do_impthenreg = true
+do_tree = true
+do_static = true
+do_affine = true
 affine_on_static_only = false #Should be set to false
-do_finite = false
+do_finite = true
 do_μthenreg = true 
 
 
