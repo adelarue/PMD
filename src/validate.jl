@@ -25,6 +25,8 @@ function regress(Y, data::DataFrame;
 		regress_tree(Y, data; parameter_dict...)
 	elseif model == :nn
 		regress_nn(Y, data; parameter_dict...)
+	elseif model == :greedy
+		regress_greedy(Y, data; parameter_dict...)
 	end
 end
 
@@ -77,6 +79,8 @@ function regress_cv(Y, data::DataFrame;
 		# all([k .∈ [:maxdepth] for k in keys(parameter_dict)])
 	elseif model == :nn 
 		# all([k .∈ [:hidden_nodes] for k in keys(parameter_dict)])
+	elseif model == :greedy
+		# all([k .∈ [:maxdepth, :tolerance, :minbucket] for k in keys(parameter_dict)])
 	end
 
 	# Isolate training set
@@ -174,49 +178,49 @@ end
 
 
 
-"""
-	Train greedy regression model, validating hyperparameters
-	Args:
-		- maxdepth:		maximum depth of tree
-		- tolerance:	minimum improvement to MSE required
-		- minbucket:	minimum number of observations in a split to attempt a split
-"""
-function greedymodel_cv(Y::Union{Vector, BitArray{1}}, data::DataFrame;
-						val_fraction::Real=0.2,
-						maxdepth::Vector{Int} = [3],
-						tolerance::Vector{Float64} = [0.1],
-						minbucket::Vector{Int} = [10],
-						missingdata::DataFrame = data)
-	# isolate training set
-	newY = Y[data[!, :Test] .== 0]
-	newdata = filter(row -> row[:Test] == 0, data)
-	newmissingdata = filter(row -> row[:Test] == 0, data)
-	# designate some of training as testing/validation
-	val_indices = shuffle(1:nrow(newdata))[1:Int(floor(val_fraction * nrow(newdata)))]
-	newdata[val_indices, :Test] .= 1
-	newmissingdata[val_indices, :Test] .= 1
-	bestmodel = trainGreedyModel(newY, newdata, maxdepth = maxdepth[1],
-	                             tolerance = tolerance[1],
-	                    		 minbucket = minbucket[1],
-	                    		 missingdata = newmissingdata)
-	bestMetric = evaluate(newY, newdata, bestmodel, newmissingdata)[2]
-	bestparams = (maxdepth[1], tolerance[1], minbucket[1])
-	for depth in maxdepth, tol in tolerance, mb in minbucket
-		if depth == maxdepth[1] && tol == tolerance[1] && mb == minbucket[1]
-			continue
-		end
-		newmodel = trainGreedyModel(newY, newdata, maxdepth = depth, tolerance = tol,
-	                    		 	 minbucket = mb, missingdata = newmissingdata)
-		newMetric = evaluate(newY, newdata, newmodel, newmissingdata)[2]
-		if (!newmodel.logistic && newMetric > bestMetric) || (newmodel.logistic && newMetric < bestMetric)
-			bestMetric = newMetric
-			bestparams = (depth, tol, mb)
-		end
-	end
-	# train model on full dataset using best parameters
-	bestmodel = trainGreedyModel(Y, data, maxdepth = bestparams[1],
-	                             tolerance = bestparams[2],
-	                    		 minbucket = bestparams[3],
-	                    		 missingdata = missingdata)
-	return bestmodel, bestparams
-end
+# """
+# 	Train greedy regression model, validating hyperparameters
+# 	Args:
+# 		- maxdepth:		maximum depth of tree
+# 		- tolerance:	minimum improvement to MSE required
+# 		- minbucket:	minimum number of observations in a split to attempt a split
+# """
+# function greedymodel_cv(Y::Union{Vector, BitArray{1}}, data::DataFrame;
+# 						val_fraction::Real=0.2,
+# 						maxdepth::Vector{Int} = [3],
+# 						tolerance::Vector{Float64} = [0.1],
+# 						minbucket::Vector{Int} = [10],
+# 						missingdata::DataFrame = data)
+# 	# isolate training set
+# 	newY = Y[data[!, :Test] .== 0]
+# 	newdata = filter(row -> row[:Test] == 0, data)
+# 	newmissingdata = filter(row -> row[:Test] == 0, data)
+# 	# designate some of training as testing/validation
+# 	val_indices = shuffle(1:nrow(newdata))[1:Int(floor(val_fraction * nrow(newdata)))]
+# 	newdata[val_indices, :Test] .= 1
+# 	newmissingdata[val_indices, :Test] .= 1
+# 	bestmodel = trainGreedyModel(newY, newdata, maxdepth = maxdepth[1],
+# 	                             tolerance = tolerance[1],
+# 	                    		 minbucket = minbucket[1],
+# 	                    		 missingdata = newmissingdata)
+# 	bestMetric = evaluate(newY, newdata, bestmodel, newmissingdata)[2]
+# 	bestparams = (maxdepth[1], tolerance[1], minbucket[1])
+# 	for depth in maxdepth, tol in tolerance, mb in minbucket
+# 		if depth == maxdepth[1] && tol == tolerance[1] && mb == minbucket[1]
+# 			continue
+# 		end
+# 		newmodel = trainGreedyModel(newY, newdata, maxdepth = depth, tolerance = tol,
+# 	                    		 	 minbucket = mb, missingdata = newmissingdata)
+# 		newMetric = evaluate(newY, newdata, newmodel, newmissingdata)[2]
+# 		if (!newmodel.logistic && newMetric > bestMetric) || (newmodel.logistic && newMetric < bestMetric)
+# 			bestMetric = newMetric
+# 			bestparams = (depth, tol, mb)
+# 		end
+# 	end
+# 	# train model on full dataset using best parameters
+# 	bestmodel = trainGreedyModel(Y, data, maxdepth = bestparams[1],
+# 	                             tolerance = bestparams[2],
+# 	                    		 minbucket = bestparams[3],
+# 	                    		 missingdata = missingdata)
+# 	return bestmodel, bestparams
+# end

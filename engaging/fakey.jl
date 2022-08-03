@@ -22,7 +22,8 @@ do_tree = true
 do_static = true
 do_affine = true
 affine_on_static_only = false
-do_finite = false
+do_finite = true
+do_μthenreg = true 
 
 # whether to split the data randomly
 random_split = true
@@ -96,11 +97,13 @@ for ARG in ARGS
                 if do_benchmark
                     println("Benchmark methods...")
                     println("####################")
+                    d = Dict(:alpha => collect(0.1:0.1:1), :regtype => [:lasso])
+
                     ## Method Oracle
                     df = X_full[:,:]
                     df[!,:Test] = test_ind
                     start = time()
-                    linear, bestparams = PHD.regress_cv(Y, df, lasso=[true], alpha=collect(0.1:0.1:1))
+                    linear, bestparams = PHD.regress_cv(Y, df, model=:linear, parameter_dict=d)
                     δt = (time() - start)
                     R2, OSR2 = PHD.evaluate(Y, df, linear)
                     push!(results_table, [dname, SNR, k, k_missing, iter, "Oracle X", R2, OSR2, δt])
@@ -109,7 +112,7 @@ for ARG in ARGS
                     df = [X_full[:,:] PHD.indicatemissing(X_missing[:,:]; removecols=:Zero)]
                     df[!,:Test] = test_ind
                     start = time()
-                    linear, bestparams = PHD.regress_cv(Y, df, lasso=[true], alpha=collect(0.1:0.1:1))
+                    linear, bestparams = PHD.regress_cv(Y, df, model=:linear, parameter_dict=d)
                     δt = (time() - start)
                     R2, OSR2 = PHD.evaluate(Y, df, linear)
                     push!(results_table, [dname, SNR, k, k_missing, iter, "Oracle XM", R2, OSR2, δt])
@@ -121,7 +124,7 @@ for ARG in ARGS
                         df = X_missing[:,.!canbemissing] #This step can raise an error if all features can be missing
                         df[!,:Test] = test_ind
                         start = time()
-                        linear, bestparams = PHD.regress_cv(Y, df, lasso=[true], alpha=collect(0.1:0.1:1))
+                        linear, bestparams = PHD.regress_cv(Y, df, model=:linear, parameter_dict=d)
                         δt = (time() - start)
                         R2, OSR2 = PHD.evaluate(Y, df, linear)
                         push!(results_table, [dname, SNR, k, k_missing, iter, "Complete Features", R2, OSR2, δt])
@@ -285,16 +288,34 @@ for ARG in ARGS
                 end
 
                 if do_finite
+                    d = Dict(:maxdepth => collect(6:2:10))
+
                     df = deepcopy(X_missing)
                     df[!,:Test] = test_ind
+
                     start = time()
                     X_missing_std = PHD.standardize(df)
-                    X_missing_zero_std = PHD.zeroimpute(X_missing_std)
-                    gm2 = PHD.trainGreedyModel(Y, X_missing_zero_std,
-                                                     maxdepth = 8, tolerance = 0.01, minbucket = 20, missingdata = X_missing)
+                    # X_missing_zero_std = PHD.zeroimpute(X_missing_std)
+                    gm2, = PHD.regress_cv(Y, X_missing_std, model = :greedy, parameter_dict = d)
                     δt = (time() - start)
-                    R2, OSR2 = PHD.evaluate(Y, X_missing_zero_std, gm2, X_missing_std)
+
+                    R2, OSR2 = PHD.evaluate(Y, X_missing_std, gm2)
                     push!(results_table, [dname, SNR, k, k_missing, iter, "Finite", R2, OSR2, δt])
+                    CSV.write(savedir*filename, results_table)
+                end
+
+                if do_μthenreg
+                    d = Dict(:maxdepth => collect(6:2:10))
+
+                    df = deepcopy(X_missing)
+                    df[!,:Test] = test_ind
+
+                    start = time()
+                    opt_imp_then_reg, bestparams, μ = impute_then_regress_cv(Y, df; model=:tree, parameter_dict=d)
+                    δt = (time() - start)
+
+                    R2, OSR2 = PHD.evaluate(Y, mean_impute(df, μ), opt_imp_then_reg)
+                    push!(results_table, [dname, SNR, k, k_missing, iter, "Joint Imp-then-Reg", R2, OSR2, δt])
                     CSV.write(savedir*filename, results_table)
                 end
             end
