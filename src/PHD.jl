@@ -37,6 +37,6 @@ include("regress_tree.jl")
 include("greedy.jl")
 include("evaluate.jl")
 include("validate.jl")
-include("imp-then-reg.jl")
+include("imp_then_reg.jl")
 
 end # module

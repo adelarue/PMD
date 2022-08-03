@@ -8,7 +8,7 @@
 	Evaluate the fit quality of a model on a dataset. Returns in- and out-of-sample
     Train/Test identified with the :Test column
 """
-function evaluate(Y::Vector, df::DataFrame, model::Union{DataFrame,DecisionTree.Node,Chain})
+function evaluate(Y::Vector, df::DataFrame, model::Union{DataFrame,DecisionTree.Node,Chain,GreedyModel})
 	prediction = predict(df, model)
     if "Test" ∉ names(df) #If no test column, all dataset is considered training
         error("Missing Test column in the data (second argument)")
@@ -24,7 +24,7 @@ function evaluate(Y::Vector, df::DataFrame, model::Union{DataFrame,DecisionTree.
     OSR2 = 1 - sum((Y[df[:,:Test] .== 1] .- prediction[df[:,:Test] .== 1]) .^ 2)/OSSST
     return R2, OSR2
 end
-function evaluate(Y::BitArray{1}, df::DataFrame, model::Union{DataFrame,DecisionTree.Node,Chain};
+function evaluate(Y::BitArray{1}, df::DataFrame, model::Union{DataFrame,DecisionTree.Node,Chain,GreedyModel};
 				  metric::AbstractString="auc")
 	prediction = predict(df, model)
 	# if model[1, :Logistic]

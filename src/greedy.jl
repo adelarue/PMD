@@ -108,11 +108,15 @@ Base.isless(e1::SplitCandidate, e2::SplitCandidate) = e1.improvement < e2.improv
 		- tolerance:	minimum improvement to MSE required
 		- minbucket:	minimum number of observations in a split to attempt a split
 """
-function trainGreedyModel(Y::Union{Vector, BitArray{1}}, data::DataFrame;
+# function trainGreedyModel(Y::Union{Vector, BitArray{1}}, missingdata::DataFrame;
+function regress_greedy(Y::Union{Vector, BitArray{1}}, missingdata::DataFrame;
 						  maxdepth::Int = 3,
-						  tolerance::Float64 = 0.1,
+						  tolerance::Float64 = 0.01,
 						  minbucket::Int = 10,
-						  missingdata::DataFrame = data)
+						#   missingdata::DataFrame = data
+						  )
+	data = zeroimpute(missingdata)
+
 	gm = initializeGreedyModel(Y, data)
 	maxdepth == 1 && return gm
 	trainIndices = findall(data[!, :Test] .== 0)
@@ -164,7 +168,8 @@ end
 """
 function bestSplit(gm::GreedyModel, Y::Union{Vector, BitArray{1}}, data::DataFrame, node::Int,
 				   points::Vector{Int}, features::Vector{Int}, minbucket::Int,
-				   missingdata::DataFrame = data)
+				   missingdata::DataFrame = data
+				   )
 	currentNode = gm.nodes[node]
 	p = Base.size(data, 2) - 2
 	X = Matrix(data[points, Not([:Test, :Id])])
@@ -298,7 +303,8 @@ end
 """
 	Apply greedy regression model to data with missing values
 """
-function predict(data::DataFrame, gm::GreedyModel; missingdata::DataFrame = data)
+function predict(missingdata::DataFrame, gm::GreedyModel)#; missingdata::DataFrame = data)
+	data = zeroimpute(missingdata)
 	truenames = setdiff(Symbol.(names(data)), [:Test, :Id])
 	result = zeros(nrow(data))
 	# loop through points
@@ -402,38 +408,38 @@ function print_ascii(gm::GreedyModel)
 	return nothing
 end
 
-"""
-	Evaluate the fit quality of a greedy model on a dataset
-"""
-function evaluate(Y::Array{Float64}, df::DataFrame, model::GreedyModel, missingdata::DataFrame=df)
-	if model.logistic
-		error("Cannot evaluate a logistic model on continuous labels")
-	else
-		trainmean = Statistics.mean(Y[df[:,:Test] .== 0])
-		SST = sum((Y[df[:,:Test] .== 0] .- trainmean) .^ 2)
-		OSSST = sum((Y[df[:,:Test] .== 1] .- trainmean) .^ 2)
+# """
+# 	Evaluate the fit quality of a greedy model on a dataset
+# """
+# function evaluate(Y::Array{Float64}, df::DataFrame, model::GreedyModel, missingdata::DataFrame=df)
+# 	if model.logistic
+# 		error("Cannot evaluate a logistic model on continuous labels")
+# 	else
+# 		trainmean = Statistics.mean(Y[df[:,:Test] .== 0])
+# 		SST = sum((Y[df[:,:Test] .== 0] .- trainmean) .^ 2)
+# 		OSSST = sum((Y[df[:,:Test] .== 1] .- trainmean) .^ 2)
 
-		prediction = predict(df, model, missingdata=missingdata)
-		R2 = 1 - sum((Y[df[:,:Test] .== 0] .- prediction[df[:,:Test] .== 0]) .^ 2)/SST
-		OSR2 = 1 - sum((Y[df[:,:Test] .== 1] .- prediction[df[:,:Test] .== 1]) .^ 2)/OSSST
-		return R2, OSR2
-	end
-end
-function evaluate(Y::BitArray{1}, df::DataFrame, model::GreedyModel, missingdata::DataFrame=df;
-				  metric::AbstractString = "auc")
-	if model.logistic
-		prediction = predict(df, model, missingdata=missingdata)
-		if metric == "logloss"
-			ll = logloss(Y[df[:,:Test] .== 0], prediction[df[:,:Test] .== 0])
-			osll = logloss(Y[df[:,:Test] .== 1], prediction[df[:,:Test] .== 1])
-			return ll, osll
-		elseif metric == "auc"
-			return auc(Y[df[:,:Test] .== 0], prediction[df[:,:Test] .== 0]),
-				   auc(Y[df[:,:Test] .== 1], prediction[df[:,:Test] .== 1])
-		else
-			error("Unknown metric: $metric (only supports 'logloss', 'auc')")
-		end
-	else
-		error("Cannot evaluate a linear model on binary labels")
-	end
-end
+# 		prediction = predict(df, model, missingdata=missingdata)
+# 		R2 = 1 - sum((Y[df[:,:Test] .== 0] .- prediction[df[:,:Test] .== 0]) .^ 2)/SST
+# 		OSR2 = 1 - sum((Y[df[:,:Test] .== 1] .- prediction[df[:,:Test] .== 1]) .^ 2)/OSSST
+# 		return R2, OSR2
+# 	end
+# end
+# function evaluate(Y::BitArray{1}, df::DataFrame, model::GreedyModel, missingdata::DataFrame=df;
+# 				  metric::AbstractString = "auc")
+# 	if model.logistic
+# 		prediction = predict(df, model, missingdata=missingdata)
+# 		if metric == "logloss"
+# 			ll = logloss(Y[df[:,:Test] .== 0], prediction[df[:,:Test] .== 0])
+# 			osll = logloss(Y[df[:,:Test] .== 1], prediction[df[:,:Test] .== 1])
+# 			return ll, osll
+# 		elseif metric == "auc"
+# 			return auc(Y[df[:,:Test] .== 0], prediction[df[:,:Test] .== 0]),
+# 				   auc(Y[df[:,:Test] .== 1], prediction[df[:,:Test] .== 1])
+# 		else
+# 			error("Unknown metric: $metric (only supports 'logloss', 'auc')")
+# 		end
+# 	else
+# 		error("Cannot evaluate a linear model on binary labels")
+# 	end
+# end

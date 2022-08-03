@@ -61,7 +61,7 @@ function mice_bruteforce(df::DataFrame; m_imputation=2, max_epoch=5)
 end
 
 """
-	Impute all missing values as mean
+	Impute all missing values as mean -- Utilities
 """
 function compute_mean(df::DataFrame)
 	numcols = filter(t-> string(t) ∉ ["Id", "Test"], names(df))
@@ -79,22 +79,26 @@ function meanvector_to_df(μ, numcols)
 		r
 	end
 end
-function mean_impute(df::DataFrame, means)
+
+"""
+	Impute all missing values by `means` (DataFrame)
+"""
+function mean_impute(df::DataFrame, means::DataFrame)
 	result = deepcopy(df)
 	for n in names(means)
 		result[!,n] = convert(Array{Union{Missing,Float64},1},result[:,n])
-		for i=1:nrow(df)
-			if ismissing(result[i,n])
-				result[i,n] = means[1,n]
-			end
-		end
+		result[ismissing.(result[:,n]),n] .= means[1,n]
 	end
 	return result
 end
 
+"""
+	Impute all missing values by `μ` (Vector) (Optimized)
+"""
 function mu_impute(df::DataFrame, μ; missing_columns=collect(1:Base.size(df,1)))
 	result = deepcopy(df)
 	for i in missing_columns
+		result[!,i] = convert(Array{Union{Missing,Float64},1},result[:,i])
 		result[ismissing.(df[:,i]),i] .= μ[i]
 	end
 	return result
@@ -103,13 +107,17 @@ end
 """
 	Impute all missing values as zeros
 """
-function zeroimpute(df::DataFrame)
-	result = deepcopy(df)
-	for i=1:nrow(df), name in names(df)
-		if ismissing(result[i, name])
-			result[i, name] = 0
+function zeroimpute!(df::DataFrame)
+	for n in names(df)
+		if sum(ismissing.(df[:,n])) > 0
+			df[!,n] = convert(Array{Union{Missing,Float64},1},df[:,n])
+			df[ismissing.(df[:,n]),n] .= 0
 		end
 	end
+end
+function zeroimpute(df::DataFrame)
+	result = deepcopy(df)
+	zeroimpute!(result)
 	return result
 end
 
