@@ -311,7 +311,7 @@ for ARG in ARGS
                     df[!,:Test] = test_ind
 
                     start = time()
-                    opt_imp_then_reg, bestparams, μ = impute_then_regress_cv(Y, df; model=:tree, parameter_dict=d)
+                    opt_imp_then_reg, bestparams, μ = PHD.impute_then_regress_cv(Y, df; model=:tree, parameter_dict=d)
                     δt = (time() - start)
 
                     R2, OSR2 = PHD.evaluate(Y, mean_impute(df, μ), opt_imp_then_reg)
