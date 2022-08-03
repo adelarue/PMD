@@ -3,11 +3,12 @@
 ### Functions to perform neural network regression
 ### Authors: Arthur Delarue, Jean Pauphilet, 2022
 ###################################
+using Flux 
 
 """
 	Fit a neural network to the training data
 """
-function regress_nonlinear(Y::Array{Float64}, df::DataFrame;
+function regress_nn(Y::Array{Float64}, df::DataFrame;
 						   hidden_nodes::Int=10)
 	cols = setdiff(Symbol.(names(df)), [:Id, :Test])
 	# X = convert(Matrix, df[df[!, :Test] .== 0, cols])
@@ -41,17 +42,15 @@ function predict(df::DataFrame, model::Chain)
 	return model(X)'
 end
 
-"""
-	Evaluate fit quality on dataset
-"""
-function evaluate(Y::Vector, df::DataFrame, model::Chain)
-	prediction = predict(df, model)
-	trainmean = Statistics.mean(Y[df[:,:Test] .== 0])
-	SST = sum((Y[df[:,:Test] .== 0] .- trainmean) .^ 2)
-	OSSST = sum((Y[df[:,:Test] .== 1] .- trainmean) .^ 2)
-	R2 = 1 - sum((Y[df[:,:Test] .== 0] .- prediction[df[:,:Test] .== 0]) .^ 2)/SST
-	OSR2 = 1 - sum((Y[df[:,:Test] .== 1] .- prediction[df[:,:Test] .== 1]) .^ 2)/OSSST
-	return R2, OSR2
-end
-
-
+# """
+# 	Evaluate fit quality on dataset
+# """
+# function evaluate(Y::Vector, df::DataFrame, model::Chain)
+# 	prediction = predict(df, model)
+# 	trainmean = Statistics.mean(Y[df[:,:Test] .== 0])
+# 	SST = sum((Y[df[:,:Test] .== 0] .- trainmean) .^ 2)
+# 	OSSST = sum((Y[df[:,:Test] .== 1] .- trainmean) .^ 2)
+# 	R2 = 1 - sum((Y[df[:,:Test] .== 0] .- prediction[df[:,:Test] .== 0]) .^ 2)/SST
+# 	OSR2 = 1 - sum((Y[df[:,:Test] .== 1] .- prediction[df[:,:Test] .== 1]) .^ 2)/OSSST
+# 	return R2, OSR2
+# end
