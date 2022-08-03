@@ -11,32 +11,40 @@ sort!(dataset_list)
 
 missingsignal_list = [0,1,2,3,4,5,6,7,8,9,10]
 
-savedir = "../results/fakey/tree/"
+
+#Generation methods
+SNR = 2
+random_split = true
+relationship_yx_mar = try ARGS[2]=="1" catch; true end
+adversarial_missing = try ARGS[3]=="1" catch; false end
+
+savedir = string("../results/fakey", 
+                relationship_yx_mar ? "_mar" : "_nmar",
+                adversarial_missing ? "_adv" : "", 
+                "/tree/")
 mkpath(savedir)
 
-SNR = 2
-
-do_benchmark = true
-do_impthenreg = true
-do_tree = true
-do_static = true
-do_affine = true
-affine_on_static_only = false
-do_finite = true
+#Prediction methods
+do_benchmark = false
+do_impthenreg = false
+do_tree = false
+do_static = false
+do_affine = false
+affine_on_static_only = false #Should be set to false
+do_finite = false
 do_μthenreg = true 
 
-# whether to split the data randomly
-random_split = true
 
 results_main = DataFrame(dataset=[], SNR=[], k=[], kMissing=[], splitnum=[], method=[],
                                 r2=[], osr2=[], time=[])
 
-for ARG in ARGS
-    array_num = parse(Int, ARG)
-    d_num = mod(array_num, 71) + 1
-    # aux_num = div(array_num,71) + 1
+# for ARG in ARGS
+ARG = ARGS[1]
+array_num = parse(Int, ARG)
+d_num = mod(array_num, 71) + 1
+# aux_num = div(array_num,71) + 1
 
-    d_num = array_num + 1
+d_num = array_num + 1
     for aux_num in 1:1
 
     dname = dataset_list[d_num]#"dermatology" #"""thyroid-disease-thyroid-0387" #dataset_list[1]
@@ -67,9 +75,15 @@ for ARG in ARGS
         X_full = PHD.standardize_colnames(CSV.read("../datasets/"*dname*"/X_full.csv", DataFrame))[delete_obs,keep_cols] #ground truth df
         PHD.string_to_float_fix!(X_full)
 
+        if adversarial_missing
+            # optimize missingness pattern for outlier suppression
+            X_missing = PHD.optimize_missingness(X_missing, X_full)
+        end
+
         # Create output
         Random.seed!(549)
-        @time Y, k, k_missing = PHD.linear_y(X_full, X_missing, k=10, SNR=SNR, canbemissing=canbemissing, k_missing_in_signal=k_missingsignal, mar=true) ;
+        @time Y, k, k_missing = PHD.linear_y(X_full, X_missing, k=10, k_missing_in_signal=k_missingsignal, SNR=SNR, 
+                        canbemissing=canbemissing, mar=true) ;
         
         @show k, k_missing
 
@@ -305,21 +319,24 @@ for ARG in ARGS
                 end
 
                 if do_μthenreg
-                    d = Dict(:maxdepth => collect(6:2:10))
+                    for model in [:linear]
+                        # d = Dict(:maxdepth => collect(6:2:10))
+                        d = Dict(:alpha => collect(0.1:0.1:1))
 
-                    df = deepcopy(X_missing)
-                    df[!,:Test] = test_ind
+                        df = deepcopy(X_missing)
+                        df[!,:Test] = test_ind
 
-                    start = time()
-                    opt_imp_then_reg, bestparams, μ = PHD.impute_then_regress_cv(Y, df; model=:tree, parameter_dict=d)
-                    δt = (time() - start)
+                        start = time()
+                        opt_imp_then_reg, bestparams, μ = PHD.impute_then_regress_cv(Y, df; modeltype=model, parameter_dict=d)
+                        δt = (time() - start)
 
-                    R2, OSR2 = PHD.evaluate(Y, mean_impute(df, μ), opt_imp_then_reg)
-                    push!(results_table, [dname, SNR, k, k_missing, iter, "Joint Imp-then-Reg", R2, OSR2, δt])
-                    CSV.write(savedir*filename, results_table)
+                        R2, OSR2 = PHD.evaluate(Y, PHD.mean_impute(df, μ), opt_imp_then_reg)
+                        push!(results_table, [dname, SNR, k, k_missing, iter, "Joint Imp-then-Reg - ", R2, OSR2, δt])
+                        CSV.write(savedir*filename, results_table)
+                    end
                 end
             end
         end
     end
-    end 
-end
+end 
+# end
