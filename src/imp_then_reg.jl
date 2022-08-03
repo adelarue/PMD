@@ -5,7 +5,7 @@
 ###################################
 
 function impute_then_regress_cv(Y::Vector{Float64}, data::DataFrame; 
-    model::Symbol, parameter_dict::Dict=Dict(), 
+    modeltype::Symbol, parameter_dict::Dict=Dict(), 
     val_fraction::Real=0.2,
     maxiter::Int=10, maxμiter::Int=100, ϵ::Float64=1.)
 
@@ -17,16 +17,16 @@ function impute_then_regress_cv(Y::Vector{Float64}, data::DataFrame;
     σ = [std(X[.!ismissing.(X[:,j]), j]) / sqrt(sum(.!ismissing.(X[:,j]))) for j in names(X)] #SE on the mean
 
     
-    X_imp = PHD.mu_impute(X, μ, missing_columns=canbemissing) #First μ-imputed data set
+    X_imp = mu_impute(X, μ, missing_columns=canbemissing) #First μ-imputed data set
 
-    for _ in 1:maxiter
+    for epoch in 1:maxiter
         #Step 1: Update prediction model
         model, = regress_cv(Y, X_imp, 
-            model = model, parameter_dict = parameter_dict,
+            model = modeltype, parameter_dict = parameter_dict,
             val_fraction=val_fraction) 
         
         initialR2, = evaluate(Y, X_imp, model)
-        println("In-sample R2: ", round(initialR2, digits=4))
+        # println("In-sample R2: ", round(initialR2, digits=4))
 
         #Step 2: Update μ Step
         bestR2 = initialR2
@@ -53,15 +53,18 @@ function impute_then_regress_cv(Y::Vector{Float64}, data::DataFrame;
             end
         end
         
-        X_imp = PHD.mu_impute(X, μ, missing_columns=canbemissing)
-        newR2, = PHD.evaluate(Y, X_imp, model)  
-        println("In-sample R2 after μ update: ", round(newR2, digits=4))
+        X_imp = mu_impute(X, μ, missing_columns=canbemissing)
+        newR2, = evaluate(Y, X_imp, model)  
+        # println("In-sample R2 after μ update: ", round(newR2, digits=4))
         # @show (newR2-initialR2)/initialR2
-        if (newR2-initialR2)/initialR2 < 0.0001
+        if epoch > 10 && (newR2-initialR2)/initialR2 < 0.0001
             break
         end
     end
 
-    model, bestparams = PHD.regress_cv(Y, X_imp)
+    model, bestparams = regress_cv(Y, X_imp,
+        model = modeltype, parameter_dict = parameter_dict,
+        val_fraction=val_fraction)
+
     return model, bestparams, meanvector_to_df(μ, names(X))
 end
