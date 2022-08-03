@@ -71,6 +71,14 @@ function compute_mean(df::DataFrame)
 	end
 	return DataFrame(nummeans', numcols)
 end
+function meanvector_to_df(μ, numcols)
+	r = DataFrame(μ', numcols)
+	if :Test ∈ numcols || "Test" ∈ numcols
+		select(r, Not(:Test))
+	else
+		r
+	end
+end
 function mean_impute(df::DataFrame, means)
 	result = deepcopy(df)
 	for n in names(means)
@@ -80,6 +88,14 @@ function mean_impute(df::DataFrame, means)
 				result[i,n] = means[1,n]
 			end
 		end
+	end
+	return result
+end
+
+function mu_impute(df::DataFrame, μ; missing_columns=collect(1:Base.size(df,1)))
+	result = deepcopy(df)
+	for i in missing_columns
+		result[ismissing.(df[:,i]),i] .= μ[i]
 	end
 	return result
 end

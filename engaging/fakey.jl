@@ -16,11 +16,11 @@ mkpath(savedir)
 
 SNR = 2
 
-do_benchmark = false
-do_impthenreg = false
+do_benchmark = true
+do_impthenreg = true
 do_tree = true
-do_static = false
-do_affine = false
+do_static = true
+do_affine = true
 affine_on_static_only = false
 do_finite = false
 
@@ -36,7 +36,7 @@ for ARG in ARGS
     # aux_num = div(array_num,71) + 1
 
     d_num = array_num + 1
-    for aux_num in 1:11
+    for aux_num in 1:1
 
     dname = dataset_list[d_num]#"dermatology" #"""thyroid-disease-thyroid-0387" #dataset_list[1]
     k_missingsignal = missingsignal_list[aux_num]
@@ -134,11 +134,12 @@ for ARG in ARGS
                 if do_tree
                     println("MIA-tree method...")
                     println("####################")
-                    
+                    d = Dict(:maxdepth => collect(1:2:10))
+
                     df = PHD.augment_MIA(X_missing)
                     df[!,:Test] = test_ind
                     start = time()
-                    cartmodel, bestparams = PHD.regress_tree_cv(Y, df, maxdepthlist=collect(1:2:10))
+                    cartmodel, bestparams = PHD.regress_cv(Y, df; model = :tree, parameter_dict=d)
                     δt = (time() - start)
                     R2, OSR2 = PHD.evaluate(Y, df, cartmodel)
                     push!(results_table, [dname, SNR, k, k_missing, iter, "CART MIA", R2, OSR2, δt])
@@ -148,6 +149,8 @@ for ARG in ARGS
                 if do_impthenreg
                     println("Impute-then-regress methods...")
                     println("###############################")
+                    d = Dict(:alpha => collect(0.1:0.1:1), :regtype => [:lasso])
+
                     ## Method 1.1
                     start = time()
                     X_imputed = PHD.mice_bruteforce(X_missing);
@@ -157,7 +160,7 @@ for ARG in ARGS
                     df[!,:Test] = test_ind
 
                     start = time()
-                    linear, bestparams = PHD.regress_cv(Y, df, lasso=[true], alpha=collect(0.1:0.1:1))
+                    linear, bestparams = PHD.regress_cv(Y, df, model=:linear, parameter_dict=d)
                     δt += (time() - start)
 
                     R2, OSR2 = PHD.evaluate(Y, df, linear)
@@ -181,7 +184,7 @@ for ARG in ARGS
                     df[!,:Test] = test_ind
 
                     start = time()
-                    linear, bestparams = PHD.regress_cv(Y, df, lasso=[true], alpha=collect(0.1:0.1:1))
+                    linear, bestparams = PHD.regress_cv(Y, df, model=:linear, parameter_dict=d)
                     δt += (time() - start)
                     R2, OSR2 = PHD.evaluate(Y, df, linear)
                     push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 2", R2, OSR2, δt])
@@ -203,7 +206,7 @@ for ARG in ARGS
                     df[test_ind,:] .= X_all_imputed[test_ind,:]
                     df[!,:Test] = test_ind
                     start = time()
-                    linear, bestparams = PHD.regress_cv(Y, df, lasso=[true], alpha=collect(0.1:0.1:1))
+                    linear, bestparams = PHD.regress_cv(Y, df, model=:linear, parameter_dict=d)
                     δt += (time() - start)
                     R2, OSR2 = PHD.evaluate(Y, df, linear)
                     push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 3", R2, OSR2, δt])
@@ -217,7 +220,7 @@ for ARG in ARGS
                     df = deepcopy(X_imputed)
                     df[!,:Test] = test_ind
                     start = time()
-                    linear, bestparams = PHD.regress_cv(Y, df, lasso=[true], alpha=collect(0.1:0.1:1))
+                    linear, bestparams = PHD.regress_cv(Y, df, model=:linear, parameter_dict=d)
                     δt += (time() - start)
                     R2, OSR2 = PHD.evaluate(Y, df, linear)
                     push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 4", R2, OSR2, δt])
@@ -234,26 +237,26 @@ for ARG in ARGS
                     δt += (time() - start)
                     df[!,:Test] = test_ind
                     start = time()
-                    linear, bestparams = PHD.regress_cv(Y, df, lasso=[true], alpha=collect(0.1:0.1:1))
+                    linear, bestparams = PHD.regress_cv(Y, df, model=:linear, parameter_dict=d)
                     δt += (time() - start)
                     R2, OSR2 = PHD.evaluate(Y, df, linear)
                     push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 5", R2, OSR2, δt])
                     CSV.write(savedir*filename, results_table)
                 end
                 
-                regtype = :missing_weight
                 if do_static || do_affine
                     println("Adaptive methods...")
                     println("###################")
+                    d = Dict(:alpha => collect(0.1:0.1:1), :regtype => [:missing_weight], :missing_penalty => [1.0,2.0,4.0,6.0,8.0,12.0])
+
+
                     ## Method 2: Static Adaptability
                     df = deepcopy(X_missing)
                     df[!,:Test] = test_ind
                     start = time()
                     X_augmented = hcat(PHD.zeroimpute(df), PHD.indicatemissing(df, removecols=:Zero))
                     # X_augmented = PHD.zeroimpute(df)
-                    linear2, bestparams2 = PHD.regress_cv(Y, X_augmented, regtype=[regtype],
-                                                            alpha=collect(0:0.1:1),
-                                                            missing_penalty=[1.0,2.0,4.0,6.0,8.0,12.0])
+                    linear2, bestparams2 = PHD.regress_cv(Y, X_augmented, model=:linear, parameter_dict=d)
                     δt = (time() - start)
                     R2, OSR2 = PHD.evaluate(Y, X_augmented, linear2)
                     push!(results_table, [dname, SNR, k, k_missing, iter, "Static", R2, OSR2, δt])
@@ -264,17 +267,16 @@ for ARG in ARGS
                         df = deepcopy(X_missing)
                         df[!,:Test] = test_ind
                         model = names(df)
-                        if affine_on_static_only
-                            model2 = names(linear2)[findall(abs.([linear2[1,c] for c in names(linear2)]) .> 0)]
-                            model2 = intersect(model2, names(df))
-                            if length(model2) > 0
-                                model = model2[:]
-                            end
-                        end
+                        # if affine_on_static_only
+                        #     model2 = names(linear2)[findall(abs.([linear2[1,c] for c in names(linear2)]) .> 0)]
+                        #     model2 = intersect(model2, names(df))
+                        #     if length(model2) > 0
+                        #         model = model2[:]
+                        #     end
+                        # end
                         start = time()
                         X_affine = PHD.augmentaffine(df, model=String.(model), removecols=:Constant)
-                        linear3, bestparams3 = PHD.regress_cv(Y, X_affine, regtype=[regtype], alpha=collect(0.1:0.1:1),
-                                                            missing_penalty=[1.0,2.0,4.0,6.0,8.0,12.0])
+                        linear3, bestparams3 = PHD.regress_cv(Y, X_affine, model=:linear, parameter_dict=d)
                         δt = (time() - start)
                         R2, OSR2 = PHD.evaluate(Y, X_affine, linear3)
                         push!(results_table, [dname, SNR, k, k_missing, iter, "Affine", R2, OSR2, δt])
