@@ -321,7 +321,7 @@ d_num = array_num + 1
                 if do_μthenreg
                     for model in [:linear, :tree]
                         # d = Dict(:maxdepth => collect(6:2:10))
-                        d = Dict(:alpha => collect(0.1:0.1:1))
+                        d = model == :linear ? Dict(:alpha => collect(0.1:0.1:1)) : Dict(:maxdepth => collect(6:2:10))
 
                         df = deepcopy(X_missing)
                         df[!,:Test] = test_ind
