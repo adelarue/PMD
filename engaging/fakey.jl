@@ -83,7 +83,7 @@ d_num = array_num + 1
         # Create output
         Random.seed!(549)
         @time Y, k, k_missing = PHD.linear_y(X_full, X_missing, k=10, k_missing_in_signal=k_missingsignal, SNR=SNR, 
-                        canbemissing=canbemissing, mar=true) ;
+                        canbemissing=canbemissing, mar=relationship_yx_mar) ;
         
         @show k, k_missing
 
