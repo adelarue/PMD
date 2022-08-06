@@ -18,10 +18,10 @@ random_split = true
 relationship_yx_mar = try ARGS[2]=="1" catch; true end
 adversarial_missing = try ARGS[3]=="1" catch; false end
 
-savedir = string("../results/fakey", 
+savedir = string("../results/nonlinear/fakey", 
                 relationship_yx_mar ? "_mar" : "_nmar",
                 adversarial_missing ? "_adv" : "", 
-                "/tree/")
+                "/all/")
 mkpath(savedir)
 
 #Prediction methods
@@ -82,9 +82,13 @@ d_num = array_num + 1
 
         # Create output
         Random.seed!(549)
-        @time Y, k, k_missing = PHD.linear_y(X_full, X_missing, k=10, k_missing_in_signal=k_missingsignal, SNR=SNR, 
-                        canbemissing=canbemissing, mar=relationship_yx_mar) ;
-        
+        # @time Y, k, k_missing = PHD.linear_y(X_full, X_missing, 
+        #                 k=10, k_missing_in_signal=k_missingsignal, SNR=SNR, 
+        #                 canbemissing=canbemissing, mar=relationship_yx_mar) ;
+        @time Y, k, k_missing = PHD.linear_y(X_full, X_missing, 
+                        k=10, k_missing_in_signal=k_missingsignal, SNR=SNR, 
+                        canbemissing=canbemissing, mar=relationship_yx_mar)                
+   
         @show k, k_missing
 
         test_prop = .3
