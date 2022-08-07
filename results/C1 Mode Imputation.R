@@ -2,9 +2,9 @@ setwd("Dropbox (MIT)/1 - Research/PHD/results/")
 source("setup_script.R")
 
 df <- rbind(
-  read_csv("fakey_mar/FINAL_results.csv") %>% mutate(Setting = "1 - Syn-MAR"),
-  read_csv("fakey_nmar/FINAL_results.csv") %>% mutate(Setting = "2 - Syn-NMAR"),
-  read_csv("fakey_mar_adv/FINAL_results.csv") %>% mutate(Setting = "3 - Syn-NMAR adv"),
+  read_csv("nonlinear/fakey_mar/FINAL_results.csv") %>% mutate(Setting = "1 - Syn-MAR"),
+  read_csv("nonlinear/fakey_nmar/FINAL_results.csv") %>% mutate(Setting = "2 - Syn-NMAR"),
+  read_csv("nonlinear/fakey_mar_adv/FINAL_results.csv") %>% mutate(Setting = "3 - Syn-NMAR adv"),
   read_csv("realy/FINAL_results.csv") %>% mutate(SNR = 2, k = 10, kMissing=1, Setting = "4 - Real") 
 )
 
@@ -57,6 +57,7 @@ linearreg_analysis <- mode_df %>%
   arrange(Setting) %>%
   select(Setting, coef, se, pvalue,r2)
 
+linearreg_analysis %>% View()
 write_csv(linearreg_analysis, "ModeImpute_RegAnalysis.csv")
 
 #Paired Wilcoxon and t-test
@@ -80,4 +81,5 @@ pairedtest_analysis <-mode_df_wide %>%
   unnest(c(delta_mean,ttest.pvalue,delta_median,wtest.pvalue)) %>%
   select(Setting, delta_mean,ttest.pvalue, delta_median,wtest.pvalue)
 
+pairedtest_analysis %>% View()
 write_csv(pairedtest_analysis, "ModeImpute_TestAnalysis.csv")

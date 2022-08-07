@@ -18,7 +18,7 @@ random_split = true
 relationship_yx_mar = try ARGS[2]=="1" catch; true end
 adversarial_missing = try ARGS[3]=="1" catch; false end
 
-savedir = string("../results/nonlinear/fakey", 
+savedir = string("../results/EX/fakey", 
                 relationship_yx_mar ? "_mar" : "_nmar",
                 adversarial_missing ? "_adv" : "", 
                 "/all/")
@@ -85,7 +85,7 @@ d_num = array_num + 1
         # @time Y, k, k_missing = PHD.linear_y(X_full, X_missing, 
         #                 k=10, k_missing_in_signal=k_missingsignal, SNR=SNR, 
         #                 canbemissing=canbemissing, mar=relationship_yx_mar) ;
-        @time Y, k, k_missing = PHD.linear_y(X_full, X_missing, 
+        @time Y, k, k_missing = PHD.nonlinear_y(X_full, X_missing, 
                         k=10, k_missing_in_signal=k_missingsignal, SNR=SNR, 
                         canbemissing=canbemissing, mar=relationship_yx_mar)                
    
