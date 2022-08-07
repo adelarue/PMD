@@ -28,8 +28,8 @@ mkpath(savedir)
 do_benchmark = false
 do_impthenreg = false
 do_tree = false
-do_static = false
-do_affine = false
+do_static = true
+do_affine = true
 affine_on_static_only = false #Should be set to false
 do_finite = true
 do_μthenreg = false 
@@ -306,7 +306,7 @@ d_num = array_num + 1
                 end
 
                 if do_finite
-                    d = Dict(:maxdepth => collect(6:2:10))
+                    d = Dict(:maxdepth => collect(1:2:9))
 
                     df = deepcopy(X_missing)
                     df[!,:Test] = test_ind
