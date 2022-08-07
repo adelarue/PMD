@@ -18,7 +18,7 @@ random_split = true
 relationship_yx_mar = try ARGS[2]=="1" catch; true end
 adversarial_missing = try ARGS[3]=="1" catch; false end
 
-savedir = string("../results/EX/fakey", 
+savedir = string("../results/nonlinear/fakey", 
                 relationship_yx_mar ? "_mar" : "_nmar",
                 adversarial_missing ? "_adv" : "", 
                 "/all/")
