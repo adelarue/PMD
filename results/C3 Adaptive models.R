@@ -3,22 +3,10 @@ source("setup_script.R")
 
 library(RColorBrewer)
 
-#MAR
-df <- read_csv("fakey/FINAL_results.csv")
-
-#NMAR
-df <- read_csv("fakey_nmar/FINAL_results.csv")
-
-#NMAR ADVERSARIAL
-df <- read_csv("nmar_outliers/FINAL_results.csv")
-
-#REAL DATA
-df <- read_csv("realy/FINAL_results.csv") %>%  mutate(kMissing = 1)
-
 df <- rbind(
-  read_csv("fakey_mar/FINAL_results.csv") %>% mutate(Setting = "1 - Syn-MAR"),
-  read_csv("fakey_nmar/FINAL_results.csv") %>% mutate(Setting = "2 - Syn-NMAR"),
-  read_csv("fakey_mar_adv/FINAL_results.csv") %>% mutate(Setting = "3 - Syn-NMAR adv"),
+  read_csv("linear/fakey_mar/FINAL_results.csv") %>% mutate(Setting = "1 - Syn-MAR"),
+  read_csv("linear/fakey_nmar/FINAL_results.csv") %>% mutate(Setting = "2 - Syn-NMAR"),
+  read_csv("linear/fakey_mar_adv/FINAL_results.csv") %>% mutate(Setting = "3 - Syn-NMAR adv"),
   read_csv("realy/FINAL_results.csv") %>% mutate(SNR = 2, k = 10, kMissing=1, Setting = "4 - Real") 
 )
 

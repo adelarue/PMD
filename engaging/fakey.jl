@@ -18,21 +18,21 @@ random_split = true
 relationship_yx_mar = try ARGS[2]=="1" catch; true end
 adversarial_missing = try ARGS[3]=="1" catch; false end
 
-savedir = string("../results/nonlinear/fakey", 
+savedir = string("../results/linear/fakey", 
                 relationship_yx_mar ? "_mar" : "_nmar",
                 adversarial_missing ? "_adv" : "", 
-                "/all/")
+                "/finite/")
 mkpath(savedir)
 
 #Prediction methods
-do_benchmark = true
-do_impthenreg = true
-do_tree = true
-do_static = true
-do_affine = true
+do_benchmark = false
+do_impthenreg = false
+do_tree = false
+do_static = false
+do_affine = false
 affine_on_static_only = false #Should be set to false
 do_finite = true
-do_μthenreg = true 
+do_μthenreg = false 
 
 
 results_main = DataFrame(dataset=[], SNR=[], k=[], kMissing=[], splitnum=[], method=[],
