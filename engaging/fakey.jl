@@ -28,8 +28,8 @@ mkpath(savedir)
 do_benchmark = false
 do_impthenreg = false
 do_tree = false
-do_static = true
-do_affine = true
+do_static = false
+do_affine = false
 affine_on_static_only = false #Should be set to false
 do_finite = true
 do_μthenreg = false 
@@ -82,12 +82,12 @@ d_num = array_num + 1
 
         # Create output
         Random.seed!(549)
-        # @time Y, k, k_missing = PHD.linear_y(X_full, X_missing, 
-        #                 k=10, k_missing_in_signal=k_missingsignal, SNR=SNR, 
-        #                 canbemissing=canbemissing, mar=relationship_yx_mar) ;
-        @time Y, k, k_missing = PHD.nonlinear_y(X_full, X_missing, 
+        @time Y, k, k_missing = PHD.linear_y(X_full, X_missing, 
                         k=10, k_missing_in_signal=k_missingsignal, SNR=SNR, 
-                        canbemissing=canbemissing, mar=relationship_yx_mar)                
+                        canbemissing=canbemissing, mar=relationship_yx_mar) ;
+        # @time Y, k, k_missing = PHD.nonlinear_y(X_full, X_missing, 
+        #                 k=10, k_missing_in_signal=k_missingsignal, SNR=SNR, 
+        #                 canbemissing=canbemissing, mar=relationship_yx_mar)                
    
         @show k, k_missing
 
@@ -325,7 +325,7 @@ d_num = array_num + 1
                 if do_μthenreg
                     for model in [:linear, :tree]
                         # d = Dict(:maxdepth => collect(6:2:10))
-                        d = model == :linear ? Dict(:alpha => collect(0.1:0.1:1)) : Dict(:maxdepth => collect(6:2:10))
+                        d = model == :linear ? Dict(:alpha => collect(0.1:0.1:1)) : Dict(:maxdepth => collect(1:2:10))
 
                         df = deepcopy(X_missing)
                         df[!,:Test] = test_ind
