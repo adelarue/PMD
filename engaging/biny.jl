@@ -14,12 +14,13 @@ missingsignal_list = [0,1,2,3,4,5,6,7,8,9,10]
 
 #Generation methods
 SNR = 2
+posfraction = 0.5
 random_split = true
 relationship_yx_mar = try ARGS[2]=="1" catch; true end
 adversarial_missing = try ARGS[3]=="1" catch; false end
 model_for_y = :linear 
 
-savedir = string("../results/", 
+savedir = string("../results/binary_", 
                 model_for_y,
                 "/fakey", 
                 relationship_yx_mar ? "_mar" : "_nmar",
@@ -28,13 +29,13 @@ savedir = string("../results/",
 mkpath(savedir)
 
 #Prediction methods
-do_benchmark = true
-do_tree = true
-do_impthenreg = true
-do_static = true
-do_affine = true
+do_benchmark = false
+do_tree = false
+do_impthenreg = false
+do_static = false
+do_affine = false
 affine_on_static_only = false #Should be set to false
-do_finite = true
+do_finite = false
 do_μthenreg = true 
 
 
@@ -91,10 +92,11 @@ d_num = array_num + 1
         # @time Y, k, k_missing = PHD.nonlinear_y(X_full, X_missing, 
         #                 k=10, k_missing_in_signal=k_missingsignal, SNR=SNR, 
         #                 canbemissing=canbemissing, mar=relationship_yx_mar)                
-        @time Y, k, k_missing = PHD.generate_y(X_full, X_missing,
+        @time Y, k, k_missing = PHD.binary_y(X_full, X_missing,
                         model = model_for_y,  
                         k=10, k_missing_in_signal=k_missingsignal, SNR=SNR, 
-                        canbemissing=canbemissing, mar=relationship_yx_mar)   
+                        canbemissing=canbemissing, mar=relationship_yx_mar,
+                        posfraction=posfraction)   
         @show k, k_missing
 
         test_prop = .3

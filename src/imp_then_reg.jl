@@ -4,7 +4,7 @@
 ### Authors: Arthur Delarue, Jean Pauphilet, 2022
 ###################################
 
-function impute_then_regress_cv(Y::Vector{Float64}, data::DataFrame; 
+function impute_then_regress_cv(Y::Union{Vector{Float64},BitArray}, data::DataFrame; 
     modeltype::Symbol, parameter_dict::Dict=Dict(), 
     val_fraction::Real=0.2,
     maxiter::Int=10, maxμiter::Int=100, ϵ::Float64=1.)

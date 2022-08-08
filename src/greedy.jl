@@ -159,7 +159,7 @@ end
 """
 	Initialize the greedy model with a single node, which always predicts the mean
 """
-function initializeGreedyModel(Y::Vector, data::DataFrame)
+function initializeGreedyModel(Y::Union{Vector, BitArray{1}}, data::DataFrame)
 	# features = [i for (i, name) in enumerate(setdiff(Symbol.(names(data)), [:Test, :Id]))
 	# 			if !any(ismissing.(data[!, name]))]
 	# points = try findall(data[!, :Test] .== 0) catch ; collect(1:nrow(data)) end
@@ -173,14 +173,14 @@ function initializeGreedyModel(Y::Vector, data::DataFrame)
 
 	return GreedyModel([root], Set([1]), false)
 end
-function initializeGreedyModel(Y::BitArray{1}, data::DataFrame)
-	features = [i for (i, name) in enumerate(setdiff(Symbol.(names(data)), [:Test, :Id]))
-				if !any(ismissing.(data[!, name]))]
-	points = findall(data[!, :Test] .== 0)
-	intercept, coeffs, LL = regressionCoefficients(Y, data, points, features)
-	root = LeafNode(1, 1, intercept, coeffs, features, Int[], LL, 0)
-	return GreedyModel([root], Set([1]), true)
-end
+# function initializeGreedyModel(Y::BitArray{1}, data::DataFrame)
+# 	features = [i for (i, name) in enumerate(setdiff(Symbol.(names(data)), [:Test, :Id]))
+# 				if !any(ismissing.(data[!, name]))]
+# 	points = findall(data[!, :Test] .== 0)
+# 	intercept, coeffs, LL = regressionCoefficients(Y, data, points, features)
+# 	root = LeafNode(1, 1, intercept, coeffs, features, Int[], LL, 0)
+# 	return GreedyModel([root], Set([1]), true)
+# end
 
 """
 	Find best split at a particular node
@@ -305,38 +305,44 @@ function regressionCoefficients(Y::Vector, data::DataFrame, points::Vector{Int},
 	# return β_0, coeffs, SSE
 	return model, SSE
 end
-function regressionCoefficients(Y::BitArray{1}, data::DataFrame, points::Vector{Int},
-								features::Vector{Int})
-	p = Base.size(data, 2) - 1
-	coeffs = zeros(p)
-	β_0 = safelog(mean(Y[points]) / (1 - mean(Y[points])))
-	# if var(Y) .<= 1e10
-	# 	Y0 = round(Int, mean(Y))
-	# 	β_0 = 100*(2*Y0-1)
-	# 	@show Y0, β_0
-	# 	return β_0, coeffs, logloss(Y[points], Y0)
+function regressionCoefficients(Y::BitArray{1}, data::DataFrame, points::Vector{Int}, features::Vector{String})
+	# p = Base.size(data, 2) - 1
+	# coeffs = zeros(p)
+	# β_0 = safelog(mean(Y[points]) / (1 - mean(Y[points])))
+	# # if var(Y) .<= 1e10
+	# # 	Y0 = round(Int, mean(Y))
+	# # 	β_0 = 100*(2*Y0-1)
+	# # 	@show Y0, β_0
+	# # 	return β_0, coeffs, logloss(Y[points], Y0)
+	# # end
+	# if var(Y) .<= 1e-10
+	# 	# return β_0, coeffs, logloss(Y[points], mean(Y[points]))
+	# 	return β_0, coeffs, 0.5
 	# end
-	if var(Y) .<= 1e-10
-		# return β_0, coeffs, logloss(Y[points], mean(Y[points]))
-		return β_0, coeffs, 0.5
-	end
-	if length(features) == 0
-		# return β_0, coeffs, logloss(Y[points], mean(Y[points]))
-		return β_0, coeffs, 0.5
-	end
-	X = Matrix(data[points, Not([:Test, :Id])])[:, features]
-	X = Float64.(X)
-	y = Y[points]
-	cv = glmnetcv(X, hcat(Float64.(.!y), Float64.(y)), GLMNet.Binomial())
-	if length(cv.meanloss) > 0
-		β_0 = cv.path.a0[argmin(cv.meanloss)]
-		coeffs[features] = cv.path.betas[:, argmin(cv.meanloss)]
-	end
-	pred = sigmoid.(β_0 .+ X * coeffs[features])
-	# LL = logloss(y, pred)
-	# LL = argmin(cv.meanloss)*Base.size(X,1)
-	LL = 1 - auc(y, pred)
-	return β_0, coeffs, LL
+	# if length(features) == 0
+	# 	# return β_0, coeffs, logloss(Y[points], mean(Y[points]))
+	# 	return β_0, coeffs, 0.5
+	# end
+	# X = Matrix(data[points, Not([:Test, :Id])])[:, features]
+	# X = Float64.(X)
+	# y = Y[points]
+	# cv = glmnetcv(X, hcat(Float64.(.!y), Float64.(y)), GLMNet.Binomial())
+	# if length(cv.meanloss) > 0
+	# 	β_0 = cv.path.a0[argmin(cv.meanloss)]
+	# 	coeffs[features] = cv.path.betas[:, argmin(cv.meanloss)]
+	# end
+
+	
+	# pred = sigmoid.(β_0 .+ X * coeffs[features])
+	# # LL = logloss(y, pred)
+	# # LL = argmin(cv.meanloss)*Base.size(X,1)
+	# LL = 1 - auc(y, pred)
+	# return β_0, coeffs, LL
+
+	model = regress_linear(Y, data[points, features]; regtype=:missing_weight, alpha=0.1)
+	pred = predict(data[points,:], model)
+	SSE = 1 - auc(Y[points], pred)
+	return model, SSE
 end
 
 """
