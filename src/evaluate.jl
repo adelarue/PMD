@@ -10,19 +10,23 @@
 """
 function evaluate(Y::Vector, df::DataFrame, model::Union{DataFrame,DecisionTree.Node,Chain,GreedyModel})
 	prediction = predict(df, model)
-    if "Test" ∉ names(df) #If no test column, all dataset is considered training
-        error("Missing Test column in the data (second argument)")
-    end
-	# if model[1, :Logistic]
-	# 	error("Logistic model evaluated on continuous vector")
-	# else
-    trainmean = Statistics.mean(Y[df[:,:Test] .== 0])
-    SST = sum((Y[df[:,:Test] .== 0] .- trainmean) .^ 2)
-    OSSST = sum((Y[df[:,:Test] .== 1] .- trainmean) .^ 2)
 
-    R2 = 1 - sum((Y[df[:,:Test] .== 0] .- prediction[df[:,:Test] .== 0]) .^ 2)/SST
-    OSR2 = 1 - sum((Y[df[:,:Test] .== 1] .- prediction[df[:,:Test] .== 1]) .^ 2)/OSSST
-    return R2, OSR2
+	testavail = "Test" ∈ names(df)
+    if !testavail #If no test column, all dataset is considered training
+        df[!,:Test] .= 0
+    end
+
+	trainmean = Statistics.mean(Y[df[:,:Test] .== 0])
+    SST = sum((Y[df[:,:Test] .== 0] .- trainmean) .^ 2)
+	R2 = 1 - sum((Y[df[:,:Test] .== 0] .- prediction[df[:,:Test] .== 0]) .^ 2)/SST
+
+	if !testavail #If no test column, all dataset is considered training
+        return R2, NaN
+	else 
+		OSSST = sum((Y[df[:,:Test] .== 1] .- trainmean) .^ 2)
+		OSR2 = 1 - sum((Y[df[:,:Test] .== 1] .- prediction[df[:,:Test] .== 1]) .^ 2)/OSSST
+		return R2, OSR2
+    end 
 end
 function evaluate(Y::BitArray{1}, df::DataFrame, model::Union{DataFrame,DecisionTree.Node,Chain,GreedyModel};
 				  metric::AbstractString="auc")

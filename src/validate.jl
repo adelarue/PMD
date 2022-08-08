@@ -96,6 +96,7 @@ function regress_cv(Y, data::DataFrame;
 	bestOSR2 = -Inf
 	bestparams = [] 
 	for params in expand(parameter_dict)
+		# @show params
 		newmodel = regress(newY, newdata;model=model, parameter_dict=params)
 
 		newOSR2 = evaluate(newY, newdata, newmodel)[2]
@@ -104,6 +105,7 @@ function regress_cv(Y, data::DataFrame;
 			bestparams = params
 		end
 	end
+	# println("Found best hyper-parameters. Computing full model")
 	# train model on full dataset using best parameters
 	bestmodel = regress(newY, newdata; model=model, parameter_dict=bestparams)
 

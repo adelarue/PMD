@@ -2,9 +2,9 @@ setwd("Dropbox (MIT)/1 - Research/PHD/results/")
 source("setup_script.R")
 
 df <- rbind(
-  read_csv("linear/fakey_mar/FINAL_results.csv") %>% mutate(Setting = "1 - Syn-MAR"),
-  read_csv("linear/fakey_nmar/FINAL_results.csv") %>% mutate(Setting = "2 - Syn-NMAR"),
-  read_csv("linear/fakey_mar_adv/FINAL_results.csv") %>% mutate(Setting = "3 - Syn-NMAR adv"),
+  read_csv("nonlinear/fakey_mar/FINAL_results.csv") %>% mutate(Setting = "1 - Syn-MAR"),
+  read_csv("nonlinear/fakey_nmar/FINAL_results.csv") %>% mutate(Setting = "2 - Syn-NMAR"),
+  read_csv("nonlinear/fakey_mar_adv/FINAL_results.csv") %>% mutate(Setting = "3 - Syn-NMAR adv"),
   read_csv("realy/FINAL_results.csv") %>% mutate(SNR = 2, k = 10, kMissing=1, Setting = "4 - Real")
 )
 
@@ -61,6 +61,7 @@ linearreg_analysis <- itr_df %>%
   arrange(Setting) %>%
   select(Setting, coef1,se1,pvalue1, coef2,se2,pvalue2, coef3,se3,pvalue3, r2)
 
+linearreg_analysis %>% View()
 write_csv(linearreg_analysis, "ImputeThenReg_RegAnalysis.csv")
 
 
@@ -87,7 +88,7 @@ pairedtest_analysis <-itr_df_wide %>%
   unnest(c(delta_mean,ttest.pvalue,delta_median,wtest.pvalue)) %>%
   select(Setting, delta_mean,ttest.pvalue, delta_median,wtest.pvalue)
 
-
+pairedtest_analysis %>% View()
 write_csv(pairedtest_analysis, "ImputeThenReg_2vs3_TestAnalysis.csv")
 
 
