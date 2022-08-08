@@ -298,7 +298,7 @@ function regressionCoefficients(Y::Vector, data::DataFrame, points::Vector{Int},
 	# 	β_0 = cv.path.a0[argmin(cv.meanloss)]
 	# 	coeffs[features] = cv.path.betas[:, argmin(cv.meanloss)]
 	# end
-	model = regress_linear(Y, data[points, features]; regtype=:missing_weight, alpha=0.8)
+	model = regress_linear(Y, data[points, features]; regtype=:missing_weight, alpha=0.1)
 	
 	SSE = sum((predict(data[points,:], model) .- Y[points]).^2)
 	# SSE = argmin(cv.meanloss)*Base.size(X,1) #Log loss corresponds to out-of-sample predictive power

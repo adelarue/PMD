@@ -19,25 +19,27 @@ relationship_yx_mar = try ARGS[2]=="1" catch; true end
 adversarial_missing = try ARGS[3]=="1" catch; false end
 model_for_y = :linear 
 
-savedir = string("../results/linear/fakey", 
+savedir = string("../results/", 
+                model_for_y,
+                "/fakey", 
                 relationship_yx_mar ? "_mar" : "_nmar",
                 adversarial_missing ? "_adv" : "", 
-                "/finite_codeupdate/")
+                "/fix/")
 mkpath(savedir)
 
 #Prediction methods
-do_benchmark = false
-do_impthenreg = false
-do_tree = false
-do_static = false
-do_affine = false
+do_benchmark = true
+do_impthenreg = true
+do_tree = true
+do_static = true
+do_affine = true
 affine_on_static_only = false #Should be set to false
 do_finite = true
-do_μthenreg = false 
+do_μthenreg = true 
 
 
 results_main = DataFrame(dataset=[], SNR=[], k=[], kMissing=[], splitnum=[], method=[],
-                                r2=[], osr2=[], time=[])
+                                r2=[], osr2=[], time=[], hp=[])
 
 # for ARG in ARGS
 ARG = ARGS[1]
@@ -46,7 +48,7 @@ d_num = mod(array_num, 71) + 1
 # aux_num = div(array_num,71) + 1
 
 d_num = array_num + 1
-    for aux_num in 2:2 #1:11
+    for aux_num in 1:11
 
     dname = dataset_list[d_num]#"dermatology" #"""thyroid-disease-thyroid-0387" #dataset_list[1]
     k_missingsignal = missingsignal_list[aux_num]
@@ -86,13 +88,13 @@ d_num = array_num + 1
         # @time Y, k, k_missing = PHD.linear_y(X_full, X_missing, 
         #                 k=10, k_missing_in_signal=k_missingsignal, SNR=SNR, 
         #                 canbemissing=canbemissing, mar=relationship_yx_mar) ;
-        @time Y, k, k_missing = PHD.nonlinear_y(X_full, X_missing, 
-                        k=10, k_missing_in_signal=k_missingsignal, SNR=SNR, 
-                        canbemissing=canbemissing, mar=relationship_yx_mar)                
-        # @time Y, k, k_missing = PHD.generate_y(X_full, X_missing,
-        #                 model = model_for_y,  
+        # @time Y, k, k_missing = PHD.nonlinear_y(X_full, X_missing, 
         #                 k=10, k_missing_in_signal=k_missingsignal, SNR=SNR, 
-        #                 canbemissing=canbemissing, mar=relationship_yx_mar)   
+        #                 canbemissing=canbemissing, mar=relationship_yx_mar)                
+        @time Y, k, k_missing = PHD.generate_y(X_full, X_missing,
+                        model = model_for_y,  
+                        k=10, k_missing_in_signal=k_missingsignal, SNR=SNR, 
+                        canbemissing=canbemissing, mar=relationship_yx_mar)   
         @show k, k_missing
 
         test_prop = .3
@@ -101,7 +103,7 @@ d_num = array_num + 1
             savedfiles = filter(t -> startswith(t, string(dname, "_SNR_", SNR, "_nmiss_", k_missingsignal)), readdir(savedir))
             map!(t -> split(replace(t, ".csv" => ""), "_")[end], savedfiles, savedfiles)
             for iter in setdiff(1:10, parse.(Int, savedfiles))    
-            # for iter in 1:2
+            # for iter in 1:10
                 @show iter
                 results_table = similar(results_main,0)
 
@@ -127,7 +129,7 @@ d_num = array_num + 1
                     linear, bestparams = PHD.regress_cv(Y, df, model=:linear, parameter_dict=d)
                     δt = (time() - start)
                     R2, OSR2 = PHD.evaluate(Y, df, linear)
-                    push!(results_table, [dname, SNR, k, k_missing, iter, "Oracle X", R2, OSR2, δt])
+                    push!(results_table, [dname, SNR, k, k_missing, iter, "Oracle X", R2, OSR2, δt, bestparams[:alpha]])
                     CSV.write(savedir*filename, results_table)
 
                     df = [X_full[:,:] PHD.indicatemissing(X_missing[:,:]; removecols=:Zero)]
@@ -136,7 +138,7 @@ d_num = array_num + 1
                     linear, bestparams = PHD.regress_cv(Y, df, model=:linear, parameter_dict=d)
                     δt = (time() - start)
                     R2, OSR2 = PHD.evaluate(Y, df, linear)
-                    push!(results_table, [dname, SNR, k, k_missing, iter, "Oracle XM", R2, OSR2, δt])
+                    push!(results_table, [dname, SNR, k, k_missing, iter, "Oracle XM", R2, OSR2, δt, bestparams[:alpha]])
                     CSV.write(savedir*filename, results_table)
 
 
@@ -148,9 +150,9 @@ d_num = array_num + 1
                         linear, bestparams = PHD.regress_cv(Y, df, model=:linear, parameter_dict=d)
                         δt = (time() - start)
                         R2, OSR2 = PHD.evaluate(Y, df, linear)
-                        push!(results_table, [dname, SNR, k, k_missing, iter, "Complete Features", R2, OSR2, δt])
+                        push!(results_table, [dname, SNR, k, k_missing, iter, "Complete Features", R2, OSR2, δt, bestparams[:alpha]])
                     catch #In this case, simply predict the mean - which leads to 0. OSR2
-                        push!(results_table, [dname, SNR, k, k_missing, iter, "Complete Features", 0., 0., 0.])
+                        push!(results_table, [dname, SNR, k, k_missing, iter, "Complete Features", 0., 0., 0.,0.])
                     end
                     CSV.write(savedir*filename, results_table)
                 end
@@ -166,7 +168,7 @@ d_num = array_num + 1
                     cartmodel, bestparams = PHD.regress_cv(Y, df; model = :tree, parameter_dict=d)
                     δt = (time() - start)
                     R2, OSR2 = PHD.evaluate(Y, df, cartmodel)
-                    push!(results_table, [dname, SNR, k, k_missing, iter, "CART MIA", R2, OSR2, δt])
+                    push!(results_table, [dname, SNR, k, k_missing, iter, "CART MIA", R2, OSR2, δt, bestparams[:maxdepth]])
                     CSV.write(savedir*filename, results_table)
                 end
 
@@ -188,7 +190,7 @@ d_num = array_num + 1
                     δt += (time() - start)
 
                     R2, OSR2 = PHD.evaluate(Y, df, linear)
-                    push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 1", R2, OSR2, δt])
+                    push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 1", R2, OSR2, δt, bestparams[:alpha]])
                     CSV.write(savedir*filename, results_table)
 
 
@@ -211,7 +213,7 @@ d_num = array_num + 1
                     linear, bestparams = PHD.regress_cv(Y, df, model=:linear, parameter_dict=d)
                     δt += (time() - start)
                     R2, OSR2 = PHD.evaluate(Y, df, linear)
-                    push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 2", R2, OSR2, δt])
+                    push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 2", R2, OSR2, δt, bestparams[:alpha]])
                     CSV.write(savedir*filename, results_table)
 
 
@@ -233,7 +235,7 @@ d_num = array_num + 1
                     linear, bestparams = PHD.regress_cv(Y, df, model=:linear, parameter_dict=d)
                     δt += (time() - start)
                     R2, OSR2 = PHD.evaluate(Y, df, linear)
-                    push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 3", R2, OSR2, δt])
+                    push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 3", R2, OSR2, δt, bestparams[:alpha]])
                     CSV.write(savedir*filename, results_table)
 
                     ## Method 1.4
@@ -247,7 +249,7 @@ d_num = array_num + 1
                     linear, bestparams = PHD.regress_cv(Y, df, model=:linear, parameter_dict=d)
                     δt += (time() - start)
                     R2, OSR2 = PHD.evaluate(Y, df, linear)
-                    push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 4", R2, OSR2, δt])
+                    push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 4", R2, OSR2, δt, bestparams[:alpha]])
                     CSV.write(savedir*filename, results_table)
 
                     ## Method 1.5 Mean and mode impute
@@ -264,7 +266,7 @@ d_num = array_num + 1
                     linear, bestparams = PHD.regress_cv(Y, df, model=:linear, parameter_dict=d)
                     δt += (time() - start)
                     R2, OSR2 = PHD.evaluate(Y, df, linear)
-                    push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 5", R2, OSR2, δt])
+                    push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 5", R2, OSR2, δt, bestparams[:alpha]])
                     CSV.write(savedir*filename, results_table)
                 end
                 
@@ -283,7 +285,7 @@ d_num = array_num + 1
                     linear2, bestparams2 = PHD.regress_cv(Y, X_augmented, model=:linear, parameter_dict=d)
                     δt = (time() - start)
                     R2, OSR2 = PHD.evaluate(Y, X_augmented, linear2)
-                    push!(results_table, [dname, SNR, k, k_missing, iter, "Static", R2, OSR2, δt])
+                    push!(results_table, [dname, SNR, k, k_missing, iter, "Static", R2, OSR2, δt, bestparams[:alpha]])
                     CSV.write(savedir*filename, results_table)
 
                     if do_affine
@@ -303,31 +305,32 @@ d_num = array_num + 1
                         linear3, bestparams3 = PHD.regress_cv(Y, X_affine, model=:linear, parameter_dict=d)
                         δt = (time() - start)
                         R2, OSR2 = PHD.evaluate(Y, X_affine, linear3)
-                        push!(results_table, [dname, SNR, k, k_missing, iter, "Affine", R2, OSR2, δt])
+                        push!(results_table, [dname, SNR, k, k_missing, iter, "Affine", R2, OSR2, δt, bestparams[:alpha]])
                         CSV.write(savedir*filename, results_table)
                     end
                 end
                 
-                for _ in 1:1
-                    if do_finite
-                        d = Dict(:maxdepth => collect(0:2:2))
+                if do_finite
+                    println("Finite adaptive methods...")
+                    println("###################")
+                    d = Dict(:maxdepth => collect(0:2:10))
 
-                        df = deepcopy(X_missing)
-                        df[!,:Test] = test_ind
+                    df = deepcopy(X_missing)
+                    df[!,:Test] = test_ind
 
-                        start = time()
-                        # X_missing_std = PHD.standardize(df)
-                        X_missing_std = deepcopy(df)
-                        # X_missing_zero_std = PHD.zeroimpute(X_missing_std)
-                        gm2, = PHD.regress_cv(Y, X_missing_std, model = :greedy, parameter_dict = d)
-                        δt = (time() - start)
-
-                        @show R2, OSR2 = PHD.evaluate(Y, X_missing_std, gm2)
-                        push!(results_table, [dname, SNR, k, k_missing, iter, "Finite", R2, OSR2, δt])
-                        CSV.write(savedir*filename, results_table)
-                    end
+                    start = time()
+                    # X_missing_std = PHD.standardize(df)
+                    # X_missing_std = deepcopy(df)
+                    # X_missing_zero_std = PHD.zeroimpute(X_missing_std)
+                    gm2, bestparams = PHD.regress_cv(Y, df, model = :greedy, parameter_dict = d)
+                    δt = (time() - start)
+                    R2, OSR2 = PHD.evaluate(Y, df, gm2)   
+                    push!(results_table, [dname, SNR, k, k_missing, iter, "Finite", R2, OSR2, δt, bestparams[:maxdepth]])
+                    CSV.write(savedir*filename, results_table)
                 end
                 if do_μthenreg
+                    println("Joint Impute-and-Regress methods...")
+                    println("###################")
                     for model in [:linear, :tree]
                         # d = Dict(:maxdepth => collect(6:2:10))
                         d = model == :linear ? Dict(:alpha => collect(0.1:0.1:1)) : Dict(:maxdepth => collect(1:2:10))
@@ -340,7 +343,8 @@ d_num = array_num + 1
                         δt = (time() - start)
 
                         R2, OSR2 = PHD.evaluate(Y, PHD.mean_impute(df, μ), opt_imp_then_reg)
-                        push!(results_table, [dname, SNR, k, k_missing, iter, string("Joint Imp-then-Reg - ", model), R2, OSR2, δt])
+                        push!(results_table, [dname, SNR, k, k_missing, iter, string("Joint Imp-then-Reg - ", model), R2, OSR2, 
+                                    δt, model == :linear ? bestparams[:alpha] : bestparams[:maxdepth]])
                         CSV.write(savedir*filename, results_table)
                     end
                 end
