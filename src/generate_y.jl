@@ -32,86 +32,89 @@ function standardize(data::DataFrame)
 	return newdata
 end
 
-"""
-	Generate Y, linearly dependent on the features of X. More precisely, the true model has
-		(possibly soft-thresholded) standard normal coefficients and a U([0, 1]) bias, to
-		which we add zero-mean Gaussian noise
-	Args:
-		- data: DataFrame with fully observed values
-	Keyword args:
-		- soft_threshold: soft threshold subtracted in absolute value from all true coefficients
-			(see softthresholding function)
-		- SNR: signal-to-noise ratio
-	Returns:
-		- a vector of length nrow(data) with the values of Y
-"""
-function linear_y(data::DataFrame, data_missing::DataFrame;
-	k::Real=10, SNR::Real=4,
-    canbemissing=falses(Base.size(data,2)), #indicates which features can be missing
-	mar::Bool=true,
-    k_missing_in_signal::Int=0) #indicates the number of potentially missing features in signal
+# """
+# 	Generate Y, linearly dependent on the features of X. More precisely, the true model has
+# 		(possibly soft-thresholded) standard normal coefficients and a U([0, 1]) bias, to
+# 		which we add zero-mean Gaussian noise
+# 	Args:
+# 		- data: DataFrame with fully observed values
+# 	Keyword args:
+# 		- soft_threshold: soft threshold subtracted in absolute value from all true coefficients
+# 			(see softthresholding function)
+# 		- SNR: signal-to-noise ratio
+# 	Returns:
+# 		- a vector of length nrow(data) with the values of Y
+# """
+# function linear_y(data::DataFrame, data_missing::DataFrame;
+# 	k::Real=10, SNR::Real=4,
+#     canbemissing=falses(Base.size(data,2)), #indicates which features can be missing
+# 	mar::Bool=true,
+#     k_missing_in_signal::Int=0) #indicates the number of potentially missing features in signal
 
-    @assert k >= 0.0
-    @assert SNR >= 0.0
+#     @assert k >= 0.0
+#     @assert SNR >= 0.0
 
-	feature_names = Symbol.(names(data));
-    nevermissing_features = feature_names[.!canbemissing]; missing_features = feature_names[canbemissing]
-	# @show length(missing_features)
-	setdiff!(feature_names, [:Test, :Id]); setdiff!(nevermissing_features, [:Test, :Id]); setdiff!(missing_features, [:Test, :Id]);
-	# @show length(missing_features)
-	k = min(k, length(feature_names))
-    k_missing_in_signal = min(k_missing_in_signal, length(missing_features))
-	# @show k_missing_in_signal
-	k_non_missing = min(max(k - k_missing_in_signal, 0), length(nevermissing_features))
+# 	feature_names = Symbol.(names(data));
+#     nevermissing_features = feature_names[.!canbemissing]; missing_features = feature_names[canbemissing]
+# 	# @show length(missing_features)
+# 	setdiff!(feature_names, [:Test, :Id]); setdiff!(nevermissing_features, [:Test, :Id]); setdiff!(missing_features, [:Test, :Id]);
+# 	# @show length(missing_features)
+# 	k = min(k, length(feature_names))
+#     k_missing_in_signal = min(k_missing_in_signal, length(missing_features))
+# 	# @show k_missing_in_signal
+# 	k_non_missing = min(max(k - k_missing_in_signal, 0), length(nevermissing_features))
 
-    #Standardize
-    newdata = standardize(data[:,feature_names])
+#     #Standardize
+#     newdata = standardize(data[:,feature_names])
 
-    Y = zeros(nrow(newdata))
-    #For nevermissing features, choose then generate
-	# @show k_non_missing
-	if k_non_missing > 0
-		support = shuffle(nevermissing_features)[1:k_non_missing]
-		w1 = 2*rand(k_non_missing) .- 1
-		Y += Matrix{Float64}(newdata[:,support])*w1
-	end
-    #For missing feautres, choose
-	# @show k_missing_in_signal
-	if k_missing_in_signal > 0
-	    support = shuffle(missing_features)[1:k_missing_in_signal]
-	    w2 = 2*rand(k_missing_in_signal) .- 1
-	    Y += Matrix{Float64}(newdata[:,support])*w2
-		# if !mar
-		# 	w2m = 2*rand(k_missing_in_signal) .- 1
-		# 	Y += Matrix{Float64}(1.0 .* ismissing.(data_missing[:,support]) )*w2m
-		# end
-	end
-	if k_missing_in_signal > 0 && !mar
-		support = shuffle(missing_features)[1:k_missing_in_signal]
-		w2m = 2*rand(k_missing_in_signal) .- 1
-		Y += Matrix{Float64}(1.0 .* ismissing.(data_missing[:,support]) )*w2m
-	end
-    #Add bias
-    btrue = randn(1); Y .+= btrue
-    #Add noise
-    noise = randn(nrow(newdata)); noise .*= norm(Y) / norm(noise) / SNR
+#     Y = zeros(nrow(newdata))
+#     #For nevermissing features, choose then generate
+# 	# @show k_non_missing
+# 	if k_non_missing > 0
+# 		support = shuffle(nevermissing_features)[1:k_non_missing]
+# 		w1 = 2*rand(k_non_missing) .- 1
+# 		Y += Matrix{Float64}(newdata[:,support])*w1
+# 	end
+#     #For missing feautres, choose
+# 	# @show k_missing_in_signal
+# 	if k_missing_in_signal > 0
+# 	    support = shuffle(missing_features)[1:k_missing_in_signal]
+# 	    w2 = 2*rand(k_missing_in_signal) .- 1
+# 	    Y += Matrix{Float64}(newdata[:,support])*w2
+# 		# if !mar
+# 		# 	w2m = 2*rand(k_missing_in_signal) .- 1
+# 		# 	Y += Matrix{Float64}(1.0 .* ismissing.(data_missing[:,support]) )*w2m
+# 		# end
+# 	end
+# 	if k_missing_in_signal > 0 && !mar
+# 		support = shuffle(missing_features)[1:k_missing_in_signal]
+# 		w2m = 2*rand(k_missing_in_signal) .- 1
+# 		Y += Matrix{Float64}(1.0 .* ismissing.(data_missing[:,support]) )*w2m
+# 	end
+#     #Add bias
+#     btrue = randn(1); Y .+= btrue
+#     #Add noise
+#     noise = randn(nrow(newdata)); noise .*= norm(Y) / norm(noise) / SNR
 
-    return Y .+ noise, k_non_missing+k_missing_in_signal, k_missing_in_signal
-end
+#     return Y .+ noise, k_non_missing+k_missing_in_signal, k_missing_in_signal
+# end
 
 "Sigmoid function"
 sigmoid(x::Real) = 1 / (1 + exp(-1 * x))
 
 "Generate binary Y"
 function binary_y(data::DataFrame, data_missing::DataFrame;
-				  k::Real=10, SNR::Real=4,
+				  k::Real=10,  k_missing_in_signal::Int=0,  
+				  SNR::Real=4,
     			  canbemissing=falses(Base.size(data,2)), #indicates which features can be missing
 				  mar::Bool=true,
-    			  k_missing_in_signal::Int=0,
-    			  sigmoid_threshold::Real=0.5)
-	Y, k1, k2 = linear_y(data, data_missing, k=k, SNR=SNR, canbemissing=canbemissing,
-	                     mar=mar, k_missing_in_signal=k_missing_in_signal)
-						 
+				  model::Symbol = :linear, hidden_nodes::Int=10,
+    			  posfraction::Float64=0.5)
+
+	Y, k1, k2 = generate_y(data, data_missing, k=k, k_missing_in_signal=k_missing_in_signal, canbemissing=canbemissing,
+	                     mar=mar, SNR=SNR, model=model, hidden_nodes=hidden_nodes)
+	vY = sigmoid.(Y)
+	sigmoid_threshold = sort(vY, rev=true)[round(Int,posfraction*nrow(data))]		 
 	return sigmoid.(Y) .> sigmoid_threshold, k1, k2
 end
 
@@ -129,80 +132,80 @@ function softthresholding(x::Real; λ::Real=0.1)
     end
 end
 
-"""
-	Generate Y, nonlinearly dependent on the features of X. More precisely, the true model
-		is a neural network with a single hidden layer of N nodes, and ReLU activations,
-		plus some Gaussian noise
-	Args:
-		- data: DataFrame with fully observed values
-		- data_missing: DataFrame with missing values
-		- k: number of features that can be missing
-		- canbemissing: indicates which features can be missing
-		- mar: whether the signal does not depend on missingness indicators
-		- k_missing_in_signal: number of potentially missing features in signal
-		- hidden_nodes: number of hidden nodes
-	Returns:
-		- a vector of length nrow(data) with the values of Y
-"""
-function nonlinear_y(data::DataFrame,
-	data_missing::DataFrame;
-	k::Real=10, SNR::Real=4,
-    canbemissing=falses(Base.size(data,2)),
-	mar::Bool=true,
-    k_missing_in_signal::Int=0,
-    hidden_nodes::Int=10) 
+# """
+# 	Generate Y, nonlinearly dependent on the features of X. More precisely, the true model
+# 		is a neural network with a single hidden layer of N nodes, and ReLU activations,
+# 		plus some Gaussian noise
+# 	Args:
+# 		- data: DataFrame with fully observed values
+# 		- data_missing: DataFrame with missing values
+# 		- k: number of features that can be missing
+# 		- canbemissing: indicates which features can be missing
+# 		- mar: whether the signal does not depend on missingness indicators
+# 		- k_missing_in_signal: number of potentially missing features in signal
+# 		- hidden_nodes: number of hidden nodes
+# 	Returns:
+# 		- a vector of length nrow(data) with the values of Y
+# """
+# function nonlinear_y(data::DataFrame,
+# 	data_missing::DataFrame;
+# 	k::Real=10, SNR::Real=4,
+#     canbemissing=falses(Base.size(data,2)),
+# 	mar::Bool=true,
+#     k_missing_in_signal::Int=0,
+#     hidden_nodes::Int=10) 
 
-    @assert k >= 0.0
-    @assert SNR >= 0.0
+#     @assert k >= 0.0
+#     @assert SNR >= 0.0
 
-	feature_names = Symbol.(names(data));
-    nevermissing_features = feature_names[.!canbemissing]; missing_features = feature_names[canbemissing]
-	setdiff!(feature_names, [:Test, :Id]); setdiff!(nevermissing_features, [:Test, :Id]); setdiff!(missing_features, [:Test, :Id]);
+# 	feature_names = Symbol.(names(data));
+#     nevermissing_features = feature_names[.!canbemissing]; missing_features = feature_names[canbemissing]
+# 	setdiff!(feature_names, [:Test, :Id]); setdiff!(nevermissing_features, [:Test, :Id]); setdiff!(missing_features, [:Test, :Id]);
 
-	k = min(k, length(feature_names))
-    k_missing_in_signal = min(k_missing_in_signal, length(missing_features))
-	k_non_missing = min(max(k - k_missing_in_signal, 0), length(nevermissing_features))
+# 	k = min(k, length(feature_names))
+#     k_missing_in_signal = min(k_missing_in_signal, length(missing_features))
+# 	k_non_missing = min(max(k - k_missing_in_signal, 0), length(nevermissing_features))
 
-    #Standardize
-    newdata = standardize(data[:,feature_names])
+#     #Standardize
+#     newdata = standardize(data[:,feature_names])
 
-    # Start creating weight matrix as well as input matrix
-    # note that input data matrix needs to be transposed (columns are data points)
-    X = zeros(0, nrow(newdata))
-    W = zeros(hidden_nodes, 0)
+#     # Start creating weight matrix as well as input matrix
+#     # note that input data matrix needs to be transposed (columns are data points)
+#     X = zeros(0, nrow(newdata))
+#     W = zeros(hidden_nodes, 0)
 
-    #For nevermissing features, choose then generate
-	if k_non_missing > 0
-		support = shuffle(nevermissing_features)[1:k_non_missing]
-		X = vcat(X, Matrix{Float64}(newdata[:,support])')
-		W = hcat(W, 2*rand(hidden_nodes, k_non_missing) .- 1)
-	end
-    #For missing feautres, choose
-	# @show k_missing_in_signal
-	if k_missing_in_signal > 0
-	    support = shuffle(missing_features)[1:k_missing_in_signal]
-	    X = vcat(X, Matrix{Float64}(newdata[:,support])')
-		W = hcat(W, 2*rand(hidden_nodes, k_missing_in_signal) .- 1)
-	end
-	if k_missing_in_signal > 0 && !mar
-		support = shuffle(missing_features)[1:k_missing_in_signal]
-		W = hcat(W, 2*rand(hidden_nodes, k_missing_in_signal) .- 1)
-		X = vcat(X, Matrix{Float64}(1.0 .* ismissing.(data_missing[:,support]))')
-	end
-    #Add bias
-    nn = Flux.Chain(Flux.Dense(W, # linear weights
-                               randn(hidden_nodes), # bias of each hidden node
-                               Flux.relu), # activation function
-                    Flux.Dense(2 * rand(1, hidden_nodes) .- 1, # linear weights
-                               randn(1), # bias of each hidden node
-                               x->x)) # activation function of output layer (identity)
-    Y = vec(nn(X))
+#     #For nevermissing features, choose then generate
+# 	if k_non_missing > 0
+# 		support = shuffle(nevermissing_features)[1:k_non_missing]
+# 		X = vcat(X, Matrix{Float64}(newdata[:,support])')
+# 		W = hcat(W, 2*rand(hidden_nodes, k_non_missing) .- 1)
+# 	end
+#     #For missing feautres, choose
+# 	# @show k_missing_in_signal
+# 	if k_missing_in_signal > 0
+# 	    support = shuffle(missing_features)[1:k_missing_in_signal]
+# 	    X = vcat(X, Matrix{Float64}(newdata[:,support])')
+# 		W = hcat(W, 2*rand(hidden_nodes, k_missing_in_signal) .- 1)
+# 	end
+# 	if k_missing_in_signal > 0 && !mar
+# 		support = shuffle(missing_features)[1:k_missing_in_signal]
+# 		W = hcat(W, 2*rand(hidden_nodes, k_missing_in_signal) .- 1)
+# 		X = vcat(X, Matrix{Float64}(1.0 .* ismissing.(data_missing[:,support]))')
+# 	end
+#     #Add bias
+#     nn = Flux.Chain(Flux.Dense(W, # linear weights
+#                                randn(hidden_nodes), # bias of each hidden node
+#                                Flux.relu), # activation function
+#                     Flux.Dense(2 * rand(1, hidden_nodes) .- 1, # linear weights
+#                                randn(1), # bias of each hidden node
+#                                x->x)) # activation function of output layer (identity)
+#     Y = vec(nn(X))
 
-    #Add noise
-    noise = randn(nrow(newdata)); noise .*= norm(Y) / norm(noise) / SNR
+#     #Add noise
+#     noise = randn(nrow(newdata)); noise .*= norm(Y) / norm(noise) / SNR
 
-    return Y .+ noise, k_non_missing+k_missing_in_signal, k_missing_in_signal
-end
+#     return Y .+ noise, k_non_missing+k_missing_in_signal, k_missing_in_signal
+# end
 
 """
 	Generate Y, nonlinearly, following Friedman (1991) model 
