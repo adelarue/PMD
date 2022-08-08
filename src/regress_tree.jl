@@ -39,8 +39,9 @@ using DecisionTree
 """
 function regress_tree(Y::Vector{Float64}, df::DataFrame; maxdepth::Int=5)
 	cols = setdiff(Symbol.(names(df)), [:Id, :Test])
-	X = Matrix{Float64}(df[df[!, :Test] .== 0, cols])
-	y = convert(Array{Float64}, Y[df[!, :Test] .== 0])
+	trainingset = try findall(df[:, :Test] .== 0) catch ; collect(1:nrow(df)) end
+	X = Matrix{Float64}(df[trainingset, cols])
+	y = convert(Array{Float64}, Y[trainingset])
 	return DecisionTree.build_tree(y[:], X, 0, maxdepth, 1)
 end
 

@@ -11,10 +11,11 @@ using Flux
 function regress_nn(Y::Array{Float64}, df::DataFrame;
 						   hidden_nodes::Int=10)
 	cols = setdiff(Symbol.(names(df)), [:Id, :Test])
+	trainingset = try findall(df[:, :Test] .== 0) catch ; collect(1:nrow(df)) end
 	# X = convert(Matrix, df[df[!, :Test] .== 0, cols])
-	X = Matrix(df[df[!, :Test] .== 0, cols])
-
-	y = convert(Array, Y[df[!, :Test] .== 0])
+	X = Matrix(df[trainingset, cols])
+	y = convert(Array, Y[trainingset])
+	
 	data = Flux.Data.DataLoader((X', y'), batchsize=50,shuffle=true);
 	# Defining our model, optimization algorithm and loss function
 	m   = Flux.Chain(Flux.Dense(Base.size(X, 2), hidden_nodes, Flux.relu),

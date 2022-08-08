@@ -17,11 +17,12 @@ SNR = 2
 random_split = true
 relationship_yx_mar = try ARGS[2]=="1" catch; true end
 adversarial_missing = try ARGS[3]=="1" catch; false end
+model_for_y = :linear 
 
 savedir = string("../results/linear/fakey", 
                 relationship_yx_mar ? "_mar" : "_nmar",
                 adversarial_missing ? "_adv" : "", 
-                "/finite/")
+                "/finite_codeupdate/")
 mkpath(savedir)
 
 #Prediction methods
@@ -45,7 +46,7 @@ d_num = mod(array_num, 71) + 1
 # aux_num = div(array_num,71) + 1
 
 d_num = array_num + 1
-    for aux_num in 1:11
+    for aux_num in 2:2 #1:11
 
     dname = dataset_list[d_num]#"dermatology" #"""thyroid-disease-thyroid-0387" #dataset_list[1]
     k_missingsignal = missingsignal_list[aux_num]
@@ -82,13 +83,16 @@ d_num = array_num + 1
 
         # Create output
         Random.seed!(549)
-        @time Y, k, k_missing = PHD.linear_y(X_full, X_missing, 
-                        k=10, k_missing_in_signal=k_missingsignal, SNR=SNR, 
-                        canbemissing=canbemissing, mar=relationship_yx_mar) ;
-        # @time Y, k, k_missing = PHD.nonlinear_y(X_full, X_missing, 
+        # @time Y, k, k_missing = PHD.linear_y(X_full, X_missing, 
         #                 k=10, k_missing_in_signal=k_missingsignal, SNR=SNR, 
-        #                 canbemissing=canbemissing, mar=relationship_yx_mar)                
-   
+        #                 canbemissing=canbemissing, mar=relationship_yx_mar) ;
+        @time Y, k, k_missing = PHD.nonlinear_y(X_full, X_missing, 
+                        k=10, k_missing_in_signal=k_missingsignal, SNR=SNR, 
+                        canbemissing=canbemissing, mar=relationship_yx_mar)                
+        # @time Y, k, k_missing = PHD.generate_y(X_full, X_missing,
+        #                 model = model_for_y,  
+        #                 k=10, k_missing_in_signal=k_missingsignal, SNR=SNR, 
+        #                 canbemissing=canbemissing, mar=relationship_yx_mar)   
         @show k, k_missing
 
         test_prop = .3
@@ -96,9 +100,8 @@ d_num = array_num + 1
 
             savedfiles = filter(t -> startswith(t, string(dname, "_SNR_", SNR, "_nmiss_", k_missingsignal)), readdir(savedir))
             map!(t -> split(replace(t, ".csv" => ""), "_")[end], savedfiles, savedfiles)
-            @show savedfiles
             for iter in setdiff(1:10, parse.(Int, savedfiles))    
-            # for iter in 1:10
+            # for iter in 1:2
                 @show iter
                 results_table = similar(results_main,0)
 
@@ -304,24 +307,26 @@ d_num = array_num + 1
                         CSV.write(savedir*filename, results_table)
                     end
                 end
+                
+                for _ in 1:1
+                    if do_finite
+                        d = Dict(:maxdepth => collect(0:2:2))
 
-                if do_finite
-                    d = Dict(:maxdepth => collect(1:2:9))
+                        df = deepcopy(X_missing)
+                        df[!,:Test] = test_ind
 
-                    df = deepcopy(X_missing)
-                    df[!,:Test] = test_ind
+                        start = time()
+                        # X_missing_std = PHD.standardize(df)
+                        X_missing_std = deepcopy(df)
+                        # X_missing_zero_std = PHD.zeroimpute(X_missing_std)
+                        gm2, = PHD.regress_cv(Y, X_missing_std, model = :greedy, parameter_dict = d)
+                        δt = (time() - start)
 
-                    start = time()
-                    X_missing_std = PHD.standardize(df)
-                    # X_missing_zero_std = PHD.zeroimpute(X_missing_std)
-                    gm2, = PHD.regress_cv(Y, X_missing_std, model = :greedy, parameter_dict = d)
-                    δt = (time() - start)
-
-                    R2, OSR2 = PHD.evaluate(Y, X_missing_std, gm2)
-                    push!(results_table, [dname, SNR, k, k_missing, iter, "Finite", R2, OSR2, δt])
-                    CSV.write(savedir*filename, results_table)
+                        @show R2, OSR2 = PHD.evaluate(Y, X_missing_std, gm2)
+                        push!(results_table, [dname, SNR, k, k_missing, iter, "Finite", R2, OSR2, δt])
+                        CSV.write(savedir*filename, results_table)
+                    end
                 end
-
                 if do_μthenreg
                     for model in [:linear, :tree]
                         # d = Dict(:maxdepth => collect(6:2:10))

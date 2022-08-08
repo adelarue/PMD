@@ -66,8 +66,9 @@ end
 function regress_linear(Y::Array{Float64}, df::DataFrame;
 				regtype::Symbol=:missing_weight, alpha::Real=0.8, missing_penalty::Real=1.0)
 	cols = setdiff(Symbol.(names(df)), [:Id, :Test])
-	X = Matrix(df[df[:, :Test] .== 0, cols])
-	y = convert(Array, Y[df[:,:Test] .== 0])
+	trainingset = try findall(df[:, :Test] .== 0) catch ; collect(1:nrow(df)) end
+	X = Matrix(df[trainingset, cols])
+	y = convert(Array, Y[trainingset])
 	coefficients = DataFrame()
 	
 	#PENALTY: Lasso 
@@ -160,8 +161,10 @@ end
 function regress_linear(Y::BitArray{1}, df::DataFrame;
 				 regtype::Symbol=:lasso, alpha::Real=0.8, missing_penalty::Real=1.0)
 	cols = setdiff(Symbol.(names(df)), [:Id, :Test])
-	X = Matrix(df[df[:, :Test] .== 0, cols])
-	y = convert(Array, Y[df[!, :Test] .== 0])
+	
+	trainingset = try findall(df[:, :Test] .== 0) catch ; collect(1:nrow(df)) end
+	X = Matrix(df[trainingset, cols])
+	y = convert(Array, Y[trainingset])
 
 	freq = mean(1.0.*y)
 	w = (1/freq).*y .+ (1/(1 - freq)).*(1. .- y); #class weights

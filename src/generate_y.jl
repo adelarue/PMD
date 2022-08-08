@@ -204,3 +204,99 @@ function nonlinear_y(data::DataFrame,
     return Y .+ noise, k_non_missing+k_missing_in_signal, k_missing_in_signal
 end
 
+"""
+	Generate Y, nonlinearly, following Friedman (1991) model 
+		Y = 10 sin(π X1 X2) + 20(X3 − 0.5)2 + 1 X4 + 5 X5 + ε
+	Args:
+		- data: DataFrame with fully observed values
+		- data_missing: DataFrame with missing values
+		- k: number of features that can be missing
+		- canbemissing: indicates which features can be missing
+		- mar: whether the signal does not depend on missingness indicators
+		- k_missing_in_signal: number of potentially missing features in signal
+		- hidden_nodes: number of hidden nodes
+	Returns:
+		- a vector of length nrow(data) with the values of Y
+"""
+function generate_y(data::DataFrame,
+	data_missing::DataFrame;
+	k::Real=10, k_missing_in_signal::Int=0, canbemissing=falses(Base.size(data,2)),
+	mar::Bool=true,
+	SNR::Real=2,
+    model::Symbol = :linear,
+    hidden_nodes::Int=10) 
+
+    @assert k >= 0.0
+    @assert SNR >= 0.0
+
+	feature_names = Symbol.(names(data));
+    nevermissing_features = feature_names[.!canbemissing]; missing_features = feature_names[canbemissing]
+	setdiff!(feature_names, [:Test, :Id]); setdiff!(nevermissing_features, [:Test, :Id]); setdiff!(missing_features, [:Test, :Id]);
+
+	k = min(k, length(feature_names))
+    k_missing_in_signal = min(k_missing_in_signal, length(missing_features))
+	k_non_missing = min(max(k - k_missing_in_signal, 0), length(nevermissing_features))
+	# @show k, k_missing_in_signal, k_non_missing
+
+    #Standardize
+    newdata = standardize(data[:,feature_names])
+
+    # Start creating input matrix
+    X = zeros(nrow(newdata),0)
+
+    #For nevermissing features, choose features
+	if k_non_missing > 0
+		support = shuffle(nevermissing_features)[1:k_non_missing]
+		X = hcat(X, Matrix{Float64}(newdata[:,support]))
+	end
+    #For missing feautres, choose features
+	if k_missing_in_signal > 0
+	    support = shuffle(missing_features)[1:k_missing_in_signal]
+	    X = hcat(X, Matrix{Float64}(newdata[:,support]))
+	end
+	if k_missing_in_signal > 0 && !mar
+		support = shuffle(missing_features)[1:k_missing_in_signal]
+		X = hcat(X, Matrix{Float64}(1.0 .* ismissing.(data_missing[:,support])))
+	end
+    #Add bias
+
+	Y = zeros(nrow(newdata))
+	if model == :linear 
+		W = 2 .* rand(Base.size(X,2)) .- 1
+		Y = X*W .+ randn(1)
+	elseif model == :quad 
+			W = 2 .* rand(Base.size(X,2)) .- 1
+			Y = (X*W .+ randn(1) .- 1).^2
+	elseif model == :break 
+		W = 2 .* rand(Base.size(X,2)) .- 1
+		Y = X*W .+ randn(1)
+		Y .+= 3 .* (Y .> 0)
+	elseif model == :linear 
+		W = 2 .* rand(Base.size(X,2)) .- 1
+		Y = X*W .+ randn(1)
+	elseif model == :friedman
+		if Base.size(X,2) < 5
+			error("Friedman's model require at least 5 features")
+		end 
+		if  Base.size(X,2) > 5
+			println("More than 5 features provided. FYI Friedman's model will only use 5 of them")
+		end
+		X = X[:,shuffle(1:Base.size(X,2))]
+    	Y = 10 .* sin.(π .* X[:,1] .* X[:,2]) .+ 20 .* (X[:,3] .- 0.5).^2 .+ X[:,4] .+ 5 .* X[:,5]
+	elseif model == :nn 
+		W = 2*rand(hidden_nodes, Base.size(X,2))
+		nn = Flux.Chain( 	Flux.Dense(W, # linear weights
+                               randn(hidden_nodes), # bias of each hidden node
+                               Flux.relu), # activation function
+                    		Flux.Dense(2 * rand(1, hidden_nodes) .- 1, # linear weights
+                               	randn(1), 	# bias of each hidden node
+                               	x->x)) 		# activation function of output layer (identity)
+    	Y = vec(nn(X'))
+	end
+
+    #Add noise
+    noise = randn(nrow(newdata)); noise .*= norm(Y) / norm(noise) / SNR
+
+    return Y .+ noise, k_non_missing+k_missing_in_signal, k_missing_in_signal
+end
+
