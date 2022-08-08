@@ -37,7 +37,7 @@ using DecisionTree
 """
 	Fit a DT to the training data
 """
-function regress_tree(Y::Vector{Float64}, df::DataFrame; maxdepth::Int=5)
+function regress_tree(Y::Union{Vector{Float64},BitArray}, df::DataFrame; maxdepth::Int=5)
 	cols = setdiff(Symbol.(names(df)), [:Id, :Test])
 	trainingset = try findall(df[:, :Test] .== 0) catch ; collect(1:nrow(df)) end
 	X = Matrix{Float64}(df[trainingset, cols])
@@ -51,13 +51,13 @@ end
 function predict(df::DataFrame, model::DecisionTree.Node)
 	cols = setdiff(Symbol.(names(df)), [:Id, :Test])
 	X = Matrix{Float64}(df[:, cols])
-	return DecisionTree.apply_tree(model, X)
+	return try DecisionTree.apply_tree(model, X) catch ; DecisionTree.apply_tree_proba(model, X, ["1"])[:,1] end
 end
-function predict_proba(df::DataFrame, model::DecisionTree.Node)
-	cols = setdiff(Symbol.(names(df)), [:Id, :Test])
-	X = Matrix(df[:, cols])
-	return DecisionTree.apply_tree_proba(model, X)
-end
+# function predict_proba(df::DataFrame, model::DecisionTree.Node)
+# 	cols = setdiff(Symbol.(names(df)), [:Id, :Test])
+# 	X = Matrix(df[:, cols])
+# 	return DecisionTree.apply_tree_proba(model, X, ["1"])[:,1]
+# end
 
 # """
 # 	Evaluate fit quality on dataset
