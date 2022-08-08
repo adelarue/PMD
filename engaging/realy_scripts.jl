@@ -27,6 +27,10 @@ do_μthenreg = true
 results_main = DataFrame(dataset=[], SNR=[], k=[], kMissing=[], splitnum=[], method=[],
                                 r2=[], osr2=[], time=[], hp=[])
 
+SNR = NaN 
+k = NaN 
+k_missing = NaN 
+
 # for ARG in ARGS
 ARG = ARGS[1]
 array_num = parse(Int, ARG)
@@ -103,9 +107,6 @@ if  true #dname ∈ longtime_list #|| (dname == "ozone-level-detection-one" && k
         # Split train / test
         Random.seed!(56802+767*iter)
         test_ind = PHD.split_dataset(X_missing, test_fraction = test_prop, random = true)
-        if !random_split
-            test_ind = PHD.split_dataset_nonrandom(X_missing, test_fraction = test_prop)
-        end
 
         if do_benchmark
             println("Benchmark methods...")
