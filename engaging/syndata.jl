@@ -26,18 +26,18 @@ savedir = string("../results/synthetic_xmy",
 mkpath(savedir)
 
 #Prediction methods
-do_benchmark = false
-do_impthenreg = false
-do_tree = false
-do_static = false
-do_affine = false
+do_benchmark = true
+do_tree = true
+do_impthenreg = true
+do_static = true
+do_affine = true
 affine_on_static_only = false #Should be set to false
 do_finite = true
-do_μthenreg = false 
+do_μthenreg = true 
 
 
 results_main = DataFrame(dataset=[], SNR=[], k=[], kMissing=[], splitnum=[], method=[],
-                                r2=[], osr2=[], time=[])
+                                r2=[], osr2=[], time=[], hp=[])
 
 # for ARG in ARGS
 ARG = ARGS[1]
@@ -71,8 +71,8 @@ test_prop = .3
 
 savedfiles = filter(t -> startswith(t, string(dname, "_SNR_", SNR, "_nmiss_", k_missingsignal)), readdir(savedir))
 map!(t -> split(replace(t, ".csv" => ""), "_")[end], savedfiles, savedfiles)
-@show savedfiles
 for iter in setdiff(1:10, parse.(Int, savedfiles))    
+# for iter in 1:10
     @show iter
     results_table = similar(results_main,0)
 
@@ -98,7 +98,7 @@ for iter in setdiff(1:10, parse.(Int, savedfiles))
         linear, bestparams = PHD.regress_cv(Y, df, model=:linear, parameter_dict=d)
         δt = (time() - start)
         R2, OSR2 = PHD.evaluate(Y, df, linear)
-        push!(results_table, [dname, SNR, k, k_missing, iter, "Oracle X", R2, OSR2, δt])
+        push!(results_table, [dname, SNR, k, k_missing, iter, "Oracle X", R2, OSR2, δt, bestparams[:alpha]])
         CSV.write(savedir*filename, results_table)
 
         df = [X_full[:,:] PHD.indicatemissing(X_missing[:,:]; removecols=:Zero)]
@@ -107,7 +107,7 @@ for iter in setdiff(1:10, parse.(Int, savedfiles))
         linear, bestparams = PHD.regress_cv(Y, df, model=:linear, parameter_dict=d)
         δt = (time() - start)
         R2, OSR2 = PHD.evaluate(Y, df, linear)
-        push!(results_table, [dname, SNR, k, k_missing, iter, "Oracle XM", R2, OSR2, δt])
+        push!(results_table, [dname, SNR, k, k_missing, iter, "Oracle XM", R2, OSR2, δt, bestparams[:alpha]])
         CSV.write(savedir*filename, results_table)
 
 
@@ -119,9 +119,9 @@ for iter in setdiff(1:10, parse.(Int, savedfiles))
             linear, bestparams = PHD.regress_cv(Y, df, model=:linear, parameter_dict=d)
             δt = (time() - start)
             R2, OSR2 = PHD.evaluate(Y, df, linear)
-            push!(results_table, [dname, SNR, k, k_missing, iter, "Complete Features", R2, OSR2, δt])
+            push!(results_table, [dname, SNR, k, k_missing, iter, "Complete Features", R2, OSR2, δt, bestparams[:alpha]])
         catch #In this case, simply predict the mean - which leads to 0. OSR2
-            push!(results_table, [dname, SNR, k, k_missing, iter, "Complete Features", 0., 0., 0.])
+            push!(results_table, [dname, SNR, k, k_missing, iter, "Complete Features", 0., 0., 0.,0.])
         end
         CSV.write(savedir*filename, results_table)
     end
@@ -137,7 +137,7 @@ for iter in setdiff(1:10, parse.(Int, savedfiles))
         cartmodel, bestparams = PHD.regress_cv(Y, df; model = :tree, parameter_dict=d)
         δt = (time() - start)
         R2, OSR2 = PHD.evaluate(Y, df, cartmodel)
-        push!(results_table, [dname, SNR, k, k_missing, iter, "CART MIA", R2, OSR2, δt])
+        push!(results_table, [dname, SNR, k, k_missing, iter, "CART MIA", R2, OSR2, δt, bestparams[:maxdepth]])
         CSV.write(savedir*filename, results_table)
     end
 
@@ -159,7 +159,7 @@ for iter in setdiff(1:10, parse.(Int, savedfiles))
         δt += (time() - start)
 
         R2, OSR2 = PHD.evaluate(Y, df, linear)
-        push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 1", R2, OSR2, δt])
+        push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 1", R2, OSR2, δt, bestparams[:alpha]])
         CSV.write(savedir*filename, results_table)
 
 
@@ -182,7 +182,7 @@ for iter in setdiff(1:10, parse.(Int, savedfiles))
         linear, bestparams = PHD.regress_cv(Y, df, model=:linear, parameter_dict=d)
         δt += (time() - start)
         R2, OSR2 = PHD.evaluate(Y, df, linear)
-        push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 2", R2, OSR2, δt])
+        push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 2", R2, OSR2, δt, bestparams[:alpha]])
         CSV.write(savedir*filename, results_table)
 
 
@@ -204,7 +204,7 @@ for iter in setdiff(1:10, parse.(Int, savedfiles))
         linear, bestparams = PHD.regress_cv(Y, df, model=:linear, parameter_dict=d)
         δt += (time() - start)
         R2, OSR2 = PHD.evaluate(Y, df, linear)
-        push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 3", R2, OSR2, δt])
+        push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 3", R2, OSR2, δt, bestparams[:alpha]])
         CSV.write(savedir*filename, results_table)
 
         ## Method 1.4
@@ -218,7 +218,7 @@ for iter in setdiff(1:10, parse.(Int, savedfiles))
         linear, bestparams = PHD.regress_cv(Y, df, model=:linear, parameter_dict=d)
         δt += (time() - start)
         R2, OSR2 = PHD.evaluate(Y, df, linear)
-        push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 4", R2, OSR2, δt])
+        push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 4", R2, OSR2, δt, bestparams[:alpha]])
         CSV.write(savedir*filename, results_table)
 
         ## Method 1.5 Mean and mode impute
@@ -235,7 +235,7 @@ for iter in setdiff(1:10, parse.(Int, savedfiles))
         linear, bestparams = PHD.regress_cv(Y, df, model=:linear, parameter_dict=d)
         δt += (time() - start)
         R2, OSR2 = PHD.evaluate(Y, df, linear)
-        push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 5", R2, OSR2, δt])
+        push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 5", R2, OSR2, δt, bestparams[:alpha]])
         CSV.write(savedir*filename, results_table)
     end
     
@@ -254,7 +254,7 @@ for iter in setdiff(1:10, parse.(Int, savedfiles))
         linear2, bestparams2 = PHD.regress_cv(Y, X_augmented, model=:linear, parameter_dict=d)
         δt = (time() - start)
         R2, OSR2 = PHD.evaluate(Y, X_augmented, linear2)
-        push!(results_table, [dname, SNR, k, k_missing, iter, "Static", R2, OSR2, δt])
+        push!(results_table, [dname, SNR, k, k_missing, iter, "Static", R2, OSR2, δt, bestparams[:alpha]])
         CSV.write(savedir*filename, results_table)
 
         if do_affine
@@ -262,44 +262,36 @@ for iter in setdiff(1:10, parse.(Int, savedfiles))
             df = deepcopy(X_missing)
             df[!,:Test] = test_ind
             model = names(df)
-            # if affine_on_static_only
-            #     model2 = names(linear2)[findall(abs.([linear2[1,c] for c in names(linear2)]) .> 0)]
-            #     model2 = intersect(model2, names(df))
-            #     if length(model2) > 0
-            #         model = model2[:]
-            #     end
-            # end
+
             start = time()
             X_affine = PHD.augmentaffine(df, model=String.(model), removecols=:Constant)
             linear3, bestparams3 = PHD.regress_cv(Y, X_affine, model=:linear, parameter_dict=d)
             δt = (time() - start)
             R2, OSR2 = PHD.evaluate(Y, X_affine, linear3)
-            push!(results_table, [dname, SNR, k, k_missing, iter, "Affine", R2, OSR2, δt])
+            push!(results_table, [dname, SNR, k, k_missing, iter, "Affine", R2, OSR2, δt, bestparams[:alpha]])
             CSV.write(savedir*filename, results_table)
         end
     end
     
-    for _ in 1:10
     if do_finite
-        d = Dict(:maxdepth => collect(8:2:9))
+        println("Finite adaptive methods...")
+        println("###################")
+        d = Dict(:maxdepth => collect(0:2:10))
 
         df = deepcopy(X_missing)
         df[!,:Test] = test_ind
 
         start = time()
-        X_missing_std = PHD.standardize(df)
-        # X_missing_zero_std = PHD.zeroimpute(X_missing_std)
-        gm2, = PHD.regress_cv(Y, X_missing_std, model = :greedy, parameter_dict = d)
+        gm2, bestparams = PHD.regress_cv(Y, df, model = :greedy, parameter_dict = d)
         δt = (time() - start)
-
-        @show R2, OSR2 = PHD.evaluate(Y, X_missing_std, gm2)
-        push!(results_table, [dname, SNR, k, k_missing, iter, "Finite", R2, OSR2, δt])
+        R2, OSR2 = PHD.evaluate(Y, df, gm2)   
+        push!(results_table, [dname, SNR, k, k_missing, iter, "Finite", R2, OSR2, δt, bestparams[:maxdepth]])
         CSV.write(savedir*filename, results_table)
     end
-    end
     if do_μthenreg
+        println("Joint Impute-and-Regress methods...")
+        println("###################")
         for model in [:linear, :tree]
-            # d = Dict(:maxdepth => collect(6:2:10))
             d = model == :linear ? Dict(:alpha => collect(0.1:0.1:1)) : Dict(:maxdepth => collect(1:2:10))
 
             df = deepcopy(X_missing)
@@ -310,9 +302,9 @@ for iter in setdiff(1:10, parse.(Int, savedfiles))
             δt = (time() - start)
 
             R2, OSR2 = PHD.evaluate(Y, PHD.mean_impute(df, μ), opt_imp_then_reg)
-            push!(results_table, [dname, SNR, k, k_missing, iter, string("Joint Imp-then-Reg - ", model), R2, OSR2, δt])
+            push!(results_table, [dname, SNR, k, k_missing, iter, string("Joint Imp-then-Reg - ", model), R2, OSR2, 
+                        δt, model == :linear ? bestparams[:alpha] : bestparams[:maxdepth]])
             CSV.write(savedir*filename, results_table)
         end
     end
 end
-# end
