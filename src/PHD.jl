@@ -4,12 +4,12 @@
 
 module PHD
 
-using IrrationalConstants,SparseArrays, DataFrames, CSV
+using SparseArrays, DataFrames, CSV
 using RDatasets
 using RCall
 using GLMNet
 using Statistics, LinearAlgebra, Printf, Random
-using DataStructures, StatsBase, MLDataPattern
+using DataStructures, StatsBase, MLUtils
 using JuMP, Gurobi
 using Flux
 
