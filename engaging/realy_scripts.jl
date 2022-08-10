@@ -29,7 +29,7 @@ results_main = DataFrame(dataset=[], SNR=[], k=[], kMissing=[], splitnum=[], met
 
 SNR = NaN 
 k = NaN 
-k_missing = NaN 
+k_missing = 1 
 
 # for ARG in ARGS
 ARG = ARGS[1]

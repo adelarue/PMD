@@ -28,14 +28,14 @@ savedir = string("../results/",
 mkpath(savedir)
 
 #Prediction methods
-do_benchmark = true
-do_tree = true
-do_impthenreg = true
-do_static = true
-do_affine = true
+do_benchmark = false
+do_tree = false
+do_impthenreg = false
+do_static = false
+do_affine = false
 affine_on_static_only = false #Should be set to false
 do_finite = true
-do_μthenreg = true 
+do_μthenreg = false 
 
 
 results_main = DataFrame(dataset=[], SNR=[], k=[], kMissing=[], splitnum=[], method=[],
@@ -113,9 +113,9 @@ d_num = array_num + 1
                 Random.seed!(56802+767*iter)
                 # test_ind = rand(nrow(X_missing)) .< test_prop ;
                 test_ind = PHD.split_dataset(X_missing, test_fraction = test_prop, random = true)
-                if !random_split
-                	test_ind = PHD.split_dataset_nonrandom(X_missing, test_fraction = test_prop)
-                end
+                # if !random_split
+                # 	test_ind = PHD.split_dataset_nonrandom(X_missing, test_fraction = test_prop)
+                # end
 
                 if do_benchmark
                     println("Benchmark methods...")

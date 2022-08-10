@@ -4,9 +4,9 @@ source("setup_script.R")
 library(RColorBrewer)
 
 df <- rbind(
-  read_csv("nonlinear/fakey_mar/FINAL_results.csv") %>% mutate(Setting = "1 - Syn-MAR"),
-  read_csv("nonlinear/fakey_nmar/FINAL_results.csv") %>% mutate(Setting = "2 - Syn-NMAR"),
-  read_csv("nonlinear/fakey_mar_adv/FINAL_results.csv") %>% mutate(Setting = "3 - Syn-NMAR adv"),
+  read_csv("linear/fakey_mar/FINAL_results.csv") %>% mutate(Setting = "1 - Syn-MAR"),
+  read_csv("linear/fakey_nmar/FINAL_results.csv") %>% mutate(Setting = "2 - Syn-NMAR"),
+  read_csv("linear/fakey_mar_adv/FINAL_results.csv") %>% mutate(Setting = "3 - Syn-NMAR adv"),
   read_csv("realy/FINAL_results.csv") %>% mutate(SNR = 2, k = 10, kMissing=1, Setting = "4 - Real") 
 )
 
@@ -37,6 +37,7 @@ for (s in synset) {
   #Plot 2: Out-of-sample R2
   plot_data %>%
     filter(Setting == s) %>%
+    filter(kMissing > 0) %>%
     ggplot() +
     aes(x = kMissing, y = meanosr2, fill=method, group=method, color=method, linetype=method) +
     geom_line(size=2) +
@@ -71,6 +72,7 @@ for (s in synset) {
 df_winrate <- df %>%
   left_join(patterns) %>%
   filter(!is.na(p)) %>%
+  filter(kMissing > 0) %>%
   group_by(Setting, dataset, k, kMissing, splitnum) %>%
   select(method, osr2) %>%
   spread(key = method, value=osr2) %>%
