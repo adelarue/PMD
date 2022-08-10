@@ -69,5 +69,6 @@ function auc(actual::BitArray{1}, predicted::Vector)
 	n_pos = sum(actual)
 	n_neg = length(actual) - n_pos
 	AUC = (sum(r[actual]) - n_pos * (n_pos + 1) / 2) / (n_pos * n_neg)
-	return AUC
+	# return AUC #Raw AUC between 0.5 and 1
+	return 2*(AUC -.5) #Adjusted AUC between 0 and 1 --Comparable with R2
 end
