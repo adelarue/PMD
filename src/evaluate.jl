@@ -10,21 +10,24 @@
 """
 function evaluate(Y::Vector, df::DataFrame, model::Union{DataFrame,DecisionTree.Node,Chain,GreedyModel})
 	prediction = predict(df, model)
-
 	testavail = "Test" ∈ names(df)
     if !testavail #If no test column, all dataset is considered training
         df[!,:Test] .= 0
     end
 
+	# for i in findall(abs.(prediction) .> 500)
+	# 	for j in names(df)
+	# 		println(j, " : ", df[i,j])
+	# 	end
+	# end
 	trainmean = Statistics.mean(Y[df[:,:Test] .== 0])
-    SST = sum((Y[df[:,:Test] .== 0] .- trainmean) .^ 2)
-	R2 = 1 - sum((Y[df[:,:Test] .== 0] .- prediction[df[:,:Test] .== 0]) .^ 2)/SST
-
+    SST = mean((Y[df[:,:Test] .== 0] .- trainmean) .^ 2)
+	R2 = 1 - mean( (Y[df[:,:Test] .== 0] .- prediction[df[:,:Test] .== 0]).^ 2 )/SST
 	if !testavail #If no test column, all dataset is considered training
         return R2, NaN
 	else 
-		OSSST = sum((Y[df[:,:Test] .== 1] .- trainmean) .^ 2)
-		OSR2 = 1 - sum((Y[df[:,:Test] .== 1] .- prediction[df[:,:Test] .== 1]) .^ 2)/OSSST
+		OSSST = mean((Y[df[:,:Test] .== 1] .- trainmean) .^ 2)
+		OSR2 = 1 - mean((Y[df[:,:Test] .== 1] .- prediction[df[:,:Test] .== 1]) .^ 2)/OSSST
 		return R2, OSR2
     end 
 end

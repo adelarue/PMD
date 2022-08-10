@@ -74,13 +74,13 @@ function regress_cv(Y, data::DataFrame;
 	
 	# For each supported type of predictive model, checks that parameter_dict corresponds to valid hyper-parameters 
 	if model == :linear 
-		# all([k .∈ [:regtype, :alpha, :missing_penalty] for k in keys(parameter_dict)])
+		keys(parameter_dict) ⊆ [:regtype, :alpha, :missing_penalty]
 	elseif model == :tree 
-		# all([k .∈ [:maxdepth] for k in keys(parameter_dict)])
+		keys(parameter_dict) ⊆ [:maxdepth]
 	elseif model == :nn 
-		# all([k .∈ [:hidden_nodes] for k in keys(parameter_dict)])
+		keys(parameter_dict) ⊆ [:hidden_nodes]
 	elseif model == :greedy
-		# all([k .∈ [:maxdepth, :tolerance, :minbucket] for k in keys(parameter_dict)])
+		keys(parameter_dict) ⊆ [:maxdepth, :tolerance, :minbucket]
 	end
 
 	# Isolate training set
@@ -89,15 +89,17 @@ function regress_cv(Y, data::DataFrame;
 	
 	# Designate some of training as testing/validation
 	# val_indices = shuffle(1:nrow(newdata))[1:Int(floor(val_fraction * nrow(newdata)))]
+	# val_indices = findall(split_dataset(newdata; Y=newY, test_fraction = val_fraction, random=true))
 	val_indices = findall(split_dataset(newdata; test_fraction = val_fraction, random=true))
+
 	newdata[val_indices, :Test] .= 1
-	
+
 	bestmodel = []
 	bestOSR2 = -Inf
 	bestparams = [] 
 	for params in expand(parameter_dict)
-		newmodel = regress(newY, newdata;model=model, parameter_dict=params)
-
+		newmodel = regress(newY, newdata; model=model, parameter_dict=params)
+		# @show params, evaluate(newY, newdata, newmodel)
 		newOSR2 = evaluate(newY, newdata, newmodel)[2]
 		if newOSR2 > bestOSR2
 			bestOSR2 = newOSR2

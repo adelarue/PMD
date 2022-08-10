@@ -24,18 +24,18 @@ savedir = string("../results/",
                 "/fakey", 
                 relationship_yx_mar ? "_mar" : "_nmar",
                 adversarial_missing ? "_adv" : "", 
-                "/finite/")
+                "/redo/")
 mkpath(savedir)
 
 #Prediction methods
-do_benchmark = false
-do_tree = false
-do_impthenreg = false
-do_static = false
-do_affine = false
+do_benchmark = true
+do_tree = true
+do_impthenreg = true
+do_static = true
+do_affine = true
 affine_on_static_only = false #Should be set to false
 do_finite = true
-do_μthenreg = false 
+do_μthenreg = true 
 
 
 results_main = DataFrame(dataset=[], SNR=[], k=[], kMissing=[], splitnum=[], method=[],
@@ -70,6 +70,9 @@ d_num = array_num + 1
         keep_cols = names(X_missing)
         for l in values(PHD.intrinsic_indicators(X_missing, correlation_threshold=0.9))
             setdiff!(keep_cols, l)
+        end 
+        if dname == "horse-colic"
+            setdiff!(keep_cols, ["N_2"])
         end
         select!(X_missing, keep_cols)
         canbemissing = [any(ismissing.(X_missing[:,j])) for j in names(X_missing)] #indicator of missing features
@@ -84,13 +87,7 @@ d_num = array_num + 1
         end
 
         # Create output
-        Random.seed!(549)
-        # @time Y, k, k_missing = PHD.linear_y(X_full, X_missing, 
-        #                 k=10, k_missing_in_signal=k_missingsignal, SNR=SNR, 
-        #                 canbemissing=canbemissing, mar=relationship_yx_mar) ;
-        # @time Y, k, k_missing = PHD.nonlinear_y(X_full, X_missing, 
-        #                 k=10, k_missing_in_signal=k_missingsignal, SNR=SNR, 
-        #                 canbemissing=canbemissing, mar=relationship_yx_mar)                
+        Random.seed!(549)             
         @time Y, k, k_missing = PHD.generate_y(X_full, X_missing,
                         model = model_for_y,  
                         k=10, k_missing_in_signal=k_missingsignal, SNR=SNR, 
@@ -102,8 +99,8 @@ d_num = array_num + 1
 
             savedfiles = filter(t -> startswith(t, string(dname, "_SNR_", SNR, "_nmiss_", k_missingsignal)), readdir(savedir))
             map!(t -> split(replace(t, ".csv" => ""), "_")[end], savedfiles, savedfiles)
-            for iter in setdiff(1:10, parse.(Int, savedfiles))    
-            # for iter in 1:10
+            # for iter in setdiff(1:10, parse.(Int, savedfiles))    
+            for iter in 1:10
                 @show iter
                 results_table = similar(results_main,0)
 
@@ -324,7 +321,7 @@ d_num = array_num + 1
                     # X_missing_zero_std = PHD.zeroimpute(X_missing_std)
                     gm2, bestparams = PHD.regress_cv(Y, df, model = :greedy, parameter_dict = d)
                     δt = (time() - start)
-                    R2, OSR2 = PHD.evaluate(Y, df, gm2)   
+                    @show R2, OSR2 = PHD.evaluate(Y, df, gm2)   
                     push!(results_table, [dname, SNR, k, k_missing, iter, "Finite", R2, OSR2, δt, bestparams[:maxdepth]])
                     CSV.write(savedir*filename, results_table)
                 end

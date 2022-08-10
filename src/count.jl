@@ -121,15 +121,15 @@ end
 	Returns a dictionary (column name with missing values) => [intrinsic indicator columns]
 """
 function intrinsic_indicators(df::DataFrame; correlation_threshold::Real = 0.999)
-	cols = setdiff(Symbol.(names(df)), [:Id, :Test, :Y])
+	cols = setdiff((names(df)), ["Id", "Test", "Y"])
 	d = Dict()
 	for col in cols
-		if any(ismissing.(df[!, col]))
+		if any(ismissing.(df[:, col]))
 			d[col] = []
 			for col2 in setdiff(cols, [col])
-				if !any(ismissing.(df[!, col2]))
+				if !any(ismissing.(df[:, col2]))
 					matrix = 0
-					matrix = [Int.(ismissing.(df[!, col])) float.(convert(Vector, df[!, col2]))]
+					matrix = [Int.(ismissing.(df[:, col])) float.(convert(Vector, df[:, col2]))]
 					correlation = cor(matrix)
 					if abs(correlation[1,2]) >= correlation_threshold
 						push!(d[col], col2)
@@ -145,16 +145,23 @@ end
 	Split dataset into in-sample and out-of-sample using stratified sampling
 	Returns a vector with value true if in test set and false otherwise
 """
-function split_dataset(df::DataFrame; test_fraction::Real = 0.3, random::Bool = false)
+function split_dataset(df::DataFrame; Y=collect(1:nrow(df)), test_fraction::Real = 0.3, random::Bool = true)
 	if !random
 		return split_dataset_nonrandom(df, test_fraction=test_fraction)
 	end
-	islogistic = try length(unique(df[:,:Y])) <= 2 catch ; false end
-	cols = setdiff(Symbol.(names(df)), islogistic ? [:Id, :Test] : [:Id, :Test, :Y])
-	patterns, counts = missing_patterns_countmap(df[:,cols], safe=false)
-	patternidx = [findfirst(x -> x == ismissing.(convert(Vector, [df[i, j] for j in cols])),
-	                        patterns) for i = 1:nrow(df)]
+	cols = setdiff(Symbol.(names(df)), [:Id, :Test, :Y])
+	patterns, counts = missing_patterns_countmap(df[:,cols], safe=false) #Returns list of missingness pattern and count of occurences for each
+	M = Matrix(ismissing.(df[:,cols]))
+	patternidx = [findfirst(x -> x == M[i,:], patterns) for i = 1:nrow(df)] #Identify pattern of each observation
+	
+	islogistic = try length(unique(Y)) <= 2 catch ; false end
+	if islogistic
+    	normY = (Y .== levels(Y)[1])
+    	patternidx .+= length(patterns).*normY
+	end 
+
 	train, test = MLDataPattern.stratifiedobs((eachindex(patternidx), patternidx), 1 - test_fraction)
+
 	test_ind = falses(nrow(df))
 	test_ind[test[1]] .= true
 	return test_ind
