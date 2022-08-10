@@ -59,6 +59,9 @@ if  true #dname ∈ longtime_list #|| (dname == "ozone-level-detection-one" && k
     for l in values(PHD.intrinsic_indicators(X_missing, correlation_threshold=0.9))
         setdiff!(keep_cols, l)
     end
+    if dname == "horse-colic"
+        setdiff!(keep_cols, ["N_2"])
+    end
     select!(X_missing, keep_cols)
     canbemissing = [any(ismissing.(X_missing[:,j])) for j in names(X_missing)] #indicator of missing features
 
