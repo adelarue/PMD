@@ -6,7 +6,7 @@
 
 
 using RCall, SparseArrays
-using MLDataPattern
+using MLUtils
 
 # R"""install.packages("genlasso")"""
 R"""library(genlasso)"""
@@ -25,7 +25,7 @@ function genlassocv(X, y, D; kfolds =10,method=:kcv)
     oo_performance = zeros(length(λ),kfolds)
     
     i_fold = 0
-    for ((Xtrain, ytrain), (Xval, yval)) in MLDataPattern.kfolds((X',y), k=kfolds)
+    for ((Xtrain, ytrain), (Xval, yval)) in MLUtils.kfolds((X',y), k=kfolds)
         i_fold += 1
         Xtrain = Xtrain'; Xval = Xval'
         R"""modeltrain <- genlasso($ytrain, as.matrix($Xtrain), ($D), verbose=F, eps=0.1)

@@ -145,6 +145,21 @@ end
 	Split dataset into in-sample and out-of-sample using stratified sampling
 	Returns a vector with value true if in test set and false otherwise
 """
+function splitobs_stratified(;at, y::Array, shuffle::Bool=true)
+	n_splits = length(at) + 1
+	the_splits = [Int[] for s = 1:n_splits]
+	for label in unique(y)
+		ids_this_label = filter(i -> y[i] == label, 1:length(y))
+		if shuffle
+			ids_this_label = MLUtils.shuffleobs(ids_this_label)
+		end
+		split_this_label = MLUtils.splitobs(ids_this_label, at=at)
+		for s = 1:n_splits
+			the_splits[s] = vcat(the_splits[s], split_this_label[s])
+		end
+	end	
+	return the_splits
+end
 function split_dataset(df::DataFrame; Y=collect(1:nrow(df)), test_fraction::Real = 0.3, random::Bool = true)
 	if !random
 		return split_dataset_nonrandom(df, test_fraction=test_fraction)
@@ -160,10 +175,10 @@ function split_dataset(df::DataFrame; Y=collect(1:nrow(df)), test_fraction::Real
     	patternidx .+= length(patterns).*normY
 	end 
 
-	train, test = MLDataPattern.stratifiedobs((eachindex(patternidx), patternidx), 1 - test_fraction)
+	train, test = splitobs_stratified(y=patternidx, at=1 - test_fraction)
 
 	test_ind = falses(nrow(df))
-	test_ind[test[1]] .= true
+	test_ind[test] .= true
 	return test_ind
 end
 
