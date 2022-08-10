@@ -24,7 +24,7 @@ savedir = string("../results/",
                 "/fakey", 
                 relationship_yx_mar ? "_mar" : "_nmar",
                 adversarial_missing ? "_adv" : "", 
-                "/fix/")
+                "/finite/")
 mkpath(savedir)
 
 #Prediction methods
