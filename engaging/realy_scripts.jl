@@ -10,7 +10,7 @@ sort!(dataset_list)
 
 savedir = string("../results/", 
                 "/realy", 
-                "/fix/")
+                "/redo/")
 mkpath(savedir)
 
 #Prediction methods
