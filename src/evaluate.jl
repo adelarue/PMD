@@ -8,7 +8,7 @@
 	Evaluate the fit quality of a model on a dataset. Returns in- and out-of-sample
     Train/Test identified with the :Test column
 """
-function evaluate(Y::Vector, df::DataFrame, model::Union{DataFrame,DecisionTree.Node,Chain,GreedyModel})
+function evaluate(Y::Vector, df::DataFrame, model::Union{DataFrame,DecisionTree.Root,Chain,GreedyModel})
 	prediction = predict(df, model)
 	testavail = "Test" ∈ names(df)
     if !testavail #If no test column, all dataset is considered training
