@@ -57,7 +57,7 @@ d_num = array_num + 1
     longtime_list = ["pscl-politicalInformation", "mlmRev-star"]
     if  true #dname ∈ longtime_list #|| (dname == "ozone-level-detection-one" && k_missingsignal == 1)
         # Read in a data file.
-        X_missing = PHD.standardize_colnames(CSV.read("../datasets/"*dname*"/X_missing.csv", DataFrame, missingstring=["", "NaN"])) #df with missing values
+        X_missing = PHD.standardize_colnames(CSV.read("../datasets/"*dname*"/X_missing.csv", DataFrame, missingstrings=["", "NaN"])) #df with missing values
 
         # Clean up : to be checked, some datasets have strings in features
         delete_obs = PHD.string_to_float_fix!(X_missing)
