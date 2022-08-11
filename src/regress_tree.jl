@@ -48,10 +48,14 @@ end
 """
 	Get Regression Tree predictions on dataset
 """
+function predict(df::DataFrame, model::DecisionTree.Root)
+	predict(df, model.node)
+end
 function predict(df::DataFrame, model::DecisionTree.Node)
 	cols = setdiff(Symbol.(names(df)), [:Id, :Test])
 	X = Matrix{Float64}(df[:, cols])
-	return try DecisionTree.apply_tree(model, X) catch ; DecisionTree.apply_tree_proba(model, X, ["1"])[:,1] end
+	return try DecisionTree.apply_tree_proba(model, X, ["1"])[:,1] catch ; DecisionTree.apply_tree(model, X) end
+	# return try DecisionTree.apply_tree(model, X) catch ; DecisionTree.apply_tree_proba(model, X, ["1"])[:,1] end
 end
 # function predict_proba(df::DataFrame, model::DecisionTree.Node)
 # 	cols = setdiff(Symbol.(names(df)), [:Id, :Test])
