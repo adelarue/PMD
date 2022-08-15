@@ -232,6 +232,9 @@ function generate_y(data::DataFrame,
     @assert k >= 0.0
     @assert SNR >= 0.0
 
+	if k_missing_in_signal < 0 
+		k_missing_in_signal = floor(Int, k*mean(canbemissing))
+	end
 	feature_names = Symbol.(names(data));
     nevermissing_features = feature_names[.!canbemissing]; missing_features = feature_names[canbemissing]
 	setdiff!(feature_names, [:Test, :Id]); setdiff!(nevermissing_features, [:Test, :Id]); setdiff!(missing_features, [:Test, :Id]);
