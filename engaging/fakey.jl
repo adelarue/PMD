@@ -9,15 +9,19 @@ using Random, Statistics, CSV, DataFrames, LinearAlgebra
 dataset_list = [d for d in readdir("../datasets/") if !startswith(d, ".")]
 sort!(dataset_list)
 
-missingsignal_list = [0,1,2,3,4,5,6,7,8,9,10]
+# missingsignal_list = [0,1,2,3,4,5,6,7,8,9,10]
+missingsignal_list = [0,1,2,3,4,5]
+
+# missingsignal_list = [-1]
 
 
 #Generation methods
 SNR = 2
+ktotal = 5
 random_split = true
 relationship_yx_mar = try ARGS[2]=="1" catch; true end
 adversarial_missing = try ARGS[3]=="1" catch; false end
-model_for_y = :linear 
+model_for_y = :friedman 
 
 savedir = string("../results/", 
                 model_for_y,
@@ -48,7 +52,7 @@ d_num = mod(array_num, 71) + 1
 # aux_num = div(array_num,71) + 1
 
 d_num = array_num + 1
-    for aux_num in 1:11
+    for aux_num in 1:length(missingsignal_list)
 
     dname = dataset_list[d_num]#"dermatology" #"""thyroid-disease-thyroid-0387" #dataset_list[1]
     k_missingsignal = missingsignal_list[aux_num]
@@ -90,7 +94,7 @@ d_num = array_num + 1
         Random.seed!(549)             
         @time Y, k, k_missing = PHD.generate_y(X_full, X_missing,
                         model = model_for_y,  
-                        k=10, k_missing_in_signal=k_missingsignal, SNR=SNR, 
+                        k=ktotal, k_missing_in_signal=k_missingsignal, SNR=SNR, 
                         canbemissing=canbemissing, mar=relationship_yx_mar)   
         @show k, k_missing
 
