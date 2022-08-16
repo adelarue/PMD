@@ -84,7 +84,7 @@ array_num = parse(Int, ARG)
         for iter in 1:10
             Random.seed!(549+n*5131+iter*7)
             X_missing = PHD.generate_missing(X_full; 
-                        method = relationship_xm_mar ? :mar : censoring, 
+                        method = relationship_xm_mar ? :mar : :censoring, 
                         p=missingness_proba, 
                         kmissing=num_missing_feature)
 
