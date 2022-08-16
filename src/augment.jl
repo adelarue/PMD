@@ -5,6 +5,17 @@
 ###################################
 
 """
+	Recover the mu-vector from a static with affine intercept model
+"""
+function recover_mu(linear::DataFrame, canbemissing::Vector{String})
+	μ = []
+	for j in canbemissing
+		push!(μ, linear[1,j*"_missing"] / linear[1,j])
+	end
+	μ
+end
+
+"""
 	Remove columns that are uniformly zero
 """
 # function removezerocolumns(df::DataFrame)

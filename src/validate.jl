@@ -21,12 +21,14 @@ function regress(Y, data::DataFrame;
 		parameter_dict::Dict{Symbol,T}=Dict(:regtype => :missing_weight)) where T	
 	if model == :linear 
 		regress_linear(Y, data; parameter_dict...)
-	elseif model == :tree 
+	elseif model == :tree || model == :friedman
 		regress_tree(Y, data; parameter_dict...)
 	elseif model == :nn
 		regress_nn(Y, data; parameter_dict...)
 	elseif model == :greedy
 		regress_greedy(Y, data; parameter_dict...)
+	elseif model == :joint
+		impute_then_regress(Y, data; parameter_dict...)
 	end
 end
 
@@ -75,12 +77,14 @@ function regress_cv(Y, data::DataFrame;
 	# For each supported type of predictive model, checks that parameter_dict corresponds to valid hyper-parameters 
 	if model == :linear 
 		keys(parameter_dict) ⊆ [:regtype, :alpha, :missing_penalty]
-	elseif model == :tree 
+	elseif model == :tree || model == :friedman
 		keys(parameter_dict) ⊆ [:maxdepth]
 	elseif model == :nn 
 		keys(parameter_dict) ⊆ [:hidden_nodes]
 	elseif model == :greedy
 		keys(parameter_dict) ⊆ [:maxdepth, :tolerance, :minbucket]
+	elseif model == :joint
+		keys(parameter_dict) ⊆ [:modeltype, :parameter_dict]
 	end
 
 	# Isolate training set
@@ -99,6 +103,7 @@ function regress_cv(Y, data::DataFrame;
 	bestparams = [] 
 	for params in expand(parameter_dict)
 		newmodel = regress(newY, newdata; model=model, parameter_dict=params)
+		# @show newmodel
 		# @show params, evaluate(newY, newdata, newmodel)
 		newOSR2 = evaluate(newY, newdata, newmodel)[2]
 		if newOSR2 > bestOSR2

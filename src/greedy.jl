@@ -28,7 +28,7 @@ struct SplitNode <: Node
 	# "Regression coefficients"
 	# coeffs::Vector{Float64}
 	"Regression model"
-	coeffs::Any
+	model::Any
 	"Current out-of-sample error"
 	current_error::Float64
 	"Parent node"

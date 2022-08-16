@@ -103,6 +103,9 @@ function mu_impute(df::DataFrame, μ; missing_columns=collect(1:Base.size(df,1))
 	end
 	return result
 end
+function update_mu_impute!(df::DataFrame, j::Union{Int,String}, μj, M)
+	df[M[:,j] .== 1,j] .= μj
+end
 
 """
 	Impute all missing values as zeros
