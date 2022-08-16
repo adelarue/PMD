@@ -8,7 +8,7 @@
 	Evaluate the fit quality of a model on a dataset. Returns in- and out-of-sample
     Train/Test identified with the :Test column
 """
-function evaluate(Y::Vector, df::DataFrame, model::Union{DataFrame,DecisionTree.Root,Chain,GreedyModel})
+function evaluate(Y::Vector, df::DataFrame, model::Union{DataFrame,DecisionTree.Root,Chain,GreedyModel,Tuple{Any, DataFrame}})
 	prediction = predict(df, model)
 	testavail = "Test" ∈ names(df)
     if !testavail #If no test column, all dataset is considered training
@@ -21,17 +21,15 @@ function evaluate(Y::Vector, df::DataFrame, model::Union{DataFrame,DecisionTree.
 	# 	end
 	# end
 	trainmean = Statistics.mean(Y[df[:,:Test] .== 0])
-    SST = mean((Y[df[:,:Test] .== 0] .- trainmean) .^ 2)
-	R2 = 1 - mean( (Y[df[:,:Test] .== 0] .- prediction[df[:,:Test] .== 0]).^ 2 )/SST
+	R2 = rsquare(Y[df[:,:Test] .== 0], prediction[df[:,:Test] .== 0]; baseline=trainmean)
 	if !testavail #If no test column, all dataset is considered training
         return R2, NaN
 	else 
-		OSSST = mean((Y[df[:,:Test] .== 1] .- trainmean) .^ 2)
-		OSR2 = 1 - mean((Y[df[:,:Test] .== 1] .- prediction[df[:,:Test] .== 1]) .^ 2)/OSSST
+		OSR2 = rsquare(Y[df[:,:Test] .== 1], prediction[df[:,:Test] .== 1]; baseline=trainmean)
 		return R2, OSR2
     end 
 end
-function evaluate(Y::BitArray{1}, df::DataFrame, model::Union{DataFrame,DecisionTree.Node,Chain,GreedyModel};
+function evaluate(Y::BitArray{1}, df::DataFrame, model::Union{DataFrame,DecisionTree.Node,Chain,GreedyModel,Tuple{Any, DataFrame}};
 				  metric::AbstractString="auc")
 	prediction = predict(df, model)
 	# if model[1, :Logistic]
@@ -48,6 +46,35 @@ function evaluate(Y::BitArray{1}, df::DataFrame, model::Union{DataFrame,Decision
 	# else
 	# 	error("Continuous model evaluated on binary vector")
 	# end
+end
+
+function stratified_evaluate(Y, df::DataFrame, model, patternidx)
+    R2list = []; OSR2list = []
+    for p in sort(unique(patternidx))
+#         try 
+            R2, OSR2 = evaluate(Y[patternidx .== p], df[patternidx .== p, :], model)
+            push!(R2list, R2)
+            push!(OSR2list, OSR2)
+#         catch 
+#             push!(R2list, 0)
+#             push!(OSR2list, 0)
+#         end
+    end
+    return R2list, OSR2list
+end
+
+function accuracy(Y::Vector, pred; baseline=mean(Y))
+	rsquare(Y, pred; baseline)
+end
+function accuracy(Y::BitArray{1}, pred)
+	auc(Y, pred)
+end
+
+"Compute Rsquare"
+function rsquare(Y::Vector, pred; baseline=mean(Y))
+	SST = mean((Y .- baseline) .^ 2)
+	R2 = 1 - mean( (Y .- pred).^ 2 )/SST
+	return R2
 end
 
 "Compute logistic loss of a particular prediction"

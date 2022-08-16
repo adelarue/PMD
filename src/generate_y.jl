@@ -280,7 +280,7 @@ function generate_y(data::DataFrame,
 	elseif model == :linear 
 		W = 2 .* rand(Base.size(X,2)) .- 1
 		Y = X*W .+ randn(1)
-	elseif model == :friedman
+	elseif model == :friedman || model == :tree
 		if Base.size(X,2) < 5
 			error("Friedman's model require at least 5 features")
 		end 
