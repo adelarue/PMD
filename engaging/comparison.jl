@@ -236,7 +236,7 @@ array_num = parse(Int, ARG)
                 δt += (time() - start)
                 R2, OSR2 = PHD.evaluate(Y, df, linear)
                 R2l, OSR2l = PHD.stratified_evaluate(Y, df, linear, patidx)   
-                push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 4", R2, OSR2, R2l, OSR2l, Matrix(means_df[:,canbemissing])[1,:], δt, bestparams[:alpha]])
+                push!(results_table, [dname, SNR, k, missingness_proba, iter, "Imp-then-Reg 4", R2, OSR2, R2l, OSR2l, Matrix(means_df[:,canbemissing])[1,:], δt, bestparams[:alpha]])
                 CSV.write(savedir*filename, results_table)
 
                 # ## Method 1.5 Mean and mode impute
