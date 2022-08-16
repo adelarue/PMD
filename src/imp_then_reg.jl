@@ -67,7 +67,7 @@ function impute_then_regress(Y::Union{Vector{Float64},BitArray}, data::DataFrame
     return (model, meanvector_to_df(μ, names(X)))
 end
 
-function predict(df::DataFrame, joint_impthenreg::Tuple{DataFrame, DataFrame})
+function predict(df::DataFrame, joint_impthenreg::Tuple{Any, DataFrame})
     return predict(mean_impute(df, joint_impthenreg[2]), joint_impthenreg[1])
 end
 
