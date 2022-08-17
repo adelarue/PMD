@@ -10,11 +10,11 @@
 """
 function evaluate(Y::Vector, df::DataFrame, model::Union{DataFrame,DecisionTree.Root,Chain,GreedyModel,Tuple{Any, DataFrame}})
 	prediction = predict(df, model)
+	# @show (prediction)
 	testavail = "Test" ∈ names(df)
     if !testavail #If no test column, all dataset is considered training
         df[!,:Test] .= 0
     end
-
 	# for i in findall(abs.(prediction) .> 500)
 	# 	for j in names(df)
 	# 		println(j, " : ", df[i,j])
@@ -74,6 +74,7 @@ end
 function rsquare(Y::Vector, pred; baseline=mean(Y))
 	SST = mean((Y .- baseline) .^ 2)
 	R2 = 1 - mean( (Y .- pred).^ 2 )/SST
+	# @show SST, R2
 	return R2
 end
 

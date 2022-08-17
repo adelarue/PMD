@@ -95,12 +95,12 @@ function regress_cv(Y, data::DataFrame;
 	# val_indices = shuffle(1:nrow(newdata))[1:Int(floor(val_fraction * nrow(newdata)))]
 	# val_indices = findall(split_dataset(newdata; Y=newY, test_fraction = val_fraction, random=true))
 	val_indices = findall(split_dataset(newdata; test_fraction = val_fraction, random=true))
-
 	newdata[val_indices, :Test] .= 1
 
-	bestmodel = []
+	# bestmodel = []
 	bestOSR2 = -Inf
 	bestparams = [] 
+
 	for params in expand(parameter_dict)
 		newmodel = regress(newY, newdata; model=model, parameter_dict=params)
 		# @show newmodel

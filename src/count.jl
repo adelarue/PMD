@@ -160,14 +160,20 @@ function splitobs_stratified(;at, y::Array, shuffle::Bool=true)
 	end	
 	return the_splits
 end
-function missingness_pattern_id(df::DataFrame)
+function missingness_pattern_id(df::DataFrame; filtering::Bool=true)
 
     cols = setdiff(Symbol.(names(df)), [:Id, :Test, :Y])
-    patterns,  = missing_patterns_countmap(df[:,cols], safe=false) #Returns list of missingness pattern and count of occurences for each
+    patterns, counts  = missing_patterns_countmap(df[:,cols], safe=false) #Returns list of missingness pattern and count of occurences for each
     M = Matrix(ismissing.(df[:,cols]))
     patternidx = [findfirst(x -> x == M[i,:], patterns) for i = 1:nrow(df)] #Identify pattern of each observation
-    
-    return patternidx, patterns
+    if filtering #Merges all patterns with only 1 occurences
+		keeppatterns = findall(counts .> 1); npat = length(keeppatterns)
+		map!(t -> t ∈ keeppatterns ? t : npat+1, patternidx, patternidx)
+		patterns = patterns[keeppatterns]
+		counts = counts[keeppatterns]
+	end
+
+    return patternidx, patterns, counts
 end
 
 function split_dataset(df::DataFrame; Y=collect(1:nrow(df)), test_fraction::Real = 0.3, random::Bool = true)
@@ -179,7 +185,7 @@ function split_dataset(df::DataFrame; Y=collect(1:nrow(df)), test_fraction::Real
 	# M = Matrix(ismissing.(df[:,cols]))
 	# patternidx = [findfirst(x -> x == M[i,:], patterns) for i = 1:nrow(df)] #Identify pattern of each observation
 	
-	patternidx, patterns = missingness_pattern_id(df)
+	patternidx, patterns, = missingness_pattern_id(df)
 	islogistic = try length(unique(Y)) <= 2 catch ; false end
 	if islogistic
     	normY = (Y .== levels(Y)[1])
