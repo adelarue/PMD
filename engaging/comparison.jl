@@ -281,7 +281,7 @@ array_num = parse(Int, ARG)
                 R2, OSR2 = PHD.evaluate(Y, X_augmented, linear2)
                 R2l, OSR2l = PHD.stratified_evaluate(Y, X_augmented, linear2, patidx)  
                 μ = PHD.recover_mu(linear2, canbemissing) 
-                push!(results_table, [dname, SNR, k, missingness_proba, iter, "Static", R2, OSR2, R2l, OSR2l, μ, δt, bestparams[:alpha]])
+                push!(results_table, [dname, SNR, k, missingness_proba, iter, "Static", R2, OSR2, R2l, OSR2l, μ, δt, bestparams2[:alpha]])
                 CSV.write(savedir*filename, results_table)
 
                 # if do_affine
@@ -301,7 +301,7 @@ array_num = parse(Int, ARG)
                 #     linear3, bestparams3 = PHD.regress_cv(Y, X_affine, model=:linear, parameter_dict=d)
                 #     δt = (time() - start)
                 #     R2, OSR2 = PHD.evaluate(Y, X_affine, linear3)
-                #     push!(results_table, [dname, SNR, k, missingness_proba, iter, "Affine", R2, OSR2, δt, bestparams[:alpha]])
+                #     push!(results_table, [dname, SNR, k, missingness_proba, iter, "Affine", R2, OSR2, δt, bestparams3[:alpha]])
                 #     CSV.write(savedir*filename, results_table)
                 # end
             end
