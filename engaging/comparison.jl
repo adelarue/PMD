@@ -9,12 +9,12 @@ using Random, Statistics, CSV, DataFrames, LinearAlgebra
 
 #Generation methods
 # n_list = collect(20:20:2000)
-n_list = collect(20:40:2000)
+n_list = collect(20:20:1000)
 
-p = 20 
+p = 10 
 
 SNR = 2
-ktotal = 10
+ktotal = 5
 
 # missingness_proba_list = collect(0.05:0.05:0.9)
 missingness_proba_list = collect(0.1:0.1:0.9)
