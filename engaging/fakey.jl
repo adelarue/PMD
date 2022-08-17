@@ -21,7 +21,7 @@ ktotal = 5
 random_split = true
 relationship_yx_mar = try ARGS[2]=="1" catch; true end
 adversarial_missing = try ARGS[3]=="1" catch; false end
-model_for_y = :nn 
+model_for_y = :linear 
 
 savedir = string("../results/", 
                 model_for_y,
@@ -299,7 +299,7 @@ d_num = array_num + 1
                     δt = (time() - start)
                     R2, OSR2 = PHD.evaluate(Y, X_augmented, linear2)
                     R2l, OSR2l = PHD.stratified_evaluate(Y, X_augmented, linear2, patidx)   
-                    push!(results_table, [dname, SNR, k, k_missing, iter, "Static", R2, OSR2, R2l, OSR2l, δt, bestparams[:alpha]])
+                    push!(results_table, [dname, SNR, k, k_missing, iter, "Static", R2, OSR2, R2l, OSR2l, δt, bestparams2[:alpha]])
                     CSV.write(savedir*filename, results_table)
 
                     if do_affine
@@ -320,7 +320,7 @@ d_num = array_num + 1
                         δt = (time() - start)
                         R2, OSR2 = PHD.evaluate(Y, X_affine, linear3)
                         R2l, OSR2l = PHD.stratified_evaluate(Y, X_affine, linear3, patidx)   
-                        push!(results_table, [dname, SNR, k, k_missing, iter, "Affine", R2, OSR2, R2l, OSR2l, δt, bestparams[:alpha]])
+                        push!(results_table, [dname, SNR, k, k_missing, iter, "Affine", R2, OSR2, R2l, OSR2l, δt, bestparams3[:alpha]])
                         CSV.write(savedir*filename, results_table)
                     end
                 end
