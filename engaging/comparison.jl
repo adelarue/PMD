@@ -18,6 +18,7 @@ ktotal = 10
 
 # missingness_proba_list = collect(0.05:0.05:0.9)
 missingness_proba_list = collect(0.1:0.1:0.9)
+# missingness_proba_list = collect(0.2:0.1:0.9)
 
 # missingness_proba = 0.1 
 num_missing_feature = p 
@@ -30,7 +31,7 @@ model_for_y = try ARGS[3]=="1" ? :linear : (ARGS[3]=="2" ? :tree : :nn) catch; :
 savedir = string("../results/synthetic/", 
                 model_for_y,
                 relationship_xm_mar ? "_mar" : "_censoring",
-                "/comparison/")
+                "/comparison2/")
 mkpath(savedir)
 
 #Prediction methods
@@ -74,6 +75,8 @@ array_num = parse(Int, ARG)
 
     test_ind = BitArray(vec([zeros(n)' ones(5000)']))
 
+    @show mean(Y)
+    
     for aux_num in 1:length(missingness_proba_list)
         missingness_proba = missingness_proba_list[aux_num]
         @show missingness_proba
@@ -161,7 +164,10 @@ array_num = parse(Int, ARG)
             if do_impthenreg
                 println("Impute-then-regress methods...")
                 println("###############################")
-                d = Dict(:alpha => collect(0.1:0.1:1), :regtype => [:lasso])
+                d = model_for_y == :linear ? 
+                        Dict(:alpha => collect(0.1:0.1:1), :regtype => [:lasso]) :
+                        Dict(:maxdepth => collect(1:2:10))
+
 
                 # ## Method 1.1
                 # start = time()
@@ -232,7 +238,7 @@ array_num = parse(Int, ARG)
                 df = deepcopy(X_imputed)
                 df[!,:Test] = test_ind
                 start = time()
-                linear, bestparams = PHD.regress_cv(Y, df, model=:linear, parameter_dict=d)
+                linear, bestparams = PHD.regress_cv(Y, df, model=model_for_y, parameter_dict=d)
                 δt += (time() - start)
                 R2, OSR2 = PHD.evaluate(Y, df, linear)
                 R2l, OSR2l = PHD.stratified_evaluate(Y, df, linear, patidx)   
@@ -257,7 +263,7 @@ array_num = parse(Int, ARG)
                 # CSV.write(savedir*filename, results_table)
             end
             
-            if do_static || do_affine
+            if do_static #|| do_affine
                 println("Adaptive methods...")
                 println("###################")
                 d = Dict(:alpha => collect(0.1:0.1:1), :regtype => [:missing_weight], :missing_penalty => [1.0,2.0,4.0,6.0,8.0,12.0])
