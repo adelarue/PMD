@@ -21,7 +21,7 @@ ktotal = 5
 random_split = true
 relationship_yx_mar = try ARGS[2]=="1" catch; true end
 adversarial_missing = try ARGS[3]=="1" catch; false end
-model_for_y = :linear 
+model_for_y = :nn 
 
 savedir = string("../results/", 
                 model_for_y,
@@ -44,7 +44,7 @@ do_μthenreg = true
 
 results_main = DataFrame(dataset=[], SNR=[], k=[], kMissing=[], splitnum=[], method=[],
                                 r2=[], osr2=[], 
-                                r2list=[], osr2lits=[], 
+                                r2list=[], osr2list=[], 
                                 time=[], hp=[])
 
 # for ARG in ARGS
@@ -160,7 +160,7 @@ d_num = array_num + 1
                         R2l, OSR2l = PHD.stratified_evaluate(Y, df, linear, patidx)   
                         push!(results_table, [dname, SNR, k, k_missing, iter, "Complete Features", R2, OSR2, R2l, OSR2l, δt, bestparams[:alpha]])
                     catch #In this case, simply predict the mean - which leads to 0. OSR2
-                        push!(results_table, [dname, SNR, k, k_missing, iter, "Complete Features", 0., 0., [], [], 0.,0.])
+                        push!(results_table, [dname, SNR, k, k_missing, iter, "Complete Features", 0., 0., [0.], [0.], 0.,0.])
                     end
                     CSV.write(savedir*filename, results_table)
                 end
