@@ -16,13 +16,13 @@ function regress_nn(Y::Array{Float64}, df::DataFrame;
 	X = Matrix(df[trainingset, cols])
 	y = convert(Array, Y[trainingset])
 	
-	data = Flux.Data.DataLoader((X', y'), batchsize=50,shuffle=true);
+	data = Flux.Data.DataLoader((X', y'), batchsize=min(50,length(trainingset)), shuffle=true);
 	# Defining our model, optimization algorithm and loss function
 	m   = Flux.Chain(Flux.Dense(Base.size(X, 2), hidden_nodes, Flux.relu),
 	                 Flux.Dense(hidden_nodes, 1, x -> x))
 	opt = Flux.Momentum()
-	loss(x, y) = sum(Flux.Losses.mse(m(x), y))
-	evalcb() = @show(loss(X', y'))
+	loss(m, x, y) = sum(Flux.Losses.mse(m(x), y))
+	evalcb() = @show(loss(m, X', y'))
 	throttled_cb = Flux.throttle(evalcb, 5)
 	# Training Method 1
 	ps = Flux.params(m)

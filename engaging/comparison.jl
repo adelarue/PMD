@@ -47,7 +47,7 @@ do_μthenreg = true
 
 results_main = DataFrame(dataset=[], SNR=[], k=[], pMissing=[], splitnum=[], method=[],
                                 r2=[], osr2=[],
-                                r2list=[], osr2lits=[], 
+                                r2list=[], osr2list=[], 
                                 muvec =[],
                                 time=[], hp=[])
 
@@ -166,7 +166,7 @@ array_num = parse(Int, ARG)
                 println("###############################")
                 d = model_for_y == :linear ? 
                         Dict(:alpha => collect(0.1:0.1:1), :regtype => [:lasso]) :
-                        Dict(:maxdepth => collect(1:2:10))
+                        (model_for_y == :tree ? Dict(:maxdepth => collect(1:2:10)) : Dict(:hidden_nodes => collect(5:5:20)) )
 
 
                 # ## Method 1.1
@@ -330,8 +330,9 @@ array_num = parse(Int, ARG)
                 for model in [model_for_y]
                     # d = Dict(:maxdepth => collect(6:2:10))
                     # d = model == :linear ? Dict(:alpha => collect(0.1:0.1:1)) : Dict(:maxdepth => collect(1:2:10))
-                    d = Dict(:modeltype => [model], 
-                        :parameter_dict => model == :linear ? [Dict(:alpha => i) for i in collect(0.1:0.1:1)] : [Dict(:maxdepth => i) for i in collect(1:2:10)])
+                    plist = model == :linear ? [Dict(:alpha => i) for i in collect(0.1:0.1:1)] : 
+                        (model == :tree ? [Dict(:maxdepth => i) for i in collect(1:2:10)] : [Dict(:hidden_nodes => i) for i in collect(5:5:20)])
+                    d = Dict(:modeltype => [model], :parameter_dict => plist)
 
                     df = deepcopy(X_missing)
                     df[!,:Test] = test_ind

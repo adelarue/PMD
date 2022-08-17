@@ -25,7 +25,7 @@ do_μthenreg = true
 
 
 results_main = DataFrame(dataset=[], SNR=[], k=[], kMissing=[], splitnum=[], method=[],
-                                r2=[], osr2=[], time=[], hp=[])
+                                r2=[], osr2=[], r2list=[], osr2lits=[], time=[], hp=[])
 
 SNR = NaN 
 k = NaN 
@@ -65,6 +65,7 @@ if  true #dname ∈ longtime_list #|| (dname == "ozone-level-detection-one" && k
     select!(X_missing, keep_cols)
     canbemissing = [any(ismissing.(X_missing[:,j])) for j in names(X_missing)] #indicator of missing features
 
+    patidx, = PHD.missingness_pattern_id(X_missing)
 
     # READ INPUT: Y
     target_list = names(CSV.read("../datasets/"*dname*"/Y.csv", missingstrings=["", "NaN"], DataFrame))
@@ -124,9 +125,10 @@ if  true #dname ∈ longtime_list #|| (dname == "ozone-level-detection-one" && k
                 linear, bestparams = PHD.regress_cv(Y, df, model=:linear, parameter_dict=d)
                 δt = (time() - start)
                 R2, OSR2 = PHD.evaluate(Y, df, linear)
-                push!(results_table, [dname, SNR, k, k_missing, iter, "Complete Features", R2, OSR2, δt, bestparams[:alpha]])
+                R2l, OSR2l = PHD.stratified_evaluate(Y, df, linear, patidx)   
+                push!(results_table, [dname, SNR, k, k_missing, iter, "Complete Features", R2, OSR2, R2l, OSR2l,  δt, bestparams[:alpha]])
             catch #In this case, simply predict the mean - which leads to 0. OSR2
-                push!(results_table, [dname, SNR, k, k_missing, iter, "Complete Features", 0., 0., 0.,0.])
+                push!(results_table, [dname, SNR, k, k_missing, iter, "Complete Features", 0., 0., [], [], 0.,0.])
             end
             CSV.write(savedir*filename, results_table)
         end
@@ -142,7 +144,8 @@ if  true #dname ∈ longtime_list #|| (dname == "ozone-level-detection-one" && k
             cartmodel, bestparams = PHD.regress_cv(Y, df; model = :tree, parameter_dict=d)
             δt = (time() - start)
             R2, OSR2 = PHD.evaluate(Y, df, cartmodel)
-            push!(results_table, [dname, SNR, k, k_missing, iter, "CART MIA", R2, OSR2, δt, bestparams[:maxdepth]])
+            R2l, OSR2l = PHD.stratified_evaluate(Y, df, cartmodel, patidx)   
+            push!(results_table, [dname, SNR, k, k_missing, iter, "CART MIA", R2, OSR2, R2l, OSR2l, δt, bestparams[:maxdepth]])
             CSV.write(savedir*filename, results_table)
         end
 
@@ -164,7 +167,8 @@ if  true #dname ∈ longtime_list #|| (dname == "ozone-level-detection-one" && k
             δt += (time() - start)
 
             R2, OSR2 = PHD.evaluate(Y, df, linear)
-            push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 1", R2, OSR2, δt, bestparams[:alpha]])
+            R2l, OSR2l = PHD.stratified_evaluate(Y, df, linear, patidx)   
+            push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 1", R2, OSR2, R2l, OSR2l, δt, bestparams[:alpha]])
             CSV.write(savedir*filename, results_table)
 
 
@@ -187,7 +191,8 @@ if  true #dname ∈ longtime_list #|| (dname == "ozone-level-detection-one" && k
             linear, bestparams = PHD.regress_cv(Y, df, model=:linear, parameter_dict=d)
             δt += (time() - start)
             R2, OSR2 = PHD.evaluate(Y, df, linear)
-            push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 2", R2, OSR2, δt, bestparams[:alpha]])
+            R2l, OSR2l = PHD.stratified_evaluate(Y, df, linear, patidx)   
+            push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 2", R2, OSR2,  R2l, OSR2l, δt, bestparams[:alpha]])
             CSV.write(savedir*filename, results_table)
 
 
@@ -209,7 +214,8 @@ if  true #dname ∈ longtime_list #|| (dname == "ozone-level-detection-one" && k
             linear, bestparams = PHD.regress_cv(Y, df, model=:linear, parameter_dict=d)
             δt += (time() - start)
             R2, OSR2 = PHD.evaluate(Y, df, linear)
-            push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 3", R2, OSR2, δt, bestparams[:alpha]])
+            R2l, OSR2l = PHD.stratified_evaluate(Y, df, linear, patidx)   
+            push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 3", R2, OSR2,  R2l, OSR2l, δt, bestparams[:alpha]])
             CSV.write(savedir*filename, results_table)
 
             ## Method 1.4
@@ -223,7 +229,8 @@ if  true #dname ∈ longtime_list #|| (dname == "ozone-level-detection-one" && k
             linear, bestparams = PHD.regress_cv(Y, df, model=:linear, parameter_dict=d)
             δt += (time() - start)
             R2, OSR2 = PHD.evaluate(Y, df, linear)
-            push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 4", R2, OSR2, δt, bestparams[:alpha]])
+            R2l, OSR2l = PHD.stratified_evaluate(Y, df, linear, patidx)   
+            push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 4", R2, OSR2, R2l, OSR2l, δt, bestparams[:alpha]])
             CSV.write(savedir*filename, results_table)
 
             ## Method 1.5 Mean and mode impute
@@ -240,7 +247,8 @@ if  true #dname ∈ longtime_list #|| (dname == "ozone-level-detection-one" && k
             linear, bestparams = PHD.regress_cv(Y, df, model=:linear, parameter_dict=d)
             δt += (time() - start)
             R2, OSR2 = PHD.evaluate(Y, df, linear)
-            push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 5", R2, OSR2, δt, bestparams[:alpha]])
+            R2l, OSR2l = PHD.stratified_evaluate(Y, df, linear, patidx)   
+            push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 5", R2, OSR2,  R2l, OSR2l, δt, bestparams[:alpha]])
             CSV.write(savedir*filename, results_table)
         end
         
@@ -259,7 +267,9 @@ if  true #dname ∈ longtime_list #|| (dname == "ozone-level-detection-one" && k
             linear2, bestparams2 = PHD.regress_cv(Y, X_augmented, model=:linear, parameter_dict=d)
             δt = (time() - start)
             R2, OSR2 = PHD.evaluate(Y, X_augmented, linear2)
-            push!(results_table, [dname, SNR, k, k_missing, iter, "Static", R2, OSR2, δt, bestparams[:alpha]])
+            R2l, OSR2l = PHD.stratified_evaluate(Y, df, linear2, patidx)   
+
+            push!(results_table, [dname, SNR, k, k_missing, iter, "Static", R2, OSR2, R2l, OSR2l, δt, bestparams2[:alpha]])
             CSV.write(savedir*filename, results_table)
 
             if do_affine
@@ -272,9 +282,10 @@ if  true #dname ∈ longtime_list #|| (dname == "ozone-level-detection-one" && k
                 X_affine = PHD.augmentaffine(df, model=String.(model), removecols=:Constant)
                 linear3, bestparams3 = PHD.regress_cv(Y, X_affine, model=:linear, parameter_dict=d)
                 δt = (time() - start)
-
                 R2, OSR2 = PHD.evaluate(Y, X_affine, linear3)
-                push!(results_table, [dname, SNR, k, k_missing, iter, "Affine", R2, OSR2, δt, bestparams[:alpha]])
+                R2l, OSR2l = PHD.stratified_evaluate(Y, df, linear3, patidx)   
+
+                push!(results_table, [dname, SNR, k, k_missing, iter, "Affine", R2, OSR2, R2l, OSR2l, δt, bestparams3[:alpha]])
                 CSV.write(savedir*filename, results_table)
             end
         end
