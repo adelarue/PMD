@@ -100,7 +100,7 @@ array_num = parse(Int, ARG)
             X_missing[!,:Id] .= collect(1:nrow(X_missing))
 
             canbemissing = [j for j in names(X_missing) if any(ismissing.(X_missing[:,j]))] #indicator of missing features
-            patidx, = PHD.missingness_pattern_id(X_missing)
+            patidx, = PHD.missingness_pattern_id(X_missing[1:1000,:])
 
 
             # Split train / test
