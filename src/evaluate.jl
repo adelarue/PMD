@@ -48,9 +48,9 @@ function evaluate(Y::BitArray{1}, df::DataFrame, model::Union{DataFrame,Decision
 	# end
 end
 
-function stratified_evaluate(Y, df::DataFrame, model, patternidx)
+function stratified_evaluate(Y, df::DataFrame, model, patternidx; subsetpattern=unique(patternidx))
     R2list = []; OSR2list = []
-    for p in sort(unique(patternidx))
+    for p in sort(intersect(unique(patternidx), subsetpattern))
 #         try 
             R2, OSR2 = evaluate(Y[patternidx .== p], df[patternidx .== p, :], model)
             push!(R2list, R2)
