@@ -100,8 +100,8 @@ array_num = parse(Int, ARG)
             X_missing[!,:Id] .= collect(1:nrow(X_missing))
 
             canbemissing = [j for j in names(X_missing) if any(ismissing.(X_missing[:,j]))] #indicator of missing features
-            patidx, = PHD.missingness_pattern_id(X_missing[1:1000,:])
-
+            patidx, = PHD.missingness_pattern_id(X_missing)
+            subsetpattern = unique(patidx[1:n])
 
             # Split train / test
 
@@ -156,7 +156,7 @@ array_num = parse(Int, ARG)
                 cartmodel, bestparams = PHD.regress_cv(Y, df; model = :tree, parameter_dict=d)
                 δt = (time() - start)
                 R2, OSR2 = PHD.evaluate(Y, df, cartmodel)
-                R2l, OSR2l = PHD.stratified_evaluate(Y, df, cartmodel, patidx)   
+                R2l, OSR2l = PHD.stratified_evaluate(Y, df, cartmodel, patidx, subsetpattern=subsetpattern)   
                 push!(results_table, [dname, SNR, k, missingness_proba, iter, "CART MIA", R2, OSR2, R2l, OSR2l, [], δt, bestparams[:maxdepth]])
                 CSV.write(savedir*filename, results_table)
             end
@@ -241,7 +241,7 @@ array_num = parse(Int, ARG)
                 linear, bestparams = PHD.regress_cv(Y, df, model=model_for_y, parameter_dict=d)
                 δt += (time() - start)
                 R2, OSR2 = PHD.evaluate(Y, df, linear)
-                R2l, OSR2l = PHD.stratified_evaluate(Y, df, linear, patidx)   
+                R2l, OSR2l = PHD.stratified_evaluate(Y, df, linear, patidx, subsetpattern=subsetpattern)   
                 push!(results_table, [dname, SNR, k, missingness_proba, iter, "Imp-then-Reg 4", R2, OSR2, R2l, OSR2l, 
                         Matrix(means_df[:,canbemissing])[1,:], δt, model_for_y == :linear ?  bestparams[:alpha] : bestparams[:maxdepth]])
                 CSV.write(savedir*filename, results_table)
@@ -279,7 +279,7 @@ array_num = parse(Int, ARG)
                 linear2, bestparams2 = PHD.regress_cv(Y, X_augmented, model=:linear, parameter_dict=d)
                 δt = (time() - start)
                 R2, OSR2 = PHD.evaluate(Y, X_augmented, linear2)
-                R2l, OSR2l = PHD.stratified_evaluate(Y, X_augmented, linear2, patidx)  
+                R2l, OSR2l = PHD.stratified_evaluate(Y, X_augmented, linear2, patidx, subsetpattern=subsetpattern)  
                 μ = PHD.recover_mu(linear2, canbemissing) 
                 push!(results_table, [dname, SNR, k, missingness_proba, iter, "Static", R2, OSR2, R2l, OSR2l, μ, δt, bestparams2[:alpha]])
                 CSV.write(savedir*filename, results_table)
@@ -344,7 +344,7 @@ array_num = parse(Int, ARG)
                     δt = (time() - start)
 
                     R2, OSR2 = PHD.evaluate(Y, PHD.mean_impute(df, μ), opt_imp_then_reg)
-                    R2l, OSR2l = PHD.stratified_evaluate(Y, PHD.mean_impute(df, μ), opt_imp_then_reg, patidx)   
+                    R2l, OSR2l = PHD.stratified_evaluate(Y, PHD.mean_impute(df, μ), opt_imp_then_reg, patidx, subsetpattern=subsetpattern)   
                     push!(results_table, [dname, SNR, k, missingness_proba, iter, string("Joint Imp-then-Reg - ", model), R2, OSR2, R2l, OSR2l,
                                 Matrix(μ[:,canbemissing])[1,:], 
                                 δt, model == :linear ? bestparams[:parameter_dict][:alpha] : bestparams[:parameter_dict][:maxdepth]])
