@@ -48,11 +48,11 @@ function create_hp_dict(model::Symbol)
     if model == :linear 
         return Dict{Symbol,Vector}(:alpha => collect(0.1:0.1:1), :regtype => [:lasso])
     elseif model == :tree 
-        return Dict{Symbol,Vector}(:maxdepth => collect(0:2:10))
+        return Dict{Symbol,Vector}(:maxdepth => collect(0:2:16))
     elseif model == :nn 
         return Dict{Symbol,Vector}(:hidden_nodes => collect(5:5:35))
     elseif model == :rf 
-        return Dict{Symbol,Vector}(:ntrees => collect(20:20:100), :maxdepth => collect(5:5:20))
+        return Dict{Symbol,Vector}(:ntrees => collect(50:25:200), :maxdepth => collect(5:5:30))
     elseif model == :adaptive 
         return Dict{Symbol,Vector}(:alpha => collect(0.1:0.1:1), :regtype => [:missing_weight], :missing_penalty => [1.0,2.0,4.0,6.0,8.0,12.0])
     end
@@ -62,7 +62,7 @@ results_main = DataFrame(dataset=[], SNR=[], k=[], pMissing=[], splitnum=[], met
                                 r2=[], osr2=[],
                                 r2list=[], osr2list=[], 
                                 muvec =[],
-                                time=[], hp=[])
+                                time=[], hp=[], score=[])
 
 
 ARG = ARGS[1]
@@ -72,7 +72,7 @@ array_num = parse(Int, ARG)
     n = n_list[array_num+1]
     dname = string("n_", n, "_p_", p)
 
-    @show n
+    @show model_for_y, n
 
 
     # Create output
@@ -161,26 +161,23 @@ array_num = parse(Int, ARG)
             if do_tree
                 println("MIA-tree method...")
                 println("####################")
-                d = Dict(:maxdepth => collect(1:2:10))
+                d = create_hp_dict(:tree)
 
                 df = PHD.augment_MIA(X_missing)
                 df[!,:Test] = test_ind
                 start = time()
-                cartmodel, bestparams = PHD.regress_cv(Y, df; model = :tree, parameter_dict=d)
+                cartmodel, bestparams, score = PHD.regress_cv(Y, df; model = :tree, parameter_dict=d)
                 δt = (time() - start)
                 R2, OSR2 = PHD.evaluate(Y, df, cartmodel)
                 R2l, OSR2l = PHD.stratified_evaluate(Y, df, cartmodel, patidx, subsetpattern=subsetpattern)   
-                push!(results_table, [dname, SNR, k, missingness_proba, iter, "CART MIA", R2, OSR2, R2l, OSR2l, [], δt, bestparams])
+                push!(results_table, [dname, SNR, k, missingness_proba, iter, "CART MIA", R2, OSR2, R2l, OSR2l, [], δt, bestparams, score])
                 CSV.write(savedir*filename, results_table)
             end
 
             if do_impthenreg
                 println("Impute-then-regress methods...")
                 println("###############################")
-                d = model_for_y == :linear ? 
-                        Dict(:alpha => collect(0.1:0.1:1), :regtype => [:lasso]) :
-                        (model_for_y == :tree ? Dict(:maxdepth => collect(1:2:10)) : Dict(:hidden_nodes => collect(5:5:20)) )
-
+                d = create_hp_dict(model_for_y)
 
                 # ## Method 1.1
                 # start = time()
@@ -251,12 +248,12 @@ array_num = parse(Int, ARG)
                 df = deepcopy(X_imputed)
                 df[!,:Test] = test_ind
                 start = time()
-                linear, bestparams = PHD.regress_cv(Y, df, model=model_for_y, parameter_dict=d)
+                linear, bestparams, score = PHD.regress_cv(Y, df, model=model_for_y, parameter_dict=d)
                 δt += (time() - start)
                 R2, OSR2 = PHD.evaluate(Y, df, linear)
                 R2l, OSR2l = PHD.stratified_evaluate(Y, df, linear, patidx, subsetpattern=subsetpattern)   
                 push!(results_table, [dname, SNR, k, missingness_proba, iter, "Imp-then-Reg 4", R2, OSR2, R2l, OSR2l, 
-                        Matrix(means_df[:,canbemissing])[1,:], δt, bestparams])
+                        Matrix(means_df[:,canbemissing])[1,:], δt, bestparams, score])
                 CSV.write(savedir*filename, results_table)
 
                 # ## Method 1.5 Mean and mode impute
@@ -280,8 +277,7 @@ array_num = parse(Int, ARG)
             if do_static #|| do_affine
                 println("Adaptive methods...")
                 println("###################")
-                d = Dict(:alpha => collect(0.1:0.1:1), :regtype => [:missing_weight], :missing_penalty => [1.0,2.0,4.0,6.0,8.0,12.0])
-
+                d = create_hp_dict(:adaptive)
 
                 ## Method 2: Static Adaptability
                 df = deepcopy(X_missing)
@@ -289,12 +285,12 @@ array_num = parse(Int, ARG)
                 start = time()
                 X_augmented = hcat(PHD.zeroimpute(df), PHD.indicatemissing(df, removecols=:Zero))
                 # X_augmented = PHD.zeroimpute(df)
-                linear, bestparams = PHD.regress_cv(Y, X_augmented, model=:linear, parameter_dict=d)
+                linear, bestparams, score = PHD.regress_cv(Y, X_augmented, model=:linear, parameter_dict=d)
                 δt = (time() - start)
                 R2, OSR2 = PHD.evaluate(Y, X_augmented, linear)
                 R2l, OSR2l = PHD.stratified_evaluate(Y, X_augmented, linear, patidx, subsetpattern=subsetpattern)  
                 μ = PHD.recover_mu(linear, canbemissing) 
-                push!(results_table, [dname, SNR, k, missingness_proba, iter, "Static", R2, OSR2, R2l, OSR2l, μ, δt, bestparams])
+                push!(results_table, [dname, SNR, k, missingness_proba, iter, "Static", R2, OSR2, R2l, OSR2l, μ, δt, bestparams, score])
                 CSV.write(savedir*filename, results_table)
 
                 # if do_affine
@@ -350,29 +346,14 @@ array_num = parse(Int, ARG)
                     df[!,:Test] = test_ind
 
                     start = time()
-                    (opt_imp_then_reg, μ), bestparams = PHD.regress_cv(Y, df; model=:joint, parameter_dict=d)
+                    (opt_imp_then_reg, μ), bestparams, score = PHD.regress_cv(Y, df; model=:joint, parameter_dict=d)
                     δt = (time() - start)
-                    
-                    # plist = model == :linear ? [Dict(:alpha => i) for i in collect(0.1:0.1:1)] : 
-                    #     (model == :tree ? [Dict(:maxdepth => i) for i in collect(1:2:10)] : 
-                    #     # (model == :rf ? [Dict(:maxdepth => i) for i in collect(1:2:10)] : 
-                    #     [Dict(:hidden_nodes => i) for i in collect(5:5:20)]) #)
-                    # d = Dict(:modeltype => [model], :parameter_dict => plist)
-
-                    # df = deepcopy(X_missing)
-                    # df[!,:Test] = test_ind
-
-                    # start = time()
-                    # (opt_imp_then_reg, μ), bestparams = PHD.regress_cv(Y, df; model=:joint, parameter_dict=d)
-                    # # opt_imp_then_reg, bestparams, μ = PHD.impute_then_regress_cv(Y, df; modeltype=model, parameter_dict=d)
-                    # # (opt_imp_then_reg, μ), bestparams, μ = PHD.impute_then_regress_cv(Y, df; modeltype=model, parameter_dict=d)
-                    # δt = (time() - start)
 
                     R2, OSR2 = PHD.evaluate(Y, PHD.mean_impute(df, μ), opt_imp_then_reg)
                     R2l, OSR2l = PHD.stratified_evaluate(Y, PHD.mean_impute(df, μ), opt_imp_then_reg, patidx, subsetpattern=subsetpattern)   
                     push!(results_table, [dname, SNR, k, missingness_proba, iter, string("Joint Imp-then-Reg - ", model), R2, OSR2, R2l, OSR2l,
                                 Matrix(μ[:,canbemissing])[1,:], 
-                                δt, model == :linear ? bestparams : bestparams])
+                                δt, model == :linear ? bestparams : bestparams, score])
                     CSV.write(savedir*filename, results_table)
                 end
             end
