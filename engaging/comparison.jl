@@ -44,6 +44,19 @@ do_static = true
 # do_finite = true
 do_μthenreg = true 
 
+function create_hp_dict(model::Symbol)
+    if model == :linear 
+        return Dict{Symbol,Vector}(:alpha => collect(0.1:0.1:1), :regtype => [:lasso])
+    elseif model == :tree 
+        return Dict{Symbol,Vector}(:maxdepth => collect(0:2:10))
+    elseif model == :nn 
+        return Dict{Symbol,Vector}(:hidden_nodes => collect(5:5:35))
+    elseif model == :rf 
+        return Dict{Symbol,Vector}(:ntrees => collect(20:20:100), :maxdepth => collect(5:5:20))
+    elseif model == :adaptive 
+        return Dict{Symbol,Vector}(:alpha => collect(0.1:0.1:1), :regtype => [:missing_weight], :missing_penalty => [1.0,2.0,4.0,6.0,8.0,12.0])
+    end
+end
 
 results_main = DataFrame(dataset=[], SNR=[], k=[], pMissing=[], splitnum=[], method=[],
                                 r2=[], osr2=[],
@@ -330,20 +343,30 @@ array_num = parse(Int, ARG)
                 for model in [model_for_y, :rf]
                     # d = Dict(:maxdepth => collect(6:2:10))
                     # d = model == :linear ? Dict(:alpha => collect(0.1:0.1:1)) : Dict(:maxdepth => collect(1:2:10))
-                    plist = model == :linear ? [Dict(:alpha => i) for i in collect(0.1:0.1:1)] : 
-                        (model == :tree ? [Dict(:maxdepth => i) for i in collect(1:2:10)] : 
-                        # (model == :rf ? [Dict(:maxdepth => i) for i in collect(1:2:10)] : 
-                        [Dict(:hidden_nodes => i) for i in collect(5:5:20)]) #)
-                    d = Dict(:modeltype => [model], :parameter_dict => plist)
+                    d = create_hp_dict(model)
+                    d[:model] = [model]
 
                     df = deepcopy(X_missing)
                     df[!,:Test] = test_ind
 
                     start = time()
                     (opt_imp_then_reg, μ), bestparams = PHD.regress_cv(Y, df; model=:joint, parameter_dict=d)
-                    # opt_imp_then_reg, bestparams, μ = PHD.impute_then_regress_cv(Y, df; modeltype=model, parameter_dict=d)
-                    # (opt_imp_then_reg, μ), bestparams, μ = PHD.impute_then_regress_cv(Y, df; modeltype=model, parameter_dict=d)
                     δt = (time() - start)
+                    
+                    # plist = model == :linear ? [Dict(:alpha => i) for i in collect(0.1:0.1:1)] : 
+                    #     (model == :tree ? [Dict(:maxdepth => i) for i in collect(1:2:10)] : 
+                    #     # (model == :rf ? [Dict(:maxdepth => i) for i in collect(1:2:10)] : 
+                    #     [Dict(:hidden_nodes => i) for i in collect(5:5:20)]) #)
+                    # d = Dict(:modeltype => [model], :parameter_dict => plist)
+
+                    # df = deepcopy(X_missing)
+                    # df[!,:Test] = test_ind
+
+                    # start = time()
+                    # (opt_imp_then_reg, μ), bestparams = PHD.regress_cv(Y, df; model=:joint, parameter_dict=d)
+                    # # opt_imp_then_reg, bestparams, μ = PHD.impute_then_regress_cv(Y, df; modeltype=model, parameter_dict=d)
+                    # # (opt_imp_then_reg, μ), bestparams, μ = PHD.impute_then_regress_cv(Y, df; modeltype=model, parameter_dict=d)
+                    # δt = (time() - start)
 
                     R2, OSR2 = PHD.evaluate(Y, PHD.mean_impute(df, μ), opt_imp_then_reg)
                     R2l, OSR2l = PHD.stratified_evaluate(Y, PHD.mean_impute(df, μ), opt_imp_then_reg, patidx, subsetpattern=subsetpattern)   
