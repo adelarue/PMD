@@ -68,7 +68,20 @@ end
 product(l::Vector{Int64}) = product(l,1,length(l))
 
 
+"""
+	Trains a supervised ML model, cross-validating the hyperparameters via hold-out cross-validation
 
+	Input:
+	- Y: A vector of dependent variables 
+	- data: A dataframe 
+	- val_fraction (optional): Fraction of the samples to use for hold-out CV
+	- model (optional): Predictive model to be used 
+	- parameter_dict (optional): Dictionary containing the hyperparameter values
+
+	Output:
+	- model: The predictive model 
+	- bestparams: The dictionary containing the best hyperparameter values
+"""
 function regress_cv(Y, data::DataFrame;
 					val_fraction::Real=0.2,
 					model::Symbol=:linear,
@@ -77,6 +90,7 @@ function regress_cv(Y, data::DataFrame;
 	@assert length(parameter_dict) > 0
 	
 	# For each supported type of predictive model, checks that parameter_dict corresponds to valid hyper-parameters 
+	#TO DO: Convert this into @assert type of tests
 	if model == :linear 
 		keys(parameter_dict) ⊆ [:regtype, :alpha, :missing_penalty]
 	elseif model == :tree || model == :friedman
@@ -96,7 +110,7 @@ function regress_cv(Y, data::DataFrame;
 	newdata = filter(row -> row[:Test] == 0, data)
 	
 	# Designate some of training as testing/validation
-	val_indices = findall(split_dataset(newdata; test_fraction = val_fraction, random=true))
+	val_indices = findall(split_dataset(newdata; Y=newY, test_fraction = val_fraction, random=true))
 	newdata[val_indices, :Test] .= 1
 
 	# bestmodel = []
@@ -113,9 +127,57 @@ function regress_cv(Y, data::DataFrame;
 			bestparams = params
 		end
 	end
-	# println("Found best hyper-parameters. Computing full model")
+	newdata[:, :Test] .= 0 #Use all data to calibrate the best model
+
 	# train model on full dataset using best parameters
 	bestmodel = regress(newY, newdata; model=model, parameter_dict=bestparams)
+
+	return bestmodel, bestparams
+end
+
+"""
+	Trains a supervised ML model, cross-validating the hyperparameters via kfold cross-validation
+
+	Input:
+	- Y: A vector of dependent variables 
+	- data: A dataframe 
+	- k (optional): Number of folds in the k-fold CV
+	- model (optional): Predictive model to be used 
+	- parameter_dict (optional): Dictionary containing the hyperparameter values
+
+	Output:
+	- model: The predictive model 
+	- bestparams: The dictionary containing the best hyperparameter values
+"""
+function regress_kcv(Y, data::DataFrame;
+	k::Int=3,
+	model::Symbol=:linear,
+	parameter_dict::Dict{Symbol,T}=Dict()) where T
+
+	@assert length(parameter_dict) > 0
+
+	# Isolate training set
+	newY = Y[data[!, :Test] .== 0]
+	newdata = filter(row -> row[:Test] == 0, data)
+
+	# Designate some of training as testing/validation
+	_, val = kfold_dataset(newdata; Y=newY, kfold = k)
+
+	expand_paramdict = expand(parameter_dict)
+	kfold_OSR2 = zeros(k, length(expand_paramdict))
+	for s in 1:k
+		newdata[!,:Test] .= 0
+		newdata[val[s], :Test] .= 1
+		for (kp,params) in enumerate(expand_paramdict)
+			newmodel = regress(newY, newdata; model=model, parameter_dict=params)
+
+			kfold_OSR2[s,kp] = evaluate(newY, newdata, newmodel)[2]
+		end
+	end	
+	bestparam_id = argmax(mean(kfold_OSR2, dims=1)[:])
+	bestparams = expand_paramdict[bestparam_id]
+	# train model on full dataset using best parameters
+	bestmodel = regress(Y, data; model=model, parameter_dict=bestparams)
 
 	return bestmodel, bestparams
 end
