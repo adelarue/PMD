@@ -50,7 +50,7 @@ results_main = DataFrame(dataset=[], SNR=[], k=[], kMissing=[], splitnum=[], met
 # for ARG in ARGS
 ARG = ARGS[1]
 array_num = parse(Int, ARG)
-d_num = mod(array_num, 71) + 1
+# d_num = mod(array_num, 71) + 1
 # aux_num = div(array_num,71) + 1
 
 d_num = array_num + 1

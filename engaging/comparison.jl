@@ -327,11 +327,13 @@ array_num = parse(Int, ARG)
             if do_μthenreg
                 println("Joint Impute-and-Regress methods...")
                 println("###################")
-                for model in [model_for_y]
+                for model in [model_for_y, :rf]
                     # d = Dict(:maxdepth => collect(6:2:10))
                     # d = model == :linear ? Dict(:alpha => collect(0.1:0.1:1)) : Dict(:maxdepth => collect(1:2:10))
                     plist = model == :linear ? [Dict(:alpha => i) for i in collect(0.1:0.1:1)] : 
-                        (model == :tree ? [Dict(:maxdepth => i) for i in collect(1:2:10)] : [Dict(:hidden_nodes => i) for i in collect(5:5:20)])
+                        (model == :tree ? [Dict(:maxdepth => i) for i in collect(1:2:10)] : 
+                        # (model == :rf ? [Dict(:maxdepth => i) for i in collect(1:2:10)] : 
+                        [Dict(:hidden_nodes => i) for i in collect(5:5:20)]) #)
                     d = Dict(:modeltype => [model], :parameter_dict => plist)
 
                     df = deepcopy(X_missing)

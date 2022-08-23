@@ -42,16 +42,3 @@ function predict(df::DataFrame, model::Chain)
 	X = Matrix(df[:, cols])'
 	return model(X)'
 end
-
-# """
-# 	Evaluate fit quality on dataset
-# """
-# function evaluate(Y::Vector, df::DataFrame, model::Chain)
-# 	prediction = predict(df, model)
-# 	trainmean = Statistics.mean(Y[df[:,:Test] .== 0])
-# 	SST = sum((Y[df[:,:Test] .== 0] .- trainmean) .^ 2)
-# 	OSSST = sum((Y[df[:,:Test] .== 1] .- trainmean) .^ 2)
-# 	R2 = 1 - sum((Y[df[:,:Test] .== 0] .- prediction[df[:,:Test] .== 0]) .^ 2)/SST
-# 	OSR2 = 1 - sum((Y[df[:,:Test] .== 1] .- prediction[df[:,:Test] .== 1]) .^ 2)/OSSST
-# 	return R2, OSR2
-# end

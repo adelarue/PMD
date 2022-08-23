@@ -10,22 +10,36 @@ sort!(dataset_list)
 
 savedir = string("../results/", 
                 "/realy", 
-                "/redo/")
+                "/fixingcode/")
 mkpath(savedir)
 
 #Prediction methods
-do_benchmark = true
-do_tree = true
-do_impthenreg = true
-do_static = true
-do_affine = true
+do_benchmark = false
+do_tree = false
+do_impthenreg = false
+do_static = false
+do_affine = false
 affine_on_static_only = false #Should be set to false
-do_finite = true
+do_finite = false
 do_μthenreg = true 
 
 
 results_main = DataFrame(dataset=[], SNR=[], k=[], kMissing=[], splitnum=[], method=[],
-                                r2=[], osr2=[], r2list=[], osr2lits=[], time=[], hp=[])
+                                r2=[], osr2=[], r2list=[], osr2list=[], time=[], hp=[])
+
+function create_hp_dict(model::Symbol)
+    if model == :linear 
+        return Dict(:alpha => collect(0.1:0.1:1), :regtype => [:lasso])
+    elseif model == :tree 
+        return Dict(:maxdepth => collect(0:2:10))
+    elseif model == :nn 
+        return Dict(:hidden_nodes => collect(5:5:35))
+    elseif model == :rf 
+        return Dict(:ntrees => collect(20:20:100), :maxdepth => collect(5:5:20))
+    elseif model == :adaptive 
+        return Dict(:alpha => collect(0.1:0.1:1), :regtype => [:missing_weight], :missing_penalty => [1.0,2.0,4.0,6.0,8.0,12.0])
+    end
+end
 
 SNR = NaN 
 k = NaN 
@@ -101,8 +115,8 @@ if  true #dname ∈ longtime_list #|| (dname == "ozone-level-detection-one" && k
     savedfiles = filter(t -> startswith(t, string(dname,"_real_Y_")), readdir(savedir))
     map!(t -> replace(replace(t, ".csv" => ""), string(dname,"_real_Y_") => ""), savedfiles, savedfiles)
     
-    for iter in setdiff(1:10, parse.(Int, savedfiles))    
-    # for iter in 1:10
+    # for iter in setdiff(1:10, parse.(Int, savedfiles))    
+    for iter in 1:2
         @show iter
         results_table = similar(results_main,0)
 
@@ -115,28 +129,30 @@ if  true #dname ∈ longtime_list #|| (dname == "ozone-level-detection-one" && k
         if do_benchmark
             println("Benchmark methods...")
             println("####################")
-            d = Dict(:alpha => collect(0.1:0.1:1), :regtype => [:lasso])
-
-            ## Method 0
-            try
-                df = X_missing[:,.!canbemissing] #This step can raise an error if all features can be missing
-                df[!,:Test] = test_ind
-                start = time()
-                linear, bestparams = PHD.regress_cv(Y, df, model=:linear, parameter_dict=d)
-                δt = (time() - start)
-                R2, OSR2 = PHD.evaluate(Y, df, linear)
-                R2l, OSR2l = PHD.stratified_evaluate(Y, df, linear, patidx)   
-                push!(results_table, [dname, SNR, k, k_missing, iter, "Complete Features", R2, OSR2, R2l, OSR2l,  δt, bestparams[:alpha]])
-            catch #In this case, simply predict the mean - which leads to 0. OSR2
-                push!(results_table, [dname, SNR, k, k_missing, iter, "Complete Features", 0., 0., [], [], 0.,0.])
+            for model in [:linear, :tree, :rf]
+                d = create_hp_dict(model)
+                
+                ## Method 0
+                try
+                    df = X_missing[:,.!canbemissing] #This step can raise an error if all features can be missing
+                    df[!,:Test] = test_ind
+                    start = time()
+                    linear, bestparams = PHD.regress_cv(Y, df, model=model, parameter_dict=d)
+                    δt = (time() - start)
+                    R2, OSR2 = PHD.evaluate(Y, df, linear)
+                    R2l, OSR2l = PHD.stratified_evaluate(Y, df, linear, patidx)   
+                    push!(results_table, [dname, SNR, k, k_missing, iter, "Complete Features - $(model)", R2, OSR2, R2l, OSR2l,  δt, bestparams])
+                catch #In this case, simply predict the mean - which leads to 0. OSR2
+                    push!(results_table, [dname, SNR, k, k_missing, iter, "Complete Features- $(model)", 0., 0., [], [], 0.,Dict()])
+                end
+                CSV.write(savedir*filename, results_table)
             end
-            CSV.write(savedir*filename, results_table)
         end
 
         if do_tree
             println("MIA-tree method...")
             println("####################")
-            d = Dict(:maxdepth => collect(1:2:10))
+            d = create_hp_dict(:tree)
 
             df = PHD.augment_MIA(X_missing)
             df[!,:Test] = test_ind
@@ -145,118 +161,119 @@ if  true #dname ∈ longtime_list #|| (dname == "ozone-level-detection-one" && k
             δt = (time() - start)
             R2, OSR2 = PHD.evaluate(Y, df, cartmodel)
             R2l, OSR2l = PHD.stratified_evaluate(Y, df, cartmodel, patidx)   
-            push!(results_table, [dname, SNR, k, k_missing, iter, "CART MIA", R2, OSR2, R2l, OSR2l, δt, bestparams[:maxdepth]])
+            push!(results_table, [dname, SNR, k, k_missing, iter, "CART MIA", R2, OSR2, R2l, OSR2l, δt, bestparams])
             CSV.write(savedir*filename, results_table)
         end
 
         if do_impthenreg
             println("Impute-then-regress methods...")
             println("###############################")
-            d = Dict(:alpha => collect(0.1:0.1:1), :regtype => [:lasso])
+            for model in [:linear, :tree, :rf]
+                d = create_hp_dict(model)
 
-            ## Method 1.1
-            start = time()
-            X_imputed = PHD.mice_bruteforce(X_missing);
-            δt = (time() - start)
+                ## Method 1.1
+                start = time()
+                X_imputed = PHD.mice_bruteforce(X_missing);
+                δt = (time() - start)
 
-            df = deepcopy(X_imputed)
-            df[!,:Test] = test_ind
+                df = deepcopy(X_imputed)
+                df[!,:Test] = test_ind
 
-            start = time()
-            linear, bestparams = PHD.regress_cv(Y, df, model=:linear, parameter_dict=d)
-            δt += (time() - start)
+                start = time()
+                linear, bestparams = PHD.regress_cv(Y, df, model=model, parameter_dict=d)
+                δt += (time() - start)
 
-            R2, OSR2 = PHD.evaluate(Y, df, linear)
-            R2l, OSR2l = PHD.stratified_evaluate(Y, df, linear, patidx)   
-            push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 1", R2, OSR2, R2l, OSR2l, δt, bestparams[:alpha]])
-            CSV.write(savedir*filename, results_table)
-
-
-            ## Method 1.2
-            df = deepcopy(X_missing)
-            start = time()
-            X_train_imputed = PHD.mice_bruteforce(df[.!test_ind,:]);
-            δt = (time() - start)
-
-            select!(df, names(X_train_imputed))
-            df[.!test_ind,:] .= X_train_imputed
-            start = time()
-            X_all_imputed = PHD.mice_bruteforce(df);
-            δt += (time() - start)
-
-            df = deepcopy(X_all_imputed)
-            df[!,:Test] = test_ind
-
-            start = time()
-            linear, bestparams = PHD.regress_cv(Y, df, model=:linear, parameter_dict=d)
-            δt += (time() - start)
-            R2, OSR2 = PHD.evaluate(Y, df, linear)
-            R2l, OSR2l = PHD.stratified_evaluate(Y, df, linear, patidx)   
-            push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 2", R2, OSR2,  R2l, OSR2l, δt, bestparams[:alpha]])
-            CSV.write(savedir*filename, results_table)
+                R2, OSR2 = PHD.evaluate(Y, df, linear)
+                R2l, OSR2l = PHD.stratified_evaluate(Y, df, linear, patidx)   
+                push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 1 - $(model)", R2, OSR2, R2l, OSR2l, δt, bestparams])
+                CSV.write(savedir*filename, results_table)
 
 
-            ## Method 1.3
-            df = deepcopy(X_missing)
-            start = time()
-            X_train_imputed = PHD.mice_bruteforce(df[.!test_ind,:]);
-            δt = (time() - start)
+                ## Method 1.2
+                df = deepcopy(X_missing)
+                start = time()
+                X_train_imputed = PHD.mice_bruteforce(df[.!test_ind,:]);
+                δt = (time() - start)
 
-            start = time()
-            X_all_imputed = PHD.mice_bruteforce(df[:,names(X_train_imputed)]);
-            δt += (time() - start)
+                select!(df, names(X_train_imputed))
+                df[.!test_ind,:] .= X_train_imputed
+                start = time()
+                X_all_imputed = PHD.mice_bruteforce(df);
+                δt += (time() - start)
 
-            select!(df, names(X_train_imputed))
-            df[.!test_ind,:] .= X_train_imputed
-            df[test_ind,:] .= X_all_imputed[test_ind,:]
-            df[!,:Test] = test_ind
-            start = time()
-            linear, bestparams = PHD.regress_cv(Y, df, model=:linear, parameter_dict=d)
-            δt += (time() - start)
-            R2, OSR2 = PHD.evaluate(Y, df, linear)
-            R2l, OSR2l = PHD.stratified_evaluate(Y, df, linear, patidx)   
-            push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 3", R2, OSR2,  R2l, OSR2l, δt, bestparams[:alpha]])
-            CSV.write(savedir*filename, results_table)
+                df = deepcopy(X_all_imputed)
+                df[!,:Test] = test_ind
 
-            ## Method 1.4
-            start = time()
-            means_df = PHD.compute_mean(X_missing[.!test_ind,:])
-            X_imputed = PHD.mean_impute(X_missing, means_df);
-            δt = (time() - start)
-            df = deepcopy(X_imputed)
-            df[!,:Test] = test_ind
-            start = time()
-            linear, bestparams = PHD.regress_cv(Y, df, model=:linear, parameter_dict=d)
-            δt += (time() - start)
-            R2, OSR2 = PHD.evaluate(Y, df, linear)
-            R2l, OSR2l = PHD.stratified_evaluate(Y, df, linear, patidx)   
-            push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 4", R2, OSR2, R2l, OSR2l, δt, bestparams[:alpha]])
-            CSV.write(savedir*filename, results_table)
+                start = time()
+                linear, bestparams = PHD.regress_cv(Y, df, model=model, parameter_dict=d)
+                δt += (time() - start)
+                R2, OSR2 = PHD.evaluate(Y, df, linear)
+                R2l, OSR2l = PHD.stratified_evaluate(Y, df, linear, patidx)   
+                push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 2 - $(model)", R2, OSR2,  R2l, OSR2l, δt, bestparams])
+                CSV.write(savedir*filename, results_table)
 
-            ## Method 1.5 Mean and mode impute
-            start = time()
-            means_df = PHD.compute_mean(X_missing[.!test_ind,:])
-            X_imputed = PHD.mean_impute(X_missing, means_df);
-            δt = (time() - start)
-            df = deepcopy(X_imputed)
-            start = time()
-            PHD.mode_impute!(df, train = .!test_ind)
-            δt += (time() - start)
-            df[!,:Test] = test_ind
-            start = time()
-            linear, bestparams = PHD.regress_cv(Y, df, model=:linear, parameter_dict=d)
-            δt += (time() - start)
-            R2, OSR2 = PHD.evaluate(Y, df, linear)
-            R2l, OSR2l = PHD.stratified_evaluate(Y, df, linear, patidx)   
-            push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 5", R2, OSR2,  R2l, OSR2l, δt, bestparams[:alpha]])
-            CSV.write(savedir*filename, results_table)
+
+                ## Method 1.3
+                df = deepcopy(X_missing)
+                start = time()
+                X_train_imputed = PHD.mice_bruteforce(df[.!test_ind,:]);
+                δt = (time() - start)
+
+                start = time()
+                X_all_imputed = PHD.mice_bruteforce(df[:,names(X_train_imputed)]);
+                δt += (time() - start)
+
+                select!(df, names(X_train_imputed))
+                df[.!test_ind,:] .= X_train_imputed
+                df[test_ind,:] .= X_all_imputed[test_ind,:]
+                df[!,:Test] = test_ind
+                start = time()
+                linear, bestparams = PHD.regress_cv(Y, df, model=model, parameter_dict=d)
+                δt += (time() - start)
+                R2, OSR2 = PHD.evaluate(Y, df, linear)
+                R2l, OSR2l = PHD.stratified_evaluate(Y, df, linear, patidx)   
+                push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 3 - $(model)", R2, OSR2,  R2l, OSR2l, δt, bestparams])
+                CSV.write(savedir*filename, results_table)
+
+                ## Method 1.4
+                start = time()
+                means_df = PHD.compute_mean(X_missing[.!test_ind,:])
+                X_imputed = PHD.mean_impute(X_missing, means_df);
+                δt = (time() - start)
+                df = deepcopy(X_imputed)
+                df[!,:Test] = test_ind
+                start = time()
+                linear, bestparams = PHD.regress_cv(Y, df, model=model, parameter_dict=d)
+                δt += (time() - start)
+                R2, OSR2 = PHD.evaluate(Y, df, linear)
+                R2l, OSR2l = PHD.stratified_evaluate(Y, df, linear, patidx)   
+                push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 4 - $(model)", R2, OSR2, R2l, OSR2l, δt, bestparams])
+                CSV.write(savedir*filename, results_table)
+
+                ## Method 1.5 Mean and mode impute
+                start = time()
+                means_df = PHD.compute_mean(X_missing[.!test_ind,:])
+                X_imputed = PHD.mean_impute(X_missing, means_df);
+                δt = (time() - start)
+                df = deepcopy(X_imputed)
+                start = time()
+                PHD.mode_impute!(df, train = .!test_ind)
+                δt += (time() - start)
+                df[!,:Test] = test_ind
+                start = time()
+                linear, bestparams = PHD.regress_cv(Y, df, model=model, parameter_dict=d)
+                δt += (time() - start)
+                R2, OSR2 = PHD.evaluate(Y, df, linear)
+                R2l, OSR2l = PHD.stratified_evaluate(Y, df, linear, patidx)   
+                push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 5 - $(model)", R2, OSR2,  R2l, OSR2l, δt, bestparams])
+                CSV.write(savedir*filename, results_table)
+            end
         end
         
         if do_static || do_affine
             println("Adaptive methods...")
             println("###################")
-            d = Dict(:alpha => collect(0.1:0.1:1), :regtype => [:missing_weight], :missing_penalty => [1.0,2.0,4.0,6.0,8.0,12.0])
-
+            d = create_hp_dict(:adaptive)    
 
             ## Method 2: Static Adaptability
             df = deepcopy(X_missing)
@@ -264,12 +281,12 @@ if  true #dname ∈ longtime_list #|| (dname == "ozone-level-detection-one" && k
             start = time()
             X_augmented = hcat(PHD.zeroimpute(df), PHD.indicatemissing(df, removecols=:Zero))
             # X_augmented = PHD.zeroimpute(df)
-            linear2, bestparams2 = PHD.regress_cv(Y, X_augmented, model=:linear, parameter_dict=d)
+            linear, bestparams = PHD.regress_cv(Y, X_augmented, model=:linear, parameter_dict=d)
             δt = (time() - start)
-            R2, OSR2 = PHD.evaluate(Y, X_augmented, linear2)
-            R2l, OSR2l = PHD.stratified_evaluate(Y, df, linear2, patidx)   
+            R2, OSR2 = PHD.evaluate(Y, X_augmented, linear)
+            R2l, OSR2l = PHD.stratified_evaluate(Y, X_augmented, linear, patidx)   
 
-            push!(results_table, [dname, SNR, k, k_missing, iter, "Static", R2, OSR2, R2l, OSR2l, δt, bestparams2[:alpha]])
+            push!(results_table, [dname, SNR, k, k_missing, iter, "Static", R2, OSR2, R2l, OSR2l, δt, bestparams])
             CSV.write(savedir*filename, results_table)
 
             if do_affine
@@ -280,12 +297,12 @@ if  true #dname ∈ longtime_list #|| (dname == "ozone-level-detection-one" && k
 
                 start = time()
                 X_affine = PHD.augmentaffine(df, model=String.(model), removecols=:Constant)
-                linear3, bestparams3 = PHD.regress_cv(Y, X_affine, model=:linear, parameter_dict=d)
+                linear, bestparams = PHD.regress_cv(Y, X_affine, model=:linear, parameter_dict=d)
                 δt = (time() - start)
-                R2, OSR2 = PHD.evaluate(Y, X_affine, linear3)
-                R2l, OSR2l = PHD.stratified_evaluate(Y, df, linear3, patidx)   
+                R2, OSR2 = PHD.evaluate(Y, X_affine, linear)
+                R2l, OSR2l = PHD.stratified_evaluate(Y, X_affine, linear, patidx)   
 
-                push!(results_table, [dname, SNR, k, k_missing, iter, "Affine", R2, OSR2, R2l, OSR2l, δt, bestparams3[:alpha]])
+                push!(results_table, [dname, SNR, k, k_missing, iter, "Affine", R2, OSR2, R2l, OSR2l, δt, bestparams])
                 CSV.write(savedir*filename, results_table)
             end
         end
@@ -293,7 +310,7 @@ if  true #dname ∈ longtime_list #|| (dname == "ozone-level-detection-one" && k
         if do_finite
             println("Finite adaptive methods...")
             println("###################")
-            d = Dict(:maxdepth => collect(0:2:10))
+            d = create_hp_dict(:tree)
 
             df = deepcopy(X_missing)
             df[!,:Test] = test_ind
@@ -302,26 +319,33 @@ if  true #dname ∈ longtime_list #|| (dname == "ozone-level-detection-one" && k
             gm2, bestparams = PHD.regress_cv(Y, df, model = :greedy, parameter_dict = d)
             δt = (time() - start)
 
-            R2, OSR2 = PHD.evaluate(Y, df, gm2)   
-            push!(results_table, [dname, SNR, k, k_missing, iter, "Finite", R2, OSR2, δt, bestparams[:maxdepth]])
+            R2, OSR2 = PHD.evaluate(Y, df, gm2)  
+            R2l, OSR2l = PHD.stratified_evaluate(Y, df, gm2, patidx)   
+ 
+            push!(results_table, [dname, SNR, k, k_missing, iter, "Finite", R2, OSR2, R2l, OSR2l, δt, bestparams])
             CSV.write(savedir*filename, results_table)
         end
+
         if do_μthenreg
             println("Joint Impute-and-Regress methods...")
             println("###################")
-            for model in [:linear, :tree]
-                d = model == :linear ? Dict(:alpha => collect(0.1:0.1:1)) : Dict(:maxdepth => collect(1:2:10))
+            for model in [:linear, :tree, :rf]
+                d = create_hp_dict(model)
+                d[:model] = [model]
 
                 df = deepcopy(X_missing)
                 df[!,:Test] = test_ind
 
                 start = time()
-                opt_imp_then_reg, bestparams, μ = PHD.impute_then_regress_cv(Y, df; modeltype=model, parameter_dict=d)
+                (opt_imp_then_reg, μ), bestparams = PHD.regress_cv(Y, df; model=:joint, parameter_dict=d)
                 δt = (time() - start)
 
                 R2, OSR2 = PHD.evaluate(Y, PHD.mean_impute(df, μ), opt_imp_then_reg)
-                push!(results_table, [dname, SNR, k, k_missing, iter, string("Joint Imp-then-Reg - ", model), R2, OSR2, 
-                            δt, model == :linear ? bestparams[:alpha] : bestparams[:maxdepth]])
+                R2l, OSR2l = PHD.stratified_evaluate(Y, PHD.mean_impute(df, μ), opt_imp_then_reg, patidx)   
+
+                push!(results_table, [dname, SNR, k, k_missing, iter, string("Joint Imp-then-Reg - ", model), 
+                            R2, OSR2, R2l, OSR2l,
+                            δt, bestparams])
                 CSV.write(savedir*filename, results_table)
             end
         end

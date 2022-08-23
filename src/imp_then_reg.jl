@@ -4,10 +4,11 @@
 ### Authors: Arthur Delarue, Jean Pauphilet, 2022
 ###################################
 function impute_then_regress(Y::Union{Vector{Float64},BitArray}, data::DataFrame; 
-    modeltype::Symbol, parameter_dict::Dict=Dict(), 
+    parameter_dict::Dict=Dict(), 
     maxiter::Int=10, maxμiter::Int=20, ϵ::Float64=1.)
 
-
+    pdict = deepcopy(parameter_dict)
+    modeltype = pop!(pdict, :model)
     X = select(data, Not([:Id]))
 
     canbemissing = findall([any(ismissing.(X[:,j])) for j in names(X)]) #indicator of missing features
@@ -21,7 +22,7 @@ function impute_then_regress(Y::Union{Vector{Float64},BitArray}, data::DataFrame
         #Step 1: Update prediction model
         model = regress(Y, X_imp; 
 		                model=modeltype,
-		                parameter_dict=parameter_dict) 
+		                parameter_dict=pdict) 
 
         initialR2, = evaluate(Y, X_imp, model)
         # println("In-sample R2: ", round(initialR2, digits=4))
@@ -63,7 +64,7 @@ function impute_then_regress(Y::Union{Vector{Float64},BitArray}, data::DataFrame
 
     model = regress(Y, X_imp; 
                             model=modeltype,
-                            parameter_dict=parameter_dict) 
+                            parameter_dict=pdict) 
     return (model, meanvector_to_df(μ, names(X)))
 end
 

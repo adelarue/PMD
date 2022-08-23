@@ -5,7 +5,7 @@ df <- rbind(
   read_csv("nonlinear/fakey_mar/FINAL_results.csv") %>% mutate(Setting = "1 - Syn-MAR"),
   read_csv("nonlinear/fakey_nmar/FINAL_results.csv") %>% mutate(Setting = "2 - Syn-NMAR"),
   read_csv("nonlinear/fakey_mar_adv/FINAL_results.csv") %>% mutate(Setting = "3 - Syn-NMAR adv"),
-  read_csv("realy/FINAL_results.csv") %>% mutate(SNR = 2, k = 10, kMissing=1, Setting = "4 - Real")
+  #read_csv("realy/FINAL_results.csv") %>% mutate(SNR = 2, k = 10, kMissing=1, Setting = "4 - Real")
 )
 
 #Claim 2: Mean impute not so bad
