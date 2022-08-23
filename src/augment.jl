@@ -18,15 +18,6 @@ end
 """
 	Remove columns that are uniformly zero
 """
-# function removezerocolumns(df::DataFrame)
-# 	tokeep = []
-# 	for name in Symbol.(names(df))
-# 		if name ∈ [:Id, :Test, :Y] || (!all(abs.(df[!,name]) .< 1e-9))
-# 			push!(tokeep, name)
-# 		end
-# 	end
-# 	return df[!, tokeep]
-# end
 function find_zerocolumns(df::DataFrame)
 	return [n for n in Symbol.(names(df)) if n ∈ [:Id, :Test, :Y] || (!all(abs.(df[!,n]) .< 1e-9))]
 end
@@ -53,9 +44,7 @@ function indicatemissing(df::DataFrame; removecols::Symbol=:None)
 		return result[:,find_constantcolumns(result)]
 	end
 end
-# function indicatemissing(df::DataFrame; removezerocols::Bool=true)
-# 	indicatemissing(df, removecols = removezerocols ? :Zero : :None)
-# end
+
 
 """
 	Create the outer product between the data matrix and the missingness indicators
