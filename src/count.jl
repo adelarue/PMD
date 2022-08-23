@@ -147,10 +147,20 @@ end
 """
 
 function kfold_stratified(;k::Int=3, y::Array)
+	
 	train_kf = [Int[] for s = 1:k]; test_kf = [Int[] for s = 1:k]
-
-	for label in unique(y)
-		ids_this_label = filter(i -> y[i] == label, 1:length(y))
+	
+	yc = deepcopy(y)
+	labels = sort(unique(yc))
+	n_label = [sum(yc .== l) for l in labels]
+	while any(n_label .< k)
+		ordered_label = sortperm(n_label)
+		yc[yc .== labels[ordered_label[1]]] .= labels[ordered_label[2]]
+		labels = sort(unique(yc))
+		n_label = [sum(yc .== l) for l in sort(unique(yc))]
+	end
+	for label in unique(yc)
+		ids_this_label = filter(i -> yc[i] == label, 1:length(yc))
 		train_this_label, test_this_label = MLUtils.kfolds(length(ids_this_label), k=k)
 
 		for s = 1:k
@@ -159,6 +169,15 @@ function kfold_stratified(;k::Int=3, y::Array)
 		end
 	end	
 	return train_kf, test_kf
+end
+function kfold_dataset(df::DataFrame, patternidx::Vector; Y=collect(1:nrow(df)), kfold::Int = 3)
+	islogistic = try length(unique(Y)) <= 2 catch ; false end
+	if islogistic
+    	normY = (Y .== levels(Y)[1])
+    	patternidx .+= maximum(patternidx).*normY
+	end 
+
+	return kfold_stratified(y=patternidx, k=kfold)
 end
 function kfold_dataset(df::DataFrame; Y=collect(1:nrow(df)), kfold::Int = 3)
 	patternidx, patterns, = missingness_pattern_id(df)
@@ -210,13 +229,14 @@ function split_dataset(df::DataFrame; Y=collect(1:nrow(df)), test_fraction::Real
 end
 
 
-function missingness_pattern_id(df::DataFrame; filtering::Bool=true)
+function missingness_pattern_id(df::DataFrame; filtering::Bool=true, minsize::Int=-1)
 
     cols = setdiff(Symbol.(names(df)), [:Id, :Test, :Y])
     patterns, counts  = missing_patterns_countmap(df[:,cols], safe=false) #Returns list of missingness pattern and count of occurences for each
     M = Matrix(ismissing.(df[:,cols]))
     patternidx = [findfirst(x -> x == M[i,:], patterns) for i = 1:nrow(df)] #Identify pattern of each observation
-    if filtering #Merges all patterns with only 1 occurences
+    
+	if filtering && minsize < 0#Merges all patterns with only 1 occurences
 		keeppatterns = findall(counts .> 1); npat = length(keeppatterns)
 		map!(t -> t ∈ keeppatterns ? t : npat+1, patternidx, patternidx)
 		patterns = patterns[keeppatterns]

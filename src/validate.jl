@@ -152,18 +152,21 @@ end
 function regress_kcv(Y, data::DataFrame;
 	k::Int=5,
 	model::Symbol=:linear,
-	parameter_dict::Dict{Symbol,T}=Dict(), 
+	parameter_dict::Dict{Symbol,T}=Dict(),
+	stratifiedid::Vector=ones(nrow(data)), 
 	seed::Int = 46156) where T
 
 	@assert length(parameter_dict) > 0
-
+	@assert length(stratifiedid) == length(Y)
+	
 	# Isolate training set
 	newY = Y[data[!, :Test] .== 0]
 	newdata = filter(row -> row[:Test] == 0, data)
 
+	@show length(newY), k
 	Random.seed!(seed)
 	# Designate some of training as testing/validation
-	_, val = kfold_dataset(newdata; Y=newY, kfold = k)
+	_, val = kfold_dataset(newdata, stratifiedid[data[!, :Test] .== 0]; Y=newY, kfold = k)
 
 	expand_paramdict = expand(parameter_dict)
 	kfold_OSR2 = zeros(k, length(expand_paramdict))
