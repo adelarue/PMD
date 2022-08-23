@@ -150,9 +150,10 @@ end
 	- bestparams: The dictionary containing the best hyperparameter values
 """
 function regress_kcv(Y, data::DataFrame;
-	k::Int=3,
+	k::Int=5,
 	model::Symbol=:linear,
-	parameter_dict::Dict{Symbol,T}=Dict()) where T
+	parameter_dict::Dict{Symbol,T}=Dict(), 
+	seed::Int = 46156) where T
 
 	@assert length(parameter_dict) > 0
 
@@ -160,6 +161,7 @@ function regress_kcv(Y, data::DataFrame;
 	newY = Y[data[!, :Test] .== 0]
 	newdata = filter(row -> row[:Test] == 0, data)
 
+	Random.seed!(seed)
 	# Designate some of training as testing/validation
 	_, val = kfold_dataset(newdata; Y=newY, kfold = k)
 
@@ -179,5 +181,5 @@ function regress_kcv(Y, data::DataFrame;
 	# train model on full dataset using best parameters
 	bestmodel = regress(Y, data; model=model, parameter_dict=bestparams)
 
-	return bestmodel, bestparams
+	return bestmodel, bestparams, maximum(mean(kfold_OSR2, dims=1))
 end
