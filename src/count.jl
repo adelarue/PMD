@@ -145,6 +145,32 @@ end
 	Split dataset into in-sample and out-of-sample using stratified sampling
 	Returns a vector with value true if in test set and false otherwise
 """
+
+function kfold_stratified(;k::Int=3, y::Array)
+	train_kf = [Int[] for s = 1:k]; test_kf = [Int[] for s = 1:k]
+
+	for label in unique(y)
+		ids_this_label = filter(i -> y[i] == label, 1:length(y))
+		train_this_label, test_this_label = MLUtils.kfolds(length(ids_this_label), k=k)
+
+		for s = 1:k
+			train_kf[s] = vcat(train_kf[s], ids_this_label[train_this_label[s]])
+			test_kf[s] = vcat(test_kf[s], ids_this_label[test_this_label[s]])
+		end
+	end	
+	return train_kf, test_kf
+end
+function kfold_dataset(df::DataFrame; Y=collect(1:nrow(df)), kfold::Int = 3)
+	patternidx, patterns, = missingness_pattern_id(df)
+	islogistic = try length(unique(Y)) <= 2 catch ; false end
+	if islogistic
+    	normY = (Y .== levels(Y)[1])
+    	patternidx .+= length(patterns).*normY
+	end 
+
+	return kfold_stratified(y=patternidx, k=kfold)
+end
+
 function splitobs_stratified(;at, y::Array, shuffle::Bool=true)
 	n_splits = length(at) + 1
 	the_splits = [Int[] for s = 1:n_splits]
@@ -160,22 +186,6 @@ function splitobs_stratified(;at, y::Array, shuffle::Bool=true)
 	end	
 	return the_splits
 end
-function missingness_pattern_id(df::DataFrame; filtering::Bool=true)
-
-    cols = setdiff(Symbol.(names(df)), [:Id, :Test, :Y])
-    patterns, counts  = missing_patterns_countmap(df[:,cols], safe=false) #Returns list of missingness pattern and count of occurences for each
-    M = Matrix(ismissing.(df[:,cols]))
-    patternidx = [findfirst(x -> x == M[i,:], patterns) for i = 1:nrow(df)] #Identify pattern of each observation
-    if filtering #Merges all patterns with only 1 occurences
-		keeppatterns = findall(counts .> 1); npat = length(keeppatterns)
-		map!(t -> t ∈ keeppatterns ? t : npat+1, patternidx, patternidx)
-		patterns = patterns[keeppatterns]
-		counts = counts[keeppatterns]
-	end
-
-    return patternidx, patterns, counts
-end
-
 function split_dataset(df::DataFrame; Y=collect(1:nrow(df)), test_fraction::Real = 0.3, random::Bool = true)
 	if !random
 		return split_dataset_nonrandom(df, test_fraction=test_fraction)
@@ -197,6 +207,23 @@ function split_dataset(df::DataFrame; Y=collect(1:nrow(df)), test_fraction::Real
 	test_ind = falses(nrow(df))
 	test_ind[test] .= true
 	return test_ind
+end
+
+
+function missingness_pattern_id(df::DataFrame; filtering::Bool=true)
+
+    cols = setdiff(Symbol.(names(df)), [:Id, :Test, :Y])
+    patterns, counts  = missing_patterns_countmap(df[:,cols], safe=false) #Returns list of missingness pattern and count of occurences for each
+    M = Matrix(ismissing.(df[:,cols]))
+    patternidx = [findfirst(x -> x == M[i,:], patterns) for i = 1:nrow(df)] #Identify pattern of each observation
+    if filtering #Merges all patterns with only 1 occurences
+		keeppatterns = findall(counts .> 1); npat = length(keeppatterns)
+		map!(t -> t ∈ keeppatterns ? t : npat+1, patternidx, patternidx)
+		patterns = patterns[keeppatterns]
+		counts = counts[keeppatterns]
+	end
+
+    return patternidx, patterns, counts
 end
 
 """

@@ -116,7 +116,7 @@ if  true #dname ∈ longtime_list #|| (dname == "ozone-level-detection-one" && k
     map!(t -> replace(replace(t, ".csv" => ""), string(dname,"_real_Y_") => ""), savedfiles, savedfiles)
     
     # for iter in setdiff(1:10, parse.(Int, savedfiles))    
-    for iter in 1:10
+    for iter in 1:1
         @show iter
         results_table = similar(results_main,0)
 
@@ -137,7 +137,7 @@ if  true #dname ∈ longtime_list #|| (dname == "ozone-level-detection-one" && k
                     df = X_missing[:,.!canbemissing] #This step can raise an error if all features can be missing
                     df[!,:Test] = test_ind
                     start = time()
-                    linear, bestparams = PHD.regress_cv(Y, df, model=model, parameter_dict=d)
+                    linear, bestparams = PHD.regress_kcv(Y, df, model=model, parameter_dict=d)
                     δt = (time() - start)
                     R2, OSR2 = PHD.evaluate(Y, df, linear)
                     R2l, OSR2l = PHD.stratified_evaluate(Y, df, linear, patidx)   
@@ -157,7 +157,7 @@ if  true #dname ∈ longtime_list #|| (dname == "ozone-level-detection-one" && k
             df = PHD.augment_MIA(X_missing)
             df[!,:Test] = test_ind
             start = time()
-            cartmodel, bestparams = PHD.regress_cv(Y, df; model = :tree, parameter_dict=d)
+            cartmodel, bestparams = PHD.regress_kcv(Y, df; model = :tree, parameter_dict=d)
             δt = (time() - start)
             R2, OSR2 = PHD.evaluate(Y, df, cartmodel)
             R2l, OSR2l = PHD.stratified_evaluate(Y, df, cartmodel, patidx)   
@@ -180,7 +180,7 @@ if  true #dname ∈ longtime_list #|| (dname == "ozone-level-detection-one" && k
                 df[!,:Test] = test_ind
 
                 start = time()
-                linear, bestparams = PHD.regress_cv(Y, df, model=model, parameter_dict=d)
+                linear, bestparams = PHD.regress_kcv(Y, df, model=model, parameter_dict=d)
                 δt += (time() - start)
 
                 R2, OSR2 = PHD.evaluate(Y, df, linear)
@@ -205,7 +205,7 @@ if  true #dname ∈ longtime_list #|| (dname == "ozone-level-detection-one" && k
                 df[!,:Test] = test_ind
 
                 start = time()
-                linear, bestparams = PHD.regress_cv(Y, df, model=model, parameter_dict=d)
+                linear, bestparams = PHD.regress_kcv(Y, df, model=model, parameter_dict=d)
                 δt += (time() - start)
                 R2, OSR2 = PHD.evaluate(Y, df, linear)
                 R2l, OSR2l = PHD.stratified_evaluate(Y, df, linear, patidx)   
@@ -228,7 +228,7 @@ if  true #dname ∈ longtime_list #|| (dname == "ozone-level-detection-one" && k
                 df[test_ind,:] .= X_all_imputed[test_ind,:]
                 df[!,:Test] = test_ind
                 start = time()
-                linear, bestparams = PHD.regress_cv(Y, df, model=model, parameter_dict=d)
+                linear, bestparams = PHD.regress_kcv(Y, df, model=model, parameter_dict=d)
                 δt += (time() - start)
                 R2, OSR2 = PHD.evaluate(Y, df, linear)
                 R2l, OSR2l = PHD.stratified_evaluate(Y, df, linear, patidx)   
@@ -243,7 +243,7 @@ if  true #dname ∈ longtime_list #|| (dname == "ozone-level-detection-one" && k
                 df = deepcopy(X_imputed)
                 df[!,:Test] = test_ind
                 start = time()
-                linear, bestparams = PHD.regress_cv(Y, df, model=model, parameter_dict=d)
+                linear, bestparams = PHD.regress_kcv(Y, df, model=model, parameter_dict=d)
                 δt += (time() - start)
                 R2, OSR2 = PHD.evaluate(Y, df, linear)
                 R2l, OSR2l = PHD.stratified_evaluate(Y, df, linear, patidx)   
@@ -261,7 +261,7 @@ if  true #dname ∈ longtime_list #|| (dname == "ozone-level-detection-one" && k
                 δt += (time() - start)
                 df[!,:Test] = test_ind
                 start = time()
-                linear, bestparams = PHD.regress_cv(Y, df, model=model, parameter_dict=d)
+                linear, bestparams = PHD.regress_kcv(Y, df, model=model, parameter_dict=d)
                 δt += (time() - start)
                 R2, OSR2 = PHD.evaluate(Y, df, linear)
                 R2l, OSR2l = PHD.stratified_evaluate(Y, df, linear, patidx)   
@@ -281,7 +281,7 @@ if  true #dname ∈ longtime_list #|| (dname == "ozone-level-detection-one" && k
             start = time()
             X_augmented = hcat(PHD.zeroimpute(df), PHD.indicatemissing(df, removecols=:Zero))
             # X_augmented = PHD.zeroimpute(df)
-            linear, bestparams = PHD.regress_cv(Y, X_augmented, model=:linear, parameter_dict=d)
+            linear, bestparams = PHD.regress_kcv(Y, X_augmented, model=:linear, parameter_dict=d)
             δt = (time() - start)
             R2, OSR2 = PHD.evaluate(Y, X_augmented, linear)
             R2l, OSR2l = PHD.stratified_evaluate(Y, X_augmented, linear, patidx)   
@@ -297,7 +297,7 @@ if  true #dname ∈ longtime_list #|| (dname == "ozone-level-detection-one" && k
 
                 start = time()
                 X_affine = PHD.augmentaffine(df, model=String.(model), removecols=:Constant)
-                linear, bestparams = PHD.regress_cv(Y, X_affine, model=:linear, parameter_dict=d)
+                linear, bestparams = PHD.regress_kcv(Y, X_affine, model=:linear, parameter_dict=d)
                 δt = (time() - start)
                 R2, OSR2 = PHD.evaluate(Y, X_affine, linear)
                 R2l, OSR2l = PHD.stratified_evaluate(Y, X_affine, linear, patidx)   
@@ -316,7 +316,7 @@ if  true #dname ∈ longtime_list #|| (dname == "ozone-level-detection-one" && k
             df[!,:Test] = test_ind
 
             start = time()
-            gm2, bestparams = PHD.regress_cv(Y, df, model = :greedy, parameter_dict = d)
+            gm2, bestparams = PHD.regress_kcv(Y, df, model = :greedy, parameter_dict = d)
             δt = (time() - start)
 
             R2, OSR2 = PHD.evaluate(Y, df, gm2)  
@@ -337,7 +337,7 @@ if  true #dname ∈ longtime_list #|| (dname == "ozone-level-detection-one" && k
                 df[!,:Test] = test_ind
 
                 start = time()
-                (opt_imp_then_reg, μ), bestparams = PHD.regress_cv(Y, df; model=:joint, parameter_dict=d)
+                (opt_imp_then_reg, μ), bestparams = PHD.regress_kcv(Y, df; model=:joint, parameter_dict=d)
                 δt = (time() - start)
 
                 R2, OSR2 = PHD.evaluate(Y, PHD.mean_impute(df, μ), opt_imp_then_reg)
