@@ -2,10 +2,10 @@ setwd("Dropbox (MIT)/1 - Research/PHD/results/")
 source("setup_script.R")
 
 df <- rbind(
-  read_csv("linear/fakey_mar/FINAL_results.csv") %>% mutate(Setting = "1 - Syn-MAR"),
-  read_csv("linear/fakey_nmar/FINAL_results.csv") %>% mutate(Setting = "2 - Syn-NMAR"),
-  read_csv("linear/fakey_mar_adv/FINAL_results.csv") %>% mutate(Setting = "3 - Syn-NMAR adv"),
-  read_csv("realy/FINAL_results.csv") %>% mutate(Setting = "4 - Real", kMissing=1) 
+  read_csv("nn/fakey_mar/FINAL_results.csv") %>% mutate(Setting = "1 - Syn-MAR"),
+  read_csv("nn/fakey_nmar/FINAL_results.csv") %>% mutate(Setting = "2 - Syn-NMAR"),
+  read_csv("nn/fakey_mar_adv/FINAL_results.csv") %>% mutate(Setting = "3 - Syn-NMAR adv")
+#read_csv("realy/FINAL_results.csv") %>% mutate(Setting = "4 - Real", kMissing=1) 
 )
 
 #Claim 1: Mode imputation is detrimental
