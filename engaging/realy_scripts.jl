@@ -10,17 +10,17 @@ sort!(dataset_list)
 
 savedir = string("../results/", 
                 "/realy", 
-                "/fixingcode/")
+                "/2022-08-23/")
 mkpath(savedir)
 
 #Prediction methods
-do_benchmark = false
-do_tree = false
-do_impthenreg = false
-do_static = false
-do_affine = false
+do_benchmark = true
+do_tree = true
+do_impthenreg = true
+do_static = true
+do_affine = true
 affine_on_static_only = false #Should be set to false
-do_finite = false
+do_finite = true
 do_μthenreg = true 
 
 
@@ -29,15 +29,15 @@ results_main = DataFrame(dataset=[], SNR=[], k=[], kMissing=[], splitnum=[], met
 
 function create_hp_dict(model::Symbol)
     if model == :linear 
-        return Dict(:alpha => collect(0.1:0.1:1), :regtype => [:lasso])
+        return Dict{Symbol,Vector}(:alpha => collect(0.1:0.1:1), :regtype => [:lasso])
     elseif model == :tree 
-        return Dict(:maxdepth => collect(0:2:10))
+        return Dict{Symbol,Vector}(:maxdepth => collect(0:2:10))
     elseif model == :nn 
-        return Dict(:hidden_nodes => collect(5:5:35))
+        return Dict{Symbol,Vector}(:hidden_nodes => collect(5:5:35))
     elseif model == :rf 
-        return Dict(:ntrees => collect(20:20:100), :maxdepth => collect(5:5:20))
+        return Dict{Symbol,Vector}(:ntrees => collect(20:20:100), :maxdepth => collect(5:5:20))
     elseif model == :adaptive 
-        return Dict(:alpha => collect(0.1:0.1:1), :regtype => [:missing_weight], :missing_penalty => [1.0,2.0,4.0,6.0,8.0,12.0])
+        return Dict{Symbol,Vector}(:alpha => collect(0.1:0.1:1), :regtype => [:missing_weight], :missing_penalty => [1.0,2.0,4.0,6.0,8.0,12.0])
     end
 end
 
@@ -116,7 +116,7 @@ if  true #dname ∈ longtime_list #|| (dname == "ozone-level-detection-one" && k
     map!(t -> replace(replace(t, ".csv" => ""), string(dname,"_real_Y_") => ""), savedfiles, savedfiles)
     
     # for iter in setdiff(1:10, parse.(Int, savedfiles))    
-    for iter in 1:2
+    for iter in 1:10
         @show iter
         results_table = similar(results_main,0)
 

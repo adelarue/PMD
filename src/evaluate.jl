@@ -15,11 +15,7 @@ function evaluate(Y::Vector, df::DataFrame, model::Union{DataFrame,DecisionTree.
     if !testavail #If no test column, all dataset is considered training
         df[!,:Test] .= 0
     end
-	# for i in findall(abs.(prediction) .> 500)
-	# 	for j in names(df)
-	# 		println(j, " : ", df[i,j])
-	# 	end
-	# end
+
 	trainmean = Statistics.mean(Y[df[:,:Test] .== 0])
 	R2 = rsquare(Y[df[:,:Test] .== 0], prediction[df[:,:Test] .== 0]; baseline=trainmean)
 	if !testavail #If no test column, all dataset is considered training
