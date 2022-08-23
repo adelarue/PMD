@@ -158,12 +158,11 @@ function regress_kcv(Y, data::DataFrame;
 
 	@assert length(parameter_dict) > 0
 	@assert length(stratifiedid) == length(Y)
-	
+
 	# Isolate training set
 	newY = Y[data[!, :Test] .== 0]
 	newdata = filter(row -> row[:Test] == 0, data)
 
-	@show length(newY), k
 	Random.seed!(seed)
 	# Designate some of training as testing/validation
 	_, val = kfold_dataset(newdata, stratifiedid[data[!, :Test] .== 0]; Y=newY, kfold = k)
