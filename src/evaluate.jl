@@ -25,7 +25,7 @@ function evaluate(Y::Vector, df::DataFrame, model::Union{DataFrame,DecisionTree.
 		return R2, OSR2
     end 
 end
-function evaluate(Y::BitArray{1}, df::DataFrame, model::Union{DataFrame,DecisionTree.Node,DecisionTree.Ensemble,Chain,GreedyModel,Tuple{Any, DataFrame}};
+function evaluate(Y::BitArray{1}, df::DataFrame, model::Union{DataFrame,DecisionTree.Root,DecisionTree.Ensemble,Chain,GreedyModel,Tuple{Any, DataFrame}};
 				  metric::AbstractString="auc")
 	prediction = predict(df, model)
 	# if model[1, :Logistic]
