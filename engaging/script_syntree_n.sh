@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH -a 0-49
+#SBATCH -a 30-49
 #SBATCH -J syn_tree_nmar
 #SBATCH --cpus-per-task=1
 #SBATCH --mem-per-cpu=4GB
