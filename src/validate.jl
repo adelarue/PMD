@@ -174,7 +174,6 @@ function regress_kcv(Y, data::DataFrame;
 		newdata[val[s], :Test] .= 1
 		for (kp,params) in enumerate(expand_paramdict)
 			newmodel = regress(newY, newdata; model=model, parameter_dict=params)
-
 			kfold_OSR2[s,kp] = evaluate(newY, newdata, newmodel)[2]
 		end
 	end	

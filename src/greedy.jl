@@ -376,7 +376,8 @@ function predict(missingdata::DataFrame, gm::GreedyModel)#; missingdata::DataFra
 		# for f in currentNode.featuresIn
 		# 	result[i] += currentNode.coeffs[f] * data[i, f]
 		# end
-		result[i] = predict(data[[i], intersect(truenames, names(currentNode.model))], currentNode.model)[1]
+		# @show data[[i], intersect(truenames, names(currentNode.model))]
+		result[i] = predict(data[[i], :], currentNode.model)[1]
 	end
 	return result
 	# if gm.logistic
