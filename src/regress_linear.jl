@@ -167,11 +167,14 @@ function regress_linear(Y::BitArray{1}, df::DataFrame;
 	y = convert(Array, Y[trainingset])
 
 	freq = mean(1.0.*y)
+		
 	w = (1/freq).*y .+ (1/(1 - freq)).*(1. .- y); #class weights
 	coefficients = DataFrame()
 	
 	#PENALTY: Lasso 
-	if regtype == :lasso
+	if freq > 0.999 || freq < 0.111
+		coefficients[!,:Offset] = [safelog(mean(y) / (1-mean(y)))]
+	elseif regtype == :lasso
 		penalty_factor = ones(length(cols))
 		for (i, col) in enumerate(cols)
 			if occursin("_missing", string(col))
@@ -226,6 +229,7 @@ function regress_linear(Y::BitArray{1}, df::DataFrame;
 		end
 		coefficients[!,:Offset] = [path.a0[end]]
 	end
+
 	coefficients[!, :Logistic] = [true]
 	
 	return coefficients

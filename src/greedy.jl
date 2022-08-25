@@ -223,18 +223,20 @@ function bestSplit(gm::GreedyModel, Y::Union{Vector, BitArray{1}}, data::DataFra
 		pointsRight = points[ismissing.(missingdata[points, j])]
 		length(pointsRight) < minbucket && continue
 
-		modelLeft, lossLeft = regressionCoefficients(Y, data, pointsLeft, features=predictive_features)
-		modelRight, lossRight = regressionCoefficients(Y, data, pointsRight, features=setdiff(predictive_features,[j]))
+		try		
+			modelLeft, lossLeft = regressionCoefficients(Y, data, pointsLeft, features=predictive_features)
+			modelRight, lossRight = regressionCoefficients(Y, data, pointsRight, features=setdiff(predictive_features,[j]))
+		
+			newLoss = (lossLeft + lossRight)
 
-		# intLeft, coeffsLeft, lossLeft = regressionCoefficients(Y, data, pointsLeft, featuresLeft)
-		# intRight, coeffsRight, lossRight = regressionCoefficients(Y, data, pointsRight, featuresRight)
-
-		newLoss = (lossLeft + lossRight)
-		if newLoss < bestLoss[1]
-			bestLoss = newLoss, lossLeft, lossRight
-			bestFeature = j
-			# bestCoeffs = intLeft, coeffsLeft, intRight, coeffsRight
-			bestModels = modelLeft, modelRight
+			if newLoss < bestLoss[1]
+				bestLoss = newLoss, lossLeft, lossRight
+				bestFeature = j
+				# bestCoeffs = intLeft, coeffsLeft, intRight, coeffsRight
+				bestModels = modelLeft, modelRight
+			end
+		catch 
+			@show mean(Y[pointsLeft]), mean(Y[pointsRight])
 		end
 	end
 	#REMARK: If no split possible with at least minbucket on each side, function will return the initial split with improvement 0% --> not implemented
@@ -305,7 +307,7 @@ function regressionCoefficients(Y::Vector, data::DataFrame, points::Vector{Int};
 	# 	β_0 = cv.path.a0[argmin(cv.meanloss)]
 	# 	coeffs[features] = cv.path.betas[:, argmin(cv.meanloss)]
 	# end
-	model = regress_linear(Y[points], data[points, features]; regtype=:missing_weight, alpha=0.1)
+	model = regress_linear(Y[points], data[points, features]; regtype=:missing_weight, alpha=0.2)
 	# @show evaluate(Y[points], data[points,:], model)
 	SSE = sum((predict(data[points,:], model) .- Y[points]).^2)
 	# @show evaluate(Ymodel)
@@ -346,7 +348,6 @@ function regressionCoefficients(Y::BitArray{1}, data::DataFrame, points::Vector{
 	# # LL = argmin(cv.meanloss)*Base.size(X,1)
 	# LL = 1 - auc(y, pred)
 	# return β_0, coeffs, LL
-
 	model = regress_linear(Y[points], data[points, features]; regtype=:missing_weight, alpha=0.1)
 	pred = predict(data[points,:], model)
 	
