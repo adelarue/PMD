@@ -19,7 +19,7 @@ ktotal = 5
 # missingness_proba_list = collect(0.05:0.05:0.9)
 # missingness_proba_list = collect(0.1:0.1:0.9)
 # missingness_proba_list = collect(0.2:0.1:0.9)
-missingness_proba_list = collect(0.6:0.1:0.9)
+missingness_proba_list = collect(0.4:0.1:0.9)
 
 # missingness_proba = 0.1 
 num_missing_feature = p 
