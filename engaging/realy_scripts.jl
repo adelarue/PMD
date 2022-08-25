@@ -10,7 +10,7 @@ sort!(dataset_list)
 
 savedir = string("../results/", 
                 "/realy", 
-                "/2022-08-23/")
+                "/2022-08-25/")
 mkpath(savedir)
 
 #Prediction methods
