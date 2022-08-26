@@ -72,7 +72,9 @@ function regress_linear(Y::Array{Float64}, df::DataFrame;
 	coefficients = DataFrame()
 	
 	#PENALTY: Lasso 
-	if regtype == :lasso
+	if all(var(X[:,j] for j in 1:Base.size(X,2)) .< 1e-10) ##All predictors have 0 variance
+		coefficients[!,:Offset] .= mean(y)
+	elseif regtype == :lasso
 		try
 			penalty_factor = ones(length(cols))
 			for (i, col) in enumerate(cols)
@@ -173,6 +175,8 @@ function regress_linear(Y::BitArray{1}, df::DataFrame;
 	
 	#PENALTY: Lasso 
 	if freq > 0.999 || freq < 0.111
+		coefficients[!,:Offset] = [safelog(mean(y) / (1-mean(y)))]
+	elseif all(var(X[:,j] for j in 1:Base.size(X,2)) .< 1e-10)
 		coefficients[!,:Offset] = [safelog(mean(y) / (1-mean(y)))]
 	elseif regtype == :lasso
 		penalty_factor = ones(length(cols))
