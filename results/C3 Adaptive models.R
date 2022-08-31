@@ -7,8 +7,9 @@ df <- rbind(
   read_csv("linear/fakey_mar/FINAL_results.csv") %>% mutate(Setting = "1 - Syn-MAR"),
   read_csv("linear/fakey_nmar/FINAL_results.csv") %>% mutate(Setting = "2 - Syn-NMAR"),
   read_csv("linear/fakey_mar_adv/FINAL_results.csv") %>% mutate(Setting = "3 - Syn-NMAR adv"),
-  #read_csv("realy/FINAL_results.csv") %>% mutate(SNR = 2, k = 10, kMissing=1, Setting = "4 - Real") 
+  read_csv("realy/FINAL_results.csv") %>% mutate(SNR = 2, k = 10, kMissing=1, Setting = "4 - Real") 
 )
+df <- read_csv("realy/FINAL_results.csv") %>% mutate(Setting = "4 - Real") 
 
 patterns = read_csv("pattern_counts_numonly.csv") %>% rename(dataset=Name) %>%  filter(p_miss > 0)
   
@@ -69,6 +70,7 @@ for (s in synset) {
 }
 
 #Plot 3: Win rate
+library(Hmisc)
 df_winrate <- df %>%
   left_join(patterns) %>%
   filter(!is.na(p)) %>%
@@ -78,12 +80,15 @@ df_winrate <- df %>%
   spread(key = method, value=osr2) %>%
   filter(!is.na(Affine)) %>%
   filter(!is.na(Finite)) %>%
-  mutate(win = max(Finite,Affine, Static) > max(`Imp-then-Reg 2`, `Imp-then-Reg 4`)) %>%
+  #mutate(win = max(Finite,Affine, Static) > max(`Imp-then-Reg 2 - best`, `Imp-then-Reg 4 - best`)) %>%
+  mutate(win = max(Finite,Affine, Static, `Joint Imp-then-Reg - best`) > max(`Imp-then-Reg 2 - best`)) %>%
   mutate(pMissing = kMissing / k) %>% #k - kMissing) %>%
   group_by(Setting, dataset, pMissing) %>%
-  summarize(winpct = sum(win)/n()) %>%
+  dplyr::summarize(winpct = sum(win)/n()) %>%
   ungroup() %>%
   select(Setting, dataset, winpct)
+
+describe(df_winrate)
 
 df_winrate %>%
   filter(Setting < "4") %>%
