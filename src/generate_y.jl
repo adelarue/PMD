@@ -290,7 +290,7 @@ function generate_y(data::DataFrame,
 		X = X[:,shuffle(1:Base.size(X,2))]
     	Y = 10 .* sin.(π .* X[:,1] .* X[:,2]) .+ 20 .* (X[:,3] .- 0.5).^2 .+ X[:,4] .+ 5 .* X[:,5]
 	elseif model == :nn 
-		W = 2*rand(hidden_nodes, Base.size(X,2))
+		W = 2*rand(hidden_nodes, Base.size(X,2)) .- 1
 		nn = Flux.Chain( 	Flux.Dense(W, # linear weights
                                randn(hidden_nodes), # bias of each hidden node
                                Flux.relu), # activation function
