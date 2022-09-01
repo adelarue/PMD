@@ -32,18 +32,18 @@ model_for_y = try ARGS[3]=="1" ? :linear : (ARGS[3]=="2" ? :tree : :nn) catch; :
 savedir = string("../results/synthetic/", 
                 model_for_y,
                 relationship_xm_mar ? "_mar" : "_censoring",
-                "/debug/")
+                "/final/")
 mkpath(savedir)
 
 #Prediction methods
 do_benchmark = true
-do_tree = false
+do_tree = true
 do_impthenreg = true
-do_static = false
+do_static = true
 do_affine = true
 # affine_on_static_only = false #Should be set to false
 do_finite = true
-do_μthenreg = false 
+do_μthenreg = true 
 
 function create_hp_dict(model::Symbol)
     if model == :linear 
@@ -143,7 +143,7 @@ array_num = parse(Int, ARG)
                 R2, OSR2 = PHD.evaluate(Y, df, linear)
                 R2l, OSR2l = PHD.stratified_evaluate(Y, df, linear, patidx, subsetpattern=subsetpattern)   
                 push!(results_table, [dname, SNR, k, missingness_proba, iter, "Oracle X", R2, OSR2, R2l, OSR2l, [], δt, bestparams, score])
-                CSV.write(savedir*filename, results_table)
+                # CSV.write(savedir*filename, results_table)
 
                 df = [X_full[:,:] PHD.indicatemissing(X_missing[:,:]; removecols=:Zero)]
                 df[!,:Test] = test_ind
@@ -153,7 +153,7 @@ array_num = parse(Int, ARG)
                 R2, OSR2 = PHD.evaluate(Y, df, linear)
                 R2l, OSR2l = PHD.stratified_evaluate(Y, df, linear, patidx, subsetpattern=subsetpattern)   
                 push!(results_table, [dname, SNR, k, missingness_proba, iter, "Oracle XM", R2, OSR2, R2l, OSR2l, [], δt, bestparams, score])
-                CSV.write(savedir*filename, results_table)
+                # CSV.write(savedir*filename, results_table)
 
 
                 ## Method 0
@@ -169,24 +169,24 @@ array_num = parse(Int, ARG)
                 catch #In this case, simply predict the mean - which leads to 0. OSR2
                     push!(results_table, [dname, SNR, k, missingness_proba, iter, "Complete Features", 0., 0., [], [], [], 0.,0., 0.])
                 end
-                CSV.write(savedir*filename, results_table)
+                # CSV.write(savedir*filename, results_table)
             end
 
-            # if do_tree
-            #     println("MIA-tree method...")
-            #     println("####################")
-            #     d = create_hp_dict(:tree)
+            if do_tree
+                println("MIA-tree method...")
+                println("####################")
+                d = create_hp_dict(:tree)
 
-            #     df = PHD.augment_MIA(X_missing)
-            #     df[!,:Test] = test_ind
-            #     start = time()
-            #     cartmodel, bestparams, score = PHD.regress_kcv(Y, df; model = :tree, parameter_dict=d, stratifiedid=patidx)
-            #     δt = (time() - start)
-            #     R2, OSR2 = PHD.evaluate(Y, df, cartmodel)
-            #     R2l, OSR2l = PHD.stratified_evaluate(Y, df, cartmodel, patidx, subsetpattern=subsetpattern)   
-            #     push!(results_table, [dname, SNR, k, missingness_proba, iter, "CART MIA", R2, OSR2, R2l, OSR2l, [], δt, bestparams, score])
-            #     CSV.write(savedir*filename, results_table)
-            # end
+                df = PHD.augment_MIA(X_missing)
+                df[!,:Test] = test_ind
+                start = time()
+                cartmodel, bestparams, score = PHD.regress_kcv(Y, df; model = :tree, parameter_dict=d, stratifiedid=patidx)
+                δt = (time() - start)
+                R2, OSR2 = PHD.evaluate(Y, df, cartmodel)
+                R2l, OSR2l = PHD.stratified_evaluate(Y, df, cartmodel, patidx, subsetpattern=subsetpattern)   
+                push!(results_table, [dname, SNR, k, missingness_proba, iter, "CART MIA", R2, OSR2, R2l, OSR2l, [], δt, bestparams, score])
+                # CSV.write(savedir*filename, results_table)
+            end
 
             if do_impthenreg
                 for model in [:linear, :tree, :rf]
@@ -210,7 +210,7 @@ array_num = parse(Int, ARG)
                     R2l, OSR2l = PHD.stratified_evaluate(Y, df, linear, patidx, subsetpattern=subsetpattern)   
 
                     push!(results_table, [dname, SNR, k, missingness_proba, iter, "Imp-then-Reg 1 - $(model)", R2, OSR2,  R2l, OSR2l, [], δt, bestparams, score])
-                    CSV.write(savedir*filename, results_table)
+                    # CSV.write(savedir*filename, results_table)
 
 
                     ## Method 1.2: Mice on train + test with imputed train
@@ -235,7 +235,7 @@ array_num = parse(Int, ARG)
                     R2l, OSR2l = PHD.stratified_evaluate(Y, df, linear, patidx, subsetpattern=subsetpattern)   
 
                     push!(results_table, [dname, SNR, k, missingness_proba, iter, "Imp-then-Reg 2 - $(model)", R2, OSR2,  R2l, OSR2l, [], δt, bestparams, score])
-                    CSV.write(savedir*filename, results_table)
+                    # CSV.write(savedir*filename, results_table)
 
 
                     ## Method 1.3: Mice on train + test with original train
@@ -259,22 +259,22 @@ array_num = parse(Int, ARG)
                     R2, OSR2 = PHD.evaluate(Y, df, linear)
                     R2l, OSR2l = PHD.stratified_evaluate(Y, df, linear, patidx, subsetpattern=subsetpattern)   
                     push!(results_table, [dname, SNR, k, missingness_proba, iter, "Imp-then-Reg 3 - $(model)", R2, OSR2, R2l, OSR2l, [], δt, bestparams, score])
-                    CSV.write(savedir*filename, results_table)
+                    # CSV.write(savedir*filename, results_table)
 
-                    # ## Method 1.4: Mean-impute then regress
-                    # start = time()
-                    # means_df = PHD.compute_mean(X_missing[.!test_ind,:])
-                    # X_imputed = PHD.mean_impute(X_missing, means_df);
-                    # δt = (time() - start)
-                    # df = deepcopy(X_imputed)
-                    # df[!,:Test] = test_ind
-                    # start = time()
-                    # linear, bestparams, score = PHD.regress_kcv(Y, df, model=model, parameter_dict=d, stratifiedid=patidx)
-                    # δt += (time() - start)
-                    # R2, OSR2 = PHD.evaluate(Y, df, linear)
-                    # R2l, OSR2l = PHD.stratified_evaluate(Y, df, linear, patidx, subsetpattern=subsetpattern)   
-                    # push!(results_table, [dname, SNR, k, missingness_proba, iter, "Imp-then-Reg 4 - $(model)", R2, OSR2, R2l, OSR2l, 
-                    #         Matrix(means_df[:,canbemissing])[1,:], δt, bestparams, score])
+                    ## Method 1.4: Mean-impute then regress
+                    start = time()
+                    means_df = PHD.compute_mean(X_missing[.!test_ind,:])
+                    X_imputed = PHD.mean_impute(X_missing, means_df);
+                    δt = (time() - start)
+                    df = deepcopy(X_imputed)
+                    df[!,:Test] = test_ind
+                    start = time()
+                    linear, bestparams, score = PHD.regress_kcv(Y, df, model=model, parameter_dict=d, stratifiedid=patidx)
+                    δt += (time() - start)
+                    R2, OSR2 = PHD.evaluate(Y, df, linear)
+                    R2l, OSR2l = PHD.stratified_evaluate(Y, df, linear, patidx, subsetpattern=subsetpattern)   
+                    push!(results_table, [dname, SNR, k, missingness_proba, iter, "Imp-then-Reg 4 - $(model)", R2, OSR2, R2l, OSR2l, 
+                            Matrix(means_df[:,canbemissing])[1,:], δt, bestparams, score])
                     # CSV.write(savedir*filename, results_table)
 
                     # ## Method 1.5 Mean and mode impute
@@ -314,7 +314,7 @@ array_num = parse(Int, ARG)
                     R2l, OSR2l = PHD.stratified_evaluate(Y, X_augmented, linear, patidx, subsetpattern=subsetpattern)  
                     μ = PHD.recover_mu(linear, canbemissing) 
                     push!(results_table, [dname, SNR, k, missingness_proba, iter, "Static", R2, OSR2, R2l, OSR2l, μ, δt, bestparams, score])
-                    CSV.write(savedir*filename, results_table)
+                    # CSV.write(savedir*filename, results_table)
                 end 
 
                 if do_affine
@@ -337,7 +337,7 @@ array_num = parse(Int, ARG)
                     R2l, OSR2l = PHD.stratified_evaluate(Y, X_affine, linear, patidx, subsetpattern=subsetpattern)  
 
                     push!(results_table, [dname, SNR, k, missingness_proba, iter, "Affine", R2, OSR2, R2l, OSR2l, [], δt, bestparams, score])
-                    CSV.write(savedir*filename, results_table)
+                    # CSV.write(savedir*filename, results_table)
                 end
             end
             
@@ -356,32 +356,36 @@ array_num = parse(Int, ARG)
                 R2l, OSR2l = PHD.stratified_evaluate(Y, df, gm2, patidx, subsetpattern=subsetpattern)  
   
                 push!(results_table, [dname, SNR, k, missingness_proba, iter, "Finite", R2, OSR2, R2l, OSR2l, [], δt, bestparams, score])
-                CSV.write(savedir*filename, results_table)
+                # CSV.write(savedir*filename, results_table)
             end
-            # if do_μthenreg
-            #     println("Joint Impute-and-Regress methods...")
-            #     println("###################")
-            #     for model in [:linear, :tree, :rf]
-            #         # d = Dict(:maxdepth => collect(6:2:10))
-            #         # d = model == :linear ? Dict(:alpha => collect(0.1:0.1:1)) : Dict(:maxdepth => collect(1:2:10))
-            #         d = create_hp_dict(model)
-            #         d[:model] = [model]
 
-            #         df = deepcopy(X_missing)
-            #         df[!,:Test] = test_ind
+            if do_μthenreg
+                println("Joint Impute-and-Regress methods...")
+                println("###################")
+                for model in [:linear, :tree, :rf]
+                    # d = Dict(:maxdepth => collect(6:2:10))
+                    # d = model == :linear ? Dict(:alpha => collect(0.1:0.1:1)) : Dict(:maxdepth => collect(1:2:10))
+                    d = create_hp_dict(model)
+                    d[:model] = [model]
 
-            #         start = time()
-            #         (opt_imp_then_reg, μ), bestparams, score = PHD.regress_kcv(Y, df; model=:joint, parameter_dict=d, stratifiedid=patidx)
-            #         δt = (time() - start)
+                    df = deepcopy(X_missing)
+                    df[!,:Test] = test_ind
 
-            #         R2, OSR2 = PHD.evaluate(Y, PHD.mean_impute(df, μ), opt_imp_then_reg)
-            #         R2l, OSR2l = PHD.stratified_evaluate(Y, PHD.mean_impute(df, μ), opt_imp_then_reg, patidx, subsetpattern=subsetpattern)   
-            #         push!(results_table, [dname, SNR, k, missingness_proba, iter, string("Joint Imp-then-Reg - ", model), R2, OSR2, R2l, OSR2l,
-            #                     Matrix(μ[:,canbemissing])[1,:], 
-            #                     δt, model == :linear ? bestparams : bestparams, score])
-            #         CSV.write(savedir*filename, results_table)
-            #     end
-            # end
+                    start = time()
+                    (opt_imp_then_reg, μ), bestparams, score = PHD.regress_kcv(Y, df; model=:joint, parameter_dict=d, stratifiedid=patidx)
+                    δt = (time() - start)
+
+                    R2, OSR2 = PHD.evaluate(Y, PHD.mean_impute(df, μ), opt_imp_then_reg)
+                    R2l, OSR2l = PHD.stratified_evaluate(Y, PHD.mean_impute(df, μ), opt_imp_then_reg, patidx, subsetpattern=subsetpattern)   
+                    push!(results_table, [dname, SNR, k, missingness_proba, iter, string("Joint Imp-then-Reg - ", model), R2, OSR2, R2l, OSR2l,
+                                Matrix(μ[:,canbemissing])[1,:], 
+                                δt, model == :linear ? bestparams : bestparams, score])
+                    # CSV.write(savedir*filename, results_table)
+                end
+            end
+
+            CSV.write(savedir*filename, results_table)
+
 
         end
     end 
