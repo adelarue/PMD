@@ -78,7 +78,7 @@ array_num = parse(Int, ARG)
 
     # Create output
     Random.seed!(549)
-    X_full = PHD.generate_x(15000, p; rank=floor(Int, p/2))[union(1:n, 10001:15000),:]
+    X_full = PHD.generate_x(6000, p; rank=floor(Int, p/2))
         
     @time Y, k, k_missing = PHD.generate_y(X_full, X_full,
                     model = model_for_y,  
@@ -97,13 +97,24 @@ array_num = parse(Int, ARG)
         savedfiles = filter(t -> startswith(t, string("n_", n, "_p_", p, "_pmiss_", missingness_proba)), readdir(savedir))
         map!(t -> split(replace(t, ".csv" => ""), "_")[end], savedfiles, savedfiles)
         
+        Random.seed!(549)
+        X_missing = PHD.generate_missing(X_full; 
+                    method = relationship_xm_mar ? :mar : :censoring, 
+                    p=missingness_proba, 
+                    kmissing=num_missing_feature)
+
         # for iter in setdiff(1:10, parse.(Int, savedfiles))    
         for iter in 1:10
             Random.seed!(549+n*5131+iter*7)
-            X_missing = PHD.generate_missing(X_full; 
-                        method = relationship_xm_mar ? :mar : :censoring, 
-                        p=missingness_proba, 
-                        kmissing=num_missing_feature)
+            # X_missing = PHD.generate_missing(X_full; 
+            #             method = relationship_xm_mar ? :mar : :censoring, 
+            #             p=missingness_proba, 
+            #             kmissing=num_missing_feature)
+            
+            selectobs = shuffle(1:Base.size(X_full, 1))[1:(5000+n)]
+            X_full = X_full[selectobs,:] 
+            X_missing = X_missing[selectobs,:] 
+            Y = Y[selectobs] 
 
             @show iter
             results_table = similar(results_main,0)
