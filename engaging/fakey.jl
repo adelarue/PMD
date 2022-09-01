@@ -17,7 +17,7 @@ missingsignal_list = [0,1,2,3,4,5,6,7,8,9,10]
 
 #Generation methods
 SNR = 2
-ktotal = 5
+ktotal = 10
 random_split = true
 relationship_yx_mar = try ARGS[2]=="1" catch; true end
 adversarial_missing = try ARGS[3]=="1" catch; false end
