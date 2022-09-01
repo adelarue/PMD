@@ -4,12 +4,18 @@ source("setup_script.R")
 library(RColorBrewer)
 
 df <- rbind(
-  read_csv("linear/fakey_mar/FINAL_results.csv") %>% mutate(Setting = "1 - Syn-MAR"),
+  read_csv("linear/fakey_mar/FINAL_results.csv") %>% mutate(Setting = "1 - Syn-MAR") %>% select(-r2list, -osr2lits),
   read_csv("linear/fakey_nmar/FINAL_results.csv") %>% mutate(Setting = "2 - Syn-NMAR"),
   read_csv("linear/fakey_mar_adv/FINAL_results.csv") %>% mutate(Setting = "3 - Syn-NMAR adv"),
-  read_csv("realy/FINAL_results.csv") %>% mutate(SNR = 2, k = 10, kMissing=1, Setting = "4 - Real") 
+  read_csv("realy/FINAL_results.csv") %>% mutate(Setting = "4 - Real") %>% select(-r2list, -osr2list,-score)
 )
-df <- read_csv("realy/FINAL_results.csv") %>% mutate(Setting = "4 - Real") 
+
+df <- rbind(
+  read_csv("nn/fakey_mar/FINAL_results.csv") %>% mutate(Setting = "1 - Syn-MAR") %>% select(-r2list, -osr2list),
+  read_csv("nn/fakey_nmar/FINAL_results.csv") %>% mutate(Setting = "2 - Syn-NMAR")  %>% select(-r2list, -osr2list),
+  read_csv("nn/fakey_mar_adv/FINAL_results.csv") %>% mutate(Setting = "3 - Syn-NMAR adv")  %>% select(-r2list, -osr2list),
+  read_csv("realy/FINAL_results.csv") %>% mutate(Setting = "4 - Real") %>% select(-r2list, -osr2list,-score)
+)
 
 patterns = read_csv("pattern_counts_numonly.csv") %>% rename(dataset=Name) %>%  filter(p_miss > 0)
   
@@ -19,7 +25,7 @@ plot_data = df %>%
   filter(method %in% c("Affine", "Static", "Finite", "Oracle XM", "Imp-then-Reg 4", "Complete Features")) %>%
   mutate(fraction = kMissing) %>%
   group_by(Setting, method, kMissing) %>%
-  summarize(meanr2 = mean(r2), stdr2 = sd(r2) / sqrt(n()),
+  dplyr::summarize(meanr2 = mean(r2), stdr2 = sd(r2) / sqrt(n()),
             q1r2 = quantile(osr2, 0.25, na.rm=T), 
             q3r2 = quantile(osr2, 0.75, na.rm=T),
             meanosr2 = median(osr2, na.rm=T), stdosr2 = (q3r2 - q1r2)/2)
@@ -80,8 +86,8 @@ df_winrate <- df %>%
   spread(key = method, value=osr2) %>%
   filter(!is.na(Affine)) %>%
   filter(!is.na(Finite)) %>%
-  #mutate(win = max(Finite,Affine, Static) > max(`Imp-then-Reg 2 - best`, `Imp-then-Reg 4 - best`)) %>%
-  mutate(win = max(Finite,Affine, Static, `Joint Imp-then-Reg - best`) > max(`Imp-then-Reg 2 - best`)) %>%
+  mutate(win = max(Finite,Affine, Static) > max(`Imp-then-Reg 2`, `Imp-then-Reg 4`)) %>%
+  #mutate(win = max(Finite,Affine, Static, `Joint Imp-then-Reg - best`) > max(`Imp-then-Reg 2 - best`)) %>%
   mutate(pMissing = kMissing / k) %>% #k - kMissing) %>%
   group_by(Setting, dataset, pMissing) %>%
   dplyr::summarize(winpct = sum(win)/n()) %>%
