@@ -118,8 +118,8 @@ for aux_num in 1:length(missingsignal_list)
 
             savedfiles = filter(t -> startswith(t, string(dname, "_SNR_", SNR, "_nmiss_", k_missingsignal)), readdir(savedir))
             map!(t -> split(replace(t, ".csv" => ""), "_")[end], savedfiles, savedfiles)
-            # for iter in setdiff(1:10, parse.(Int, savedfiles))    
-            for iter in 1:10
+            for iter in setdiff(1:10, parse.(Int, savedfiles))    
+            # for iter in 1:10
                 @show iter
                 results_table = similar(results_main,0)
 
