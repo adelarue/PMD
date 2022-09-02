@@ -1,8 +1,8 @@
 #!/bin/bash
-#SBATCH -a 0-70
+#SBATCH -a 4,5,10,21,23,24,31,38,43,49,61,62,63,64,65,66,67,68,70
 #SBATCH -J nmar
 #SBATCH --cpus-per-task=1
 #SBATCH --mem-per-cpu=4GB
 #SBATCH -p sched_mit_sloan_batch
-#SBATCH --time=0-06:00
+#SBATCH --time=1-06:00
 srun julia fakey.jl $SLURM_ARRAY_TASK_ID 0 0
