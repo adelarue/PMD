@@ -99,8 +99,8 @@ array_num = parse(Int, ARG)
                     p=missingness_proba, 
                     kmissing=num_missing_feature)
 
-        # for iter in setdiff(1:10, parse.(Int, savedfiles))    
-        for iter in 1:10
+        for iter in setdiff(1:10, parse.(Int, savedfiles))    
+        # for iter in 1:10
             Random.seed!(549+iter*7)
             # X_missing = PHD.generate_missing(X_full; 
             #             method = relationship_xm_mar ? :mar : :censoring, 

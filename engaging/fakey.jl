@@ -93,8 +93,7 @@ for aux_num in 1:length(missingsignal_list)
         end
         select!(X_missing, keep_cols)
         canbemissing = [any(ismissing.(X_missing[:,j])) for j in names(X_missing)] #indicator of missing features
-        
-        # @show sum(canbemissing) 
+
         X_full = PHD.standardize_colnames(CSV.read("../datasets/"*dname*"/X_full.csv", DataFrame))[delete_obs,keep_cols] #ground truth df
         PHD.string_to_float_fix!(X_full)
 
