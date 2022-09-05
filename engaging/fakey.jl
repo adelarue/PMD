@@ -9,6 +9,8 @@ using Random, Statistics, CSV, DataFrames, LinearAlgebra
 dataset_list = [d for d in readdir("../datasets/") if !startswith(d, ".")]
 sort!(dataset_list)
 
+pb_datasets = ["cylinder-bands", "ozone-level-detection-eight", "ozone-level-detection-one", "thyroid-disease-thyroid-0387", "trains"]
+
 # missingsignal_list = [0,1,2,3,4,5,6,7,8,9,10]
 missingsignal_list = [0,1,2,3,4,5]
 
@@ -71,8 +73,8 @@ for aux_num in 1:length(missingsignal_list)
     k_missingsignal = missingsignal_list[aux_num]
     @show dname, k_missingsignal
 
-    longtime_list = ["pscl-politicalInformation", "mlmRev-star"]
-    if  true #dname ∈ longtime_list #|| (dname == "ozone-level-detection-one" && k_missingsignal == 1)
+    # longtime_list = ["pscl-politicalInformation", "mlmRev-star"]
+    if  dname ∉ pb_datasets #dname ∈ longtime_list #|| (dname == "ozone-level-detection-one" && k_missingsignal == 1)
         # Read in a data file.
         X_missing = PHD.standardize_colnames(CSV.read("../datasets/"*dname*"/X_missing.csv", DataFrame, missingstrings=["", "NaN"])) #df with missing values
 

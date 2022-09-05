@@ -28,7 +28,7 @@ model_for_y = try ARGS[3]=="1" ? :linear : (ARGS[3]=="2" ? :tree : :nn) catch; :
 savedir = string("../results/synthetic/", 
                 model_for_y,
                 relationship_xm_mar ? "_mar" : "_censoring",
-                "/final/")
+                "/redo/")
 mkpath(savedir)
 
 #Prediction methods
