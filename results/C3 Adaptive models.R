@@ -4,20 +4,133 @@ source("setup_script.R")
 library(RColorBrewer)
 
 df <- rbind(
-  read_csv("linear/fakey_mar/FINAL_results.csv") %>% mutate(Setting = "1 - Syn-MAR") %>% select(-r2list, -osr2lits),
-  read_csv("linear/fakey_nmar/FINAL_results.csv") %>% mutate(Setting = "2 - Syn-NMAR"),
-  read_csv("linear/fakey_mar_adv/FINAL_results.csv") %>% mutate(Setting = "3 - Syn-NMAR adv"),
-  read_csv("realy/FINAL_results.csv") %>% mutate(Setting = "4 - Real") %>% select(-r2list, -osr2list,-score)
+  read_csv("fakey/linear_mar/FINAL_results.csv"),
+  read_csv("fakey/linear_nmar/FINAL_results.csv"),
+  read_csv("fakey/linear_mar_adv/FINAL_results.csv"),
+  
+  read_csv("fakey/nn_mar/FINAL_results.csv"),
+  read_csv("fakey/nn_nmar/FINAL_results.csv"),
+  read_csv("fakey/nn_mar_adv/FINAL_results.csv"), 
+  
+  read_csv("realy/FINAL_results.csv") %>% mutate(kMissing=1)
 )
 
-df <- rbind(
-  read_csv("nn/fakey_mar/FINAL_results.csv") %>% mutate(Setting = "1 - Syn-MAR") %>% select(-r2list, -osr2list),
-  read_csv("nn/fakey_nmar/FINAL_results.csv") %>% mutate(Setting = "2 - Syn-NMAR")  %>% select(-r2list, -osr2list),
-  read_csv("nn/fakey_mar_adv/FINAL_results.csv") %>% mutate(Setting = "3 - Syn-NMAR adv")  %>% select(-r2list, -osr2list),
-  read_csv("realy/FINAL_results.csv") %>% mutate(Setting = "4 - Real") %>% select(-r2list, -osr2list,-score)
-)
+patterns = read_csv("pattern_counts_numonly.csv") %>% 
+  rename(dataset=Name) %>%  
+  filter(p_miss > 0) %>%
+  select(dataset)
 
-patterns = read_csv("pattern_counts_numonly.csv") %>% rename(dataset=Name) %>%  filter(p_miss > 0)
+
+df %>% select(method) %>% unique() %>% View()
+
+df %>% filter(X_setting == "real_X") %>%select(dataset) %>% unique() %>% nrow()
+df %>% filter(X_setting != "real_X") %>%select(dataset) %>% unique() %>% nrow()
+
+
+#Plot 3: Win rate
+library(Hmisc)
+#mlist = c("Imp-then-Reg 4 - best", "Adaptive LR - best")
+mlist = c("Imp-then-Reg 4 - best", "Joint Imp-then-Reg - best")
+
+df_winrate <- df %>%
+  left_join(patterns) %>%
+  filter(method %in% mlist) %>%
+  group_by(X_setting, Y_setting, dataset, k, kMissing, splitnum) %>%
+  select(method, osr2) %>%
+  spread(key = method, value=osr2) %>%
+  mutate(win = max(`Joint Imp-then-Reg - best`) > max(`Imp-then-Reg 4 - best`)) %>%
+  #mutate(win = max(`Adaptive LR - best`) > max(`Imp-then-Reg 4 - best`)) %>%
+  mutate(pMissing = kMissing / k) %>% #k - kMissing) %>%
+  group_by(X_setting, Y_setting, dataset, pMissing) %>%
+  dplyr::summarize(winpct = sum(win)/n()) %>%
+  ungroup() %>%
+  select(X_setting, Y_setting, dataset, winpct)
+
+df_winrate %>%
+  filter(Y_setting != "real_Y") %>%
+  ggplot() + aes(winpct, group=X_setting, color=X_setting, fill=X_setting) + 
+  geom_density(alpha=0.4) +
+  labs(x="Average % of wins", y = "Density") +
+  ylim(0, 2.3) +
+  geom_vline(xintercept=0.5, size=.8, color="darkgrey") +
+  geom_text(aes(x=0.45,y=1.75,label="Majority: \n 0.5"), color="darkgrey", size=6.5) +
+  theme(#legend.position = c(0.86, 0.67), 
+    #legend.text = element_text(size=22),
+    legend.title = element_blank(), axis.title = element_text(size=22), 
+    axis.text = element_text(size=22),
+    legend.background = element_blank(),
+    legend.text = element_text(size=16),
+    #legend.box.background = element_rect(color="black"),
+    panel.border = element_blank(),
+    panel.background = element_blank(),
+    panel.grid.major = element_line(colour = "gray", linetype="dashed"),
+    panel.grid.minor = element_blank(),
+    axis.line = element_line(colour = "black"),
+    #legend.box.margin = margin(0, 0, 0, 0),
+    legend.spacing.y = unit(2, "line"))
+
+ggsave("win-rate-syn.png",  width = 12, height = 7, dpi = 300)
+
+
+df_winrate %>%
+  filter(Y_setting == "real_Y") %>%
+  ggplot() + aes(winpct, group=X_setting, color=X_setting, fill=X_setting) + 
+  geom_density(alpha=0.4) +
+  labs(x="Average % of wins", y = "Density") +
+  ylim(0, 2.3) +
+  geom_vline(xintercept=0.5, size=.8, color="darkgrey") +
+  geom_text(aes(x=0.45,y=1.75,label="Majority: \n 0.5"), color="darkgrey", size=6.5) +
+  theme(#legend.position = c(0.86, 0.67), 
+    #legend.text = element_text(size=22),
+    legend.title = element_blank(), axis.title = element_text(size=22), 
+    axis.text = element_text(size=22),
+    legend.background = element_blank(),
+    legend.text = element_text(size=16),
+    #legend.box.background = element_rect(color="black"),
+    panel.border = element_blank(),
+    panel.background = element_blank(),
+    panel.grid.major = element_line(colour = "gray", linetype="dashed"),
+    panel.grid.minor = element_blank(),
+    axis.line = element_line(colour = "black"),
+    #legend.box.margin = margin(0, 0, 0, 0),
+    legend.spacing.y = unit(2, "line"))
+
+ggsave("win-rate-realy.png",  width = 12, height = 7, dpi = 300)
+
+
+
+
+
+## OUTPUT 1: 
+
+mlist = c("Imp-then-Reg 4 - best",
+          "Joint Imp-then-Reg - best", "Adaptive LR - best")
+
+merge(df, patterns, on='dataset') %>%
+  #inner_join(df %>% filter(X_setting == "real_X") %>%select(dataset) %>% unique()) %>%
+  filter(method %in% mlist) %>%
+  filter((osr2 < -10)) %>%
+  select(method, dataset, X_setting, osr2) %>% View()
+
+
+merge(df, patterns, on='dataset') %>%
+  #inner_join(df %>% filter(X_setting == "real_X") %>%select(dataset) %>% unique()) %>%
+  filter(method %in% mlist) %>%
+  filter(!is.na(osr2)) %>%
+  group_by(method, X_setting) %>%
+  summarize(osr2_mean = mean(osr2), osr2_se =  sd(osr2)/sqrt(length(osr2))) %>%
+  ggplot() + aes(x=X_setting, y =osr2_mean, fill=method) + 
+  geom_col(position='dodge') 
+
+
++
+  scale_y_continuous(limits=c(0.5,0.7))
+#  geom_errorbar(aes(x=X_setting, ymin=osr2_mean-osr2_se, ymax=osr2_mean+osr2_se, fill=method))
+  
+
+View()
+
+
   
 plot_data = df %>%
   left_join(patterns) %>%
@@ -75,75 +188,4 @@ for (s in synset) {
   ggsave(paste("out-of-sample-",s,".png",sep=""),  width = 20, height = 15, dpi = 300)
 }
 
-#Plot 3: Win rate
-library(Hmisc)
-df_winrate <- df %>%
-  left_join(patterns) %>%
-  filter(!is.na(p)) %>%
-  filter(kMissing > 0) %>%
-  group_by(Setting, dataset, k, kMissing, splitnum) %>%
-  select(method, osr2) %>%
-  spread(key = method, value=osr2) %>%
-  filter(!is.na(Affine)) %>%
-  filter(!is.na(Finite)) %>%
-  mutate(win = max(Finite,Affine, Static) > max(`Imp-then-Reg 2`, `Imp-then-Reg 4`)) %>%
-  #mutate(win = max(Finite,Affine, Static, `Joint Imp-then-Reg - best`) > max(`Imp-then-Reg 2 - best`)) %>%
-  mutate(pMissing = kMissing / k) %>% #k - kMissing) %>%
-  group_by(Setting, dataset, pMissing) %>%
-  dplyr::summarize(winpct = sum(win)/n()) %>%
-  ungroup() %>%
-  select(Setting, dataset, winpct)
 
-describe(df_winrate)
-
-df_winrate %>%
-  filter(Setting < "4") %>%
-  ggplot() + aes(winpct, group=Setting, color=Setting, fill=Setting) + 
-  geom_density(alpha=0.4) +
-  labs(x="Average % of wins", y = "Density") +
-  ylim(0, 2.3) +
-  geom_vline(xintercept=0.5, size=.8, color="darkgrey") +
-  geom_text(aes(x=0.45,y=1.75,label="Majority: \n 0.5"), color="darkgrey", size=6.5) +
-  theme(#legend.position = c(0.86, 0.67), 
-    #legend.text = element_text(size=22),
-    legend.title = element_blank(), axis.title = element_text(size=22), 
-    axis.text = element_text(size=22),
-    legend.background = element_blank(),
-    legend.text = element_text(size=16),
-    #legend.box.background = element_rect(color="black"),
-    panel.border = element_blank(),
-    panel.background = element_blank(),
-    panel.grid.major = element_line(colour = "gray", linetype="dashed"),
-    panel.grid.minor = element_blank(),
-    axis.line = element_line(colour = "black"),
-    #legend.box.margin = margin(0, 0, 0, 0),
-    legend.spacing.y = unit(2, "line"))
-
-ggsave("win-rate-syn.png",  width = 12, height = 7, dpi = 300)
-
-
-df_winrate %>%
-  filter(Setting >= "4") %>%
-  ggplot() + aes(winpct, group=Setting, color=Setting, fill=Setting) + 
-  geom_density(alpha=0.4) +
-  labs(x="Average % of wins", y = "Density") +
-  ylim(0, 2.3) +
-  geom_vline(xintercept=0.5, size=.8, color="darkgrey") +
-  geom_text(aes(x=0.45,y=1.75,label="Majority: \n 0.5"), color="darkgrey", size=6.5) +
-  theme(#legend.position = c(0.86, 0.67), 
-      #legend.text = element_text(size=22),
-      legend.title = element_blank(), axis.title = element_text(size=22), 
-      axis.text = element_text(size=22),
-      legend.background = element_blank(),
-      legend.text = element_text(size=16),
-      #legend.box.background = element_rect(color="black"),
-      panel.border = element_blank(),
-      panel.background = element_blank(),
-      panel.grid.major = element_line(colour = "gray", linetype="dashed"),
-      panel.grid.minor = element_blank(),
-      axis.line = element_line(colour = "black"),
-      #legend.box.margin = margin(0, 0, 0, 0),
-      legend.spacing.y = unit(2, "line"))
-
-
-ggsave("win-rate-realy.png",  width = 12, height = 7, dpi = 300)
