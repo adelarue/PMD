@@ -10,18 +10,19 @@ sort!(dataset_list)
 
 savedir = string("../results/", 
                 "/realy", 
-                "/2022-08-25/")
+                "/rf_mia/")
 mkpath(savedir)
 
 #Prediction methods
-do_benchmark = true
-do_tree = true
-do_impthenreg = true
-do_static = true
-do_affine = true
+do_benchmark = false
+do_tree = false
+do_rf_mia = true
+do_impthenreg = false
+do_static = false
+do_affine = false
 affine_on_static_only = false #Should be set to false
-do_finite = true
-do_μthenreg = true 
+do_finite = false
+do_μthenreg = false 
 
 
 results_main = DataFrame(dataset=[], SNR=[], k=[], kMissing=[], splitnum=[], method=[],
@@ -167,6 +168,22 @@ if  true #dname ∈ longtime_list #|| (dname == "ozone-level-detection-one" && k
             # CSV.write(savedir*filename, results_table)
         end
 
+        if do_rf_mia
+            println("MIA-RF method...")
+            println("####################")
+            d = create_hp_dict(:rf)
+
+            df = PHD.augment_MIA(X_missing)
+            df[!,:Test] = test_ind
+            start = time()
+            cartmodel, bestparams, score = PHD.regress_kcv(Y, df; model = :rf, parameter_dict=d, stratifiedid=patidx)
+            δt = (time() - start)
+            R2, OSR2 = PHD.evaluate(Y, df, cartmodel)
+            R2l, OSR2l = PHD.stratified_evaluate(Y, df, cartmodel, patidx)   
+            push!(results_table, [dname, SNR, k, k_missing, iter, "RF MIA", R2, OSR2, R2l, OSR2l, δt, bestparams, score])
+            # CSV.write(savedir*filename, results_table)
+        end
+        
         if do_impthenreg
             println("Impute-then-regress methods...")
             println("###############################")

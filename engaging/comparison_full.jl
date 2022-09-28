@@ -28,18 +28,19 @@ model_for_y = try ARGS[3]=="1" ? :linear : (ARGS[3]=="2" ? :tree : :nn) catch; :
 savedir = string("../results/synthetic/", 
                 model_for_y,
                 relationship_xm_mar ? "_mar" : "_censoring",
-                "/final/")
+                "/rf_mia/")
 mkpath(savedir)
 
 #Prediction methods
-do_benchmark = true
-do_tree = true
-do_impthenreg = true
-do_static = true
-do_affine = true
+do_benchmark = false
+do_tree = false
+do_rf_mia = true
+do_impthenreg = false
+do_static = false
+do_affine = false
 # affine_on_static_only = false #Should be set to false
-do_finite = true
-do_μthenreg = true 
+do_finite = false
+do_μthenreg = false 
 
 function create_hp_dict(model::Symbol)
     if model == :linear 
@@ -183,7 +184,22 @@ array_num = parse(Int, ARG)
                 push!(results_table, [dname, SNR, k, missingness_proba, iter, "CART MIA", R2, OSR2, R2l, OSR2l, [], δt, bestparams, score])
                 # CSV.write(savedir*filename, results_table)
             end
-
+            
+            if do_rf_mia
+                println("MIA-RF method...")
+                println("####################")
+                d = create_hp_dict(:rf)
+    
+                df = PHD.augment_MIA(X_missing)
+                df[!,:Test] = test_ind
+                start = time()
+                cartmodel, bestparams, score = PHD.regress_kcv(Y, df; model = :rf, parameter_dict=d, stratifiedid=patidx)
+                δt = (time() - start)
+                R2, OSR2 = PHD.evaluate(Y, df, cartmodel)
+                R2l, OSR2l = PHD.stratified_evaluate(Y, df, cartmodel, patidx)   
+                push!(results_table, [dname, SNR, k, missingness_proba, iter, "RF MIA", R2, OSR2, R2l, OSR2l, [], δt, bestparams, score])
+                # CSV.write(savedir*filename, results_table)
+            end
             if do_impthenreg
                 for model in [:linear, :tree, :rf]
                     println("Impute-then-regress methods...")
