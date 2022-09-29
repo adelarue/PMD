@@ -9,14 +9,16 @@ using Random, Statistics, CSV, DataFrames, LinearAlgebra
 
 #Generation methods
 # n_list = collect(20:20:2000)
-n_list = collect(20:20:1000)
+# n_list = collect(20:20:1000)
+n_list = collect(1000:200:5000)
 
 p = 10 
 
 SNR = 2
 ktotal = 5
 
-missingness_proba_list = collect(0.1:0.1:0.9)
+# missingness_proba_list = collect(0.1:0.1:0.9)
+missingness_proba_list = collect(0.1:0.1:0.4)
 
 num_missing_feature = p 
 
@@ -28,19 +30,19 @@ model_for_y = try ARGS[3]=="1" ? :linear : (ARGS[3]=="2" ? :tree : :nn) catch; :
 savedir = string("../results/synthetic/", 
                 model_for_y,
                 relationship_xm_mar ? "_mar" : "_censoring",
-                "/rf_mia/")
+                "/high_n/")
 mkpath(savedir)
 
 #Prediction methods
-do_benchmark = false
-do_tree = false
+do_benchmark = true
+do_tree = true
 do_rf_mia = true
-do_impthenreg = false
-do_static = false
-do_affine = false
+do_impthenreg = true
+do_static = true
+do_affine = true
 # affine_on_static_only = false #Should be set to false
-do_finite = false
-do_μthenreg = false 
+do_finite = true
+do_μthenreg = true 
 
 function create_hp_dict(model::Symbol)
     if model == :linear 
