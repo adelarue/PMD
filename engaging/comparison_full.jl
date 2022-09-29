@@ -77,7 +77,7 @@ array_num = parse(Int, ARG)
 
     # Create output
     Random.seed!(549)
-    X_full = PHD.generate_x(6000, p; rank=floor(Int, p/2))
+    X_full = PHD.generate_x(maximum(n_list)+5000, p; rank=floor(Int, p/2))
         
     @time Y, k, k_missing = PHD.generate_y(X_full, X_full,
                     model = model_for_y,  
