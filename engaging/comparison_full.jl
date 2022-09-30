@@ -9,8 +9,9 @@ using Random, Statistics, CSV, DataFrames, LinearAlgebra
 
 #Generation methods
 # n_list = collect(20:20:2000)
-# n_list = collect(20:20:1000)
-n_list = collect(1000:200:5000)
+n_list = collect(20:20:1000)
+# n_list = collect(1000:200:5000)
+maxn = 5000
 
 p = 10 
 
@@ -77,7 +78,7 @@ array_num = parse(Int, ARG)
 
     # Create output
     Random.seed!(549)
-    X_full = PHD.generate_x(maximum(n_list)+5000, p; rank=floor(Int, p/2))
+    X_full = PHD.generate_x(maxn+5000, p; rank=floor(Int, p/2))
         
     @time Y, k, k_missing = PHD.generate_y(X_full, X_full,
                     model = model_for_y,  
