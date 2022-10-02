@@ -9,8 +9,8 @@ using Random, Statistics, CSV, DataFrames, LinearAlgebra
 
 #Generation methods
 # n_list = collect(20:20:2000)
-n_list = collect(20:20:1000)
-# n_list = collect(1000:200:5000)
+# n_list = collect(20:20:1000)
+n_list = collect(1000:200:5000)
 maxn = 5000
 
 p = 10 
