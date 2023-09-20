@@ -66,11 +66,11 @@ results_main = DataFrame(dataset=[], SNR=[], k=[], pMissing=[], splitnum=[], met
                                 time=[], hp=[], score=[])
 
 
-# ARG = ARGS[1]
-# array_num = parse(Int, ARG)
-#     n = n_list[array_num+1]
+ARG = ARGS[1]
+array_num = parse(Int, ARG)
+    n = n_list[array_num+1]
 
-for n in n_list
+# for n in n_list
     dname = string("n_", n, "_p_", p)
 
     @show model_for_y, n
@@ -450,4 +450,4 @@ for n in n_list
 
         end
     end 
-end
+# end
