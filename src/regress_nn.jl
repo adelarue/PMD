@@ -26,7 +26,11 @@ function regress_nn(Y::Array{Float64}, df::DataFrame;
 	evalcb() = @show(loss(X', y'))
 	throttled_cb = Flux.throttle(evalcb, 5)
 	ps = Flux.params(m)
-	Flux.@epochs maxepochs Flux.train!(loss, ps, data, opt, cb=throttled_cb)
+	
+	for epoch in 1:maxepochs
+		Flux.train!(loss, ps, data, opt, cb=throttled_cb)
+	end
+	# Flux.@epochs maxepochs Flux.train!(loss, ps, data, opt, cb=throttled_cb)
 	
 	return m
 end

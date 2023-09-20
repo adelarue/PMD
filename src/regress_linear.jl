@@ -155,7 +155,7 @@ function regress_linear(Y::Array{Float64}, df::DataFrame;
 		end
 		coefficients[!,:Offset] = [path.a0[end]]
 	end
-	coefficients[!,:Logistic] = [false]
+	coefficients[!,:Logistic] .= false #[false]
 	return coefficients
 end
 
