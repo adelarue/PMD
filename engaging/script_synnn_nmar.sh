@@ -5,4 +5,4 @@
 #SBATCH --mem-per-cpu=4GB
 #SBATCH -p sched_mit_sloan_batch
 #SBATCH --time=2-00:00
-srun julia comparison_full.jl $SLURM_ARRAY_TASK_ID 0 3
+srun julia synthetic_discrete.jl $SLURM_ARRAY_TASK_ID 0 3

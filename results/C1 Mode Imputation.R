@@ -112,7 +112,7 @@ pairedtest_analysis <- merge(pairedtest_analysis,
 
 write_csv(pairedtest_analysis %>% 
             select(Y_setting, X_setting, delta_mean, ttest.pvalue, delta_median, wtest.pvalue) %>%
-            arrange(Y_setting,X_setting), "ModeImpute_TestAnalysis.csv", sep = " & ")
+            arrange(Y_setting,X_setting), "ModeImpute_TestAnalysis.csv")
 
 write_delim(pairedtest_analysis %>% 
             select(Y_setting, X_setting, delta_mean, ttest.pvalue, delta_median, wtest.pvalue) %>%
