@@ -128,11 +128,11 @@ array_num = parse(Int, ARG)
             #             kmissing=num_missing_feature)
             
             selectobs = shuffle(1:Base.size(X_full, 1))[1:(5000+n)]
-            # global X_full = X_full[selectobs,:] 
-            X_full = X_full[selectobs,:] 
+            global X_full = X_full[selectobs,:] 
+            # X_full = X_full[selectobs,:] 
             X_missing = X_missing[selectobs,:] 
-            # global Y = Y[selectobs] 
-            Y = Y[selectobs] 
+            global Y = Y[selectobs] 
+            # Y = Y[selectobs] 
 
             @show iter
             results_table = similar(results_main,0)
