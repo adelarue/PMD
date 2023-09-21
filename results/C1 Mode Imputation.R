@@ -1,4 +1,4 @@
-setwd("Dropbox (MIT)/1 - Research/PHD/results/")
+setwd("~/Dropbox/Work/1 - Research/PHD/results/")
 source("setup_script.R")
 
 df <- rbind(
@@ -12,6 +12,7 @@ df <- rbind(
   
   read_csv("realy/FINAL_results.csv") %>% mutate(kMissing=0)
 )
+
 
 #Claim 1: Mode imputation is detrimental
 dataset_list1 <- read_csv("pattern_counts_allfeat.csv") %>% 
@@ -50,6 +51,23 @@ mode_df %>%
   View()
   
 
+synmode <- rbind(
+  read_csv("synthetic_discrete/linear_mar/FINAL_results.csv"),
+  read_csv("synthetic_discrete/linear_censoring/FINAL_results.csv"),
+  read_csv("synthetic_discrete/nn_mar/FINAL_results.csv"),
+  read_csv("synthetic_discrete/nn_censoring/FINAL_results.csv")
+) %>% 
+  mutate(p = 10, p_miss_all=10, p_miss_num=0) %>%
+  rename(kMissing = pMissing) %>%
+  mutate(keep = 1) %>%
+  mutate(clusterid = paste(dataset,kMissing)) %>%
+  mutate(Setting = paste(X_setting, Y_setting, sep="_")) %>%
+  select(-muvec) %>%
+  filter(endsWith(method, "best"))
+  
+
+
+mode_df <- rbind(mode_df, synmode[colnames(mode_df)])
 
 
 #Linear model: control for dataset and proportion of missing --> Get adjusted R2
@@ -92,6 +110,7 @@ mode_df_wide <- dcast(
   Setting+dataset+splitnum+kMissing ~ treatment, 
   fun.aggregate = mean) 
 
+synmode %>% filter(dataset == "n_100_p_10") %>% View()
 
 pairedtest_analysis <-mode_df_wide %>% 
   nest(data = -Setting) %>% 

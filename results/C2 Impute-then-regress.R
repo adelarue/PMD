@@ -1,4 +1,4 @@
-setwd("Dropbox (MIT)/1 - Research/PHD/results/")
+setwd("~/Dropbox/Work/1 - Research/PHD/results/")
 source("setup_script.R")
 
 df <- rbind(
@@ -39,6 +39,26 @@ itr_df %>%
                    count_method = length(unique(method))
   ) %>% 
   View()
+
+
+synmean <- rbind(
+  read_csv("synthetic/linear_mar/FINAL_results.csv"),
+  read_csv("synthetic/linear_censoring/FINAL_results.csv"),
+  read_csv("synthetic/nn_mar/FINAL_results.csv"),
+  read_csv("synthetic/nn_censoring/FINAL_results.csv")
+) %>% 
+  mutate(p_miss=10) %>%
+  rename(kMissing = pMissing) %>%
+  #mutate(clusterid = paste(dataset,kMissing)) %>%
+  mutate(Setting = paste(X_setting, Y_setting, sep="_")) %>%
+  select(-muvec) %>%
+  filter(method_cat == "Imp-then-Reg") %>%
+  filter(endsWith(method, "best")) %>%
+  filter(method < "Imp-then-Reg 5") %>%
+  mutate(method = ifelse(method=="Imp-then-Reg 4 - best", "Imp-then-Reg", method))
+
+
+itr_df <- rbind(itr_df, synmean[colnames(itr_df)])
 
 
 #Paired t- and Wilson-tests V4 vs Vx
@@ -161,15 +181,17 @@ df %>%
   mutate(Method = str_replace(method, "- best", "")) %>%
   mutate(Method = str_replace(Method, "Imp-then-Reg ", "V")) %>%
   mutate(Signal = startsWith(Y_setting, "real_Y")) %>%
-  mutate(Signal = case_when(Signal ~ "Real",
-                            TRUE ~ "Synthetic")) %>%
+  mutate(Xse = startsWith(X_setting, "real_X")) %>%
+  mutate(Setting = case_when(Signal & Xse ~ "Real",
+                              Xse ~ "Semi-synthetic",
+                              TRUE ~ "Synthetic")) %>%
   mutate(Method = case_when(Method == "V4 " ~ "Mean-impute",
                             TRUE ~ Method)) %>%
-  group_by(Method, Signal) %>%
+  group_by(Method, Setting) %>%
   dplyr::summarize(time = mean(time)) %>%
-  ggplot() + aes(x=Signal, y=time, fill=Method, color=Method) + 
+  ggplot() + aes(x=Setting, y=time, fill=Method, color=Method) + 
   geom_col(position="dodge",alpha=0.7) +
-  labs(x="Signal", y = "Average time (in seconds)") +
+  labs(x="Setting", y = "Average time (in seconds)") +
   scale_fill_brewer(palette="Set1") + scale_color_brewer(palette="Set1") +
   theme(
     panel.border = element_blank(),
