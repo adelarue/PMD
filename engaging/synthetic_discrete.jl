@@ -20,7 +20,8 @@ SNR = 2
 ktotal = 5
 
 # missingness_proba_list = collect(0.1:0.1:0.9)
-missingness_proba_list = collect(0.1:0.1:0.4)
+# missingness_proba_list = collect(0.1:0.1:0.4)
+missingness_proba_list = collect(0.5:0.1:0.9)
 
 num_missing_feature = p 
 
