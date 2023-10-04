@@ -1,7 +1,8 @@
 ###################################
 ### evaluate.jl
 ### Evaluate the quality of a predictive model
-### Authors: Arthur Delarue, Jean Pauphilet, 2022
+### Authors: XXXX
+
 ###################################
 
 """

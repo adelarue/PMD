@@ -1,7 +1,8 @@
 ###################################
 ### imp-then-reg.jl
 ### Functions to perform joint imputation-then-regression
-### Authors: Arthur Delarue, Jean Pauphilet, 2022
+### Authors: XXXX
+
 ###################################
 function impute_then_regress(Y::Union{Vector{Float64},BitArray}, data::DataFrame; 
     parameter_dict::Dict=Dict(), 
