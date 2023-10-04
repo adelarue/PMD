@@ -1,7 +1,7 @@
 ###################################
 ### count.jl
 ### Functions to count number of missing values
-### Authors: Arthur Delarue, Jean Pauphilet, 2019
+### Authors: XXXX
 ###################################
 
 """

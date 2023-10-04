@@ -1,7 +1,7 @@
 ###################################
 ### generate_y.jl
 ### Code to generate artificial dependent variable
-### Authors: Arthur Delarue, Jean Pauphilet, 2019
+### Authors: XXXX
 ###################################
 
 """
