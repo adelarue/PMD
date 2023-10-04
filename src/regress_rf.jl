@@ -1,7 +1,8 @@
 ###################################
 ### regress_rf.jl
 ### Functions to perform regression with RF
-### Authors: Arthur Delarue, Jean Pauphilet, 2022
+### Authors: XXXX
+
 ###################################
 using DecisionTree
 

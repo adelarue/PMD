@@ -1,7 +1,8 @@
 ###################################
 ### regress_nonlinear.jl
 ### Functions to perform neural network regression
-### Authors: Arthur Delarue, Jean Pauphilet, 2022
+### Authors: XXXX
+
 ###################################
 using Flux 
 

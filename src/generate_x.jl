@@ -1,7 +1,8 @@
 ###################################
 ### generate_x.jl
 ### Code to generate artificial independent variable
-### Authors: Arthur Delarue, Jean Pauphilet, 2022
+### Authors: XXXX
+
 ###################################
 using Distributions, LinearAlgebra
 function generate_x(n, d; rank::Int=4)

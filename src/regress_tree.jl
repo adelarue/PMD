@@ -1,7 +1,8 @@
 ###################################
 ### regress_tree.jl
 ### Functions to perform regression with CART with MIA
-### Authors: Arthur Delarue, Jean Pauphilet, 2022
+### Authors: XXXX
+
 ###################################
 using DecisionTree
 
