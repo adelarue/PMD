@@ -3,7 +3,7 @@
 ### Script to create regression datasets with missing values
 ### Uses the sleep dataset from the R VIM package,
 ### 	see https://cran.r-project.org/web/packages/VIM/VIM.pdf
-### Authors: Arthur Delarue, Jean Pauphilet, 2019
+### Authors: XXXX
 ###################################
 
 using Pkg

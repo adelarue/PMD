@@ -1,7 +1,7 @@
 ###################################
 ### creation/tools.jl
 ### Helper functions for dataset creation
-### Authors: Arthur Delarue, Jean Pauphilet, 2019
+### Authors: XXXX
 ###################################
 
 """

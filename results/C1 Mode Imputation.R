@@ -63,12 +63,23 @@ synmode <- rbind(
   mutate(clusterid = paste(dataset,kMissing)) %>%
   mutate(Setting = paste(X_setting, Y_setting, sep="_")) %>%
   select(-muvec) %>%
-  filter(endsWith(method, "best"))
+  filter(endsWith(method, "best")) %>%
+  mutate(n = strtoi(gsub("_p_.*","", gsub("n_", "", dataset))) )%>%
+  filter(n <= 1000) %>%
+  select(-n) %>%
+  filter(kMissing < 0.9)
   
 
 
 mode_df <- rbind(mode_df, synmode[colnames(mode_df)])
 
+mode_df %>% 
+  group_by(Setting) %>% 
+  dplyr::summarize(count_dataset = length(unique(dataset)), 
+                   count_k = length(unique(kMissing)), 
+                   count_method = length(unique(method)),
+                   count_obs = length(dataset)) %>% 
+  View()
 
 #Linear model: control for dataset and proportion of missing --> Get adjusted R2
 #Linear model: control for dataset and proportion of missing + cluster SD --> Get coeff estimates + SE + p-values
@@ -110,7 +121,6 @@ mode_df_wide <- dcast(
   Setting+dataset+splitnum+kMissing ~ treatment, 
   fun.aggregate = mean) 
 
-synmode %>% filter(dataset == "n_100_p_10") %>% View()
 
 pairedtest_analysis <-mode_df_wide %>% 
   nest(data = -Setting) %>% 

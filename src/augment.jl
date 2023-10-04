@@ -1,7 +1,7 @@
 ###################################
 ### augment.jl
 ### Functions to add PHD features
-### Authors: Arthur Delarue, Jean Pauphilet, 2019
+### Authors: XXXX
 ###################################
 
 """

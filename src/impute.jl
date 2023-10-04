@@ -1,7 +1,7 @@
 ###################################
 ### impute.jl
 ### Functions to impute missing values before performing regression
-### Authors: Arthur Delarue, Jean Pauphilet, 2019
+### Authors: XXXX
 ###################################
 
 """

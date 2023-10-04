@@ -1,7 +1,7 @@
 ###################################
 ### regress.jl
 ### Functions to perform linear regression
-### Authors: Arthur Delarue, Jean Pauphilet, 2019
+### Authors: XXXX
 ###################################
 
 

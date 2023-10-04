@@ -1,7 +1,7 @@
 ###################################
 ### creation/rdatasets.jl
 ### Missing data datasets from RDatasets.jl
-### Authors: Arthur Delarue, Jean Pauphilet, 2019
+### Authors: XXXX
 ### Adapted from UCIData.jl
 ###################################
 

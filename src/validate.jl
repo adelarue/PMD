@@ -1,7 +1,7 @@
 ###################################
 ### validate.jl
 ### Validate hyperparameters in training
-### Authors: Arthur Delarue, Jean Pauphilet, 2019
+### Authors: XXXX
 ###################################
 
 """

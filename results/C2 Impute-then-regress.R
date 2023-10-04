@@ -55,11 +55,25 @@ synmean <- rbind(
   filter(method_cat == "Imp-then-Reg") %>%
   filter(endsWith(method, "best")) %>%
   filter(method < "Imp-then-Reg 5") %>%
-  mutate(method = ifelse(method=="Imp-then-Reg 4 - best", "Imp-then-Reg", method))
+  mutate(method = ifelse(method=="Imp-then-Reg 4 - best", "Imp-then-Reg", method)) %>%
+  mutate(n = strtoi(gsub("_p_.*","", gsub("n_", "", dataset))) )%>%
+  filter(n <= 1000) %>%
+  select(-n)
+
+itr_df_save <- itr_df
 
 
-itr_df <- rbind(itr_df, synmean[colnames(itr_df)])
+itr_df <- rbind(itr_df_save, 
+                synmean[colnames(itr_df)] %>% filter(kMissing < 0.9)
+                )
 
+itr_df %>% 
+  group_by(Setting) %>% 
+  dplyr::summarize(count_dataset = length(unique(dataset)), 
+                   count_k = length(unique(kMissing)), 
+                   count_method = length(unique(method)),
+                   count_obs = length(dataset)) %>% 
+  View()
 
 #Paired t- and Wilson-tests V4 vs Vx
 method0 = "Imp-then-Reg" #Same as "Imp-then-Reg 4"
@@ -71,7 +85,7 @@ for (i in 1:3){
                           mutate(treatment = 1*(method==method1), control=1*(method==method0)) %>%
                           filter(treatment+control > 0) %>%
                           select(Setting,dataset,kMissing,splitnum,treatment,osr2), 
-                        Setting+dataset+splitnum+kMissing~ treatment, 
+                        Setting+dataset+splitnum+kMissing ~ treatment, 
                         fun.aggregate = mean) 
   
   pairedtest_analysis <-itr_df_wide %>% 
@@ -98,13 +112,62 @@ for (i in 1:3){
 }
 
 
+
+itr_df <- itr_df %>% mutate(Setting = paste(X_setting, Y_setting, kMissing, sep="_"))
+for (i in 2:2){
+  method1 = paste("Imp-then-Reg", i, "- best")
+  
+  itr_df_wide <- dcast( itr_df %>% 
+                          mutate(treatment = 1*(method==method1), control=1*(method==method0)) %>%
+                          filter(treatment+control > 0) %>%
+                          select(Setting,dataset,kMissing,splitnum,treatment,osr2), 
+                        Setting+dataset+splitnum+kMissing ~ treatment, 
+                        fun.aggregate = mean) 
+  
+  pairedtest_analysis <-itr_df_wide %>% 
+    nest(data = -Setting) %>% 
+    mutate(ttest.res = map(data, perform_ttest),
+           delta_mean = map(ttest.res, function(x) {round((x$estimate), digits=4) }),
+           ttest.pvalue = map(ttest.res, function(x) {signif(x$p.value, digits=2) }),
+           wtest.res = map(data, perform_wtest),
+           delta_median = map(wtest.res, function(x) {round((x$estimate), digits=4) }),
+           wtest.pvalue = map(wtest.res, function(x) {signif(x$p.value, digits=2) })
+    ) %>% 
+    unnest(c(delta_mean,ttest.pvalue,delta_median,wtest.pvalue)) %>%
+    select(Setting, delta_mean,ttest.pvalue, delta_median,wtest.pvalue)
+  
+  pairedtest_analysis <- merge(pairedtest_analysis, 
+                               itr_df %>% select(Setting, X_setting, Y_setting, kMissing) %>% unique(), 
+                               all.X = T,
+                               by = 'Setting')
+  
+  write_csv(pairedtest_analysis %>% 
+              select(Y_setting, X_setting, kMissing, delta_mean, ttest.pvalue, delta_median, wtest.pvalue) %>%
+              arrange(Y_setting,X_setting,kMissing), 
+            paste("ImputeThenReg_",i,"vs4_TestAnalysis_perMissingLevel.csv", sep=""))
+}
+
+
+
 ################################
 ##Claim 2: Implementation of mice-impute
-itr_df <- merge(df, dataset_list, on='dataset') %>%
+synmean <- rbind(
+  read_csv("synthetic/linear_mar/FINAL_results.csv"),
+  read_csv("synthetic/linear_censoring/FINAL_results.csv"),
+  read_csv("synthetic/nn_mar/FINAL_results.csv"),
+  read_csv("synthetic/nn_censoring/FINAL_results.csv")
+) %>% 
+  mutate(p_miss=10) %>%
+  rename(kMissing = pMissing) %>%
+  select(-muvec) %>%
+  filter(method_cat == "Imp-then-Reg")
+
+itr_df <- rbind( merge(df, dataset_list, on='dataset'), synmean) %>%
   filter(method_cat == "Imp-then-Reg") %>%
   filter(endsWith(method, "best")) %>%
   filter(method < "Imp-then-Reg 4") %>%
   mutate(method = ifelse(method=="Imp-then-Reg 2 - best", "Imp-then-Reg", method))
+
 itr_df <- itr_df %>% mutate(Setting = paste(X_setting, Y_setting, sep="_"))
 
 itr_df %>% 
@@ -172,7 +235,7 @@ write_csv(linearreg_analysis %>%
 library(ggplot2)
 library(stringr)
 
-df %>%
+rbind(df, synmean %>% select(colnames(df))) %>%
   left_join(dataset_list) %>%
   filter(method_cat == "Imp-then-Reg") %>%
   filter(method < "Imp-then-Reg 5") %>%
@@ -206,6 +269,8 @@ ggsave("ImputeThenReg_Time.png",  width = 7, height = 5, dpi = 300)
 
 
 
+
+##################
 
 #Paired t- and Wilson-tests V2 vs V3
 library(reshape2)
