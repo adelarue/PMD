@@ -9,8 +9,8 @@ using Random, Statistics, CSV, DataFrames, LinearAlgebra
 
 #Generation methods
 # n_list = collect(20:20:2000)
-# n_list = collect(20:20:1000)
-n_list = collect(1000:200:5000)
+n_list = collect(20:20:1000)
+# n_list = collect(1000:200:5000)
 maxn = 5000
 
 p = 10 
@@ -19,7 +19,7 @@ SNR = 2
 ktotal = 5
 
 # missingness_proba_list = collect(0.1:0.1:0.9)
-missingness_proba_list = collect(0.1:0.1:0.4)
+missingness_proba_list = collect(0.1:0.1:0.8)
 
 num_missing_feature = p 
 
@@ -31,19 +31,20 @@ model_for_y = try ARGS[3]=="1" ? :linear : (ARGS[3]=="2" ? :tree : :nn) catch; :
 savedir = string("../results/synthetic/", 
                 model_for_y,
                 relationship_xm_mar ? "_mar" : "_censoring",
-                "/high_n/")
+                "/xgb/")
 mkpath(savedir)
 
 #Prediction methods
-do_benchmark = true
-do_tree = true
-do_rf_mia = true
-do_impthenreg = true
-do_static = true
-do_affine = true
+do_benchmark = false
+do_tree = false
+do_rf_mia = false
+do_impthenreg = false
+do_static = false
+do_affine = false
 # affine_on_static_only = false #Should be set to false
-do_finite = true
-do_μthenreg = true 
+do_finite = false
+do_μthenreg = false 
+do_xgb = true 
 
 function create_hp_dict(model::Symbol)
     if model == :linear 
@@ -56,6 +57,8 @@ function create_hp_dict(model::Symbol)
         return Dict{Symbol,Vector}(:ntrees => collect(50:25:200), :maxdepth => collect(5:5:50))
     elseif model == :adaptive 
         return Dict{Symbol,Vector}(:alpha => collect(0.1:0.1:1), :regtype => [:missing_weight], :missing_penalty => [1.0,2.0,4.0,6.0,8.0,12.0])
+    elseif model == :xgboost
+        return Dict{Symbol,Vector}(:max_depth => collect(3:2:10), :n_estimators => collect(10:10:100))
     end
 end
 
@@ -128,6 +131,21 @@ array_num = parse(Int, ARG)
             patidx, = PHD.missingness_pattern_id(X_missing)
             subsetpattern = unique(patidx[1:n])
             
+            if do_xgb
+                println("XGB...")
+                println("####################")
+                d = create_hp_dict(:xgboost)
+
+                df = X_missing[:,:]
+                df[!,:Test] = test_ind
+                start = time()
+                xgbmodel, bestparams, score = PHD.regress_kcv(Y, df; model = :xgboost, parameter_dict=d, stratifiedid=patidx)
+                δt = (time() - start)
+                R2, OSR2 = PHD.evaluate(Y, df, xgbmodel)
+                R2l, OSR2l = PHD.stratified_evaluate(Y, df, xgbmodel, patidx, subsetpattern=subsetpattern)   
+                push!(results_table, [dname, SNR, k, missingness_proba, iter, "XGBoost", R2, OSR2, R2l, OSR2l, [], δt, bestparams, score])
+            end
+
             if do_benchmark
                 println("Benchmark methods...")
                 println("####################")

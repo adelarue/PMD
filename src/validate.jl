@@ -31,6 +31,8 @@ function regress(Y, data::DataFrame;
 		regress_greedy(Y, data; parameter_dict...)
 	elseif model == :joint
 		impute_then_regress(Y, data; parameter_dict=parameter_dict)
+	elseif model == :xgboost 
+		regress_xgboost(Y, data; parameter_dict...)
 	end
 end
 
