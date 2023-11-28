@@ -1,7 +1,7 @@
 ###################################################
 ## greedy.jl
-##      Greedy tree-like method for regression
-## Author: Arthur Delarue, Jean Pauphilet, 2019
+## Greedy tree-like method for regression
+## Author: XXXX
 ###################################################
 
 # import Base.<

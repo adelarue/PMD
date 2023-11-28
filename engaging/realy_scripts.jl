@@ -10,20 +10,20 @@ sort!(dataset_list)
 
 savedir = string("../results/", 
                 "/realy", 
-                "/rf_mia/")
+                "/xgb/")
 mkpath(savedir)
 
 #Prediction methods
 do_benchmark = false
 do_tree = false
-do_rf_mia = true
+do_rf_mia = false
 do_impthenreg = false
 do_static = false
 do_affine = false
 affine_on_static_only = false #Should be set to false
 do_finite = false
 do_μthenreg = false 
-
+do_xgb = true 
 
 results_main = DataFrame(dataset=[], SNR=[], k=[], kMissing=[], splitnum=[], method=[],
                                 r2=[], osr2=[], r2list=[], osr2list=[], time=[], hp=[], score=[])
@@ -39,6 +39,8 @@ function create_hp_dict(model::Symbol)
         return Dict{Symbol,Vector}(:ntrees => collect(50:25:200), :maxdepth => collect(5:5:50))
     elseif model == :adaptive 
         return Dict{Symbol,Vector}(:alpha => collect(0.1:0.1:1), :regtype => [:missing_weight], :missing_penalty => [1.0,2.0,4.0,6.0,8.0,12.0])
+    elseif model == :xgboost
+        return Dict{Symbol,Vector}(:max_depth => collect(3:2:10), :n_estimators => collect(10:10:100))
     end
 end
 
@@ -128,6 +130,21 @@ if  true #dname ∈ longtime_list #|| (dname == "ozone-level-detection-one" && k
         # Split train / test
         Random.seed!(56802+767*iter)
         test_ind = PHD.split_dataset(X_missing, test_fraction = test_prop, random = true)
+
+        if do_xgb
+            println("XGB...")
+            println("####################")
+            d = create_hp_dict(:xgboost)
+
+            df = X_missing[:,:]
+            df[!,:Test] = test_ind
+            start = time()
+            xgbmodel, bestparams, score = PHD.regress_kcv(Y, df; model = :xgboost, parameter_dict=d, stratifiedid=patidx)
+            δt = (time() - start)
+            R2, OSR2 = PHD.evaluate(Y, df, xgbmodel)
+            R2l, OSR2l = PHD.stratified_evaluate(Y, df, xgbmodel, patidx)   
+            push!(results_table, [dname, SNR, k, k_missing, iter, "XGBoost", R2, OSR2, R2l, OSR2l, δt, bestparams, score])
+        end
 
         if do_benchmark
             println("Benchmark methods...")
