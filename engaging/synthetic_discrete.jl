@@ -33,20 +33,20 @@ model_for_y = try ARGS[3]=="1" ? :linear : (ARGS[3]=="2" ? :tree : :nn) catch; :
 savedir = string("../results/synthetic_discrete/", 
                 model_for_y,
                 relationship_xm_mar ? "_mar" : "_censoring",
-                "/xgb/")
+                "/xgb-itr/")
 mkpath(savedir)
 
 #Prediction methods
 do_benchmark = false
 do_tree = false
 do_rf_mia = false
-do_impthenreg = false
+do_impthenreg = true
 do_static = false
 do_affine = false
 # affine_on_static_only = false #Should be set to false
 do_finite = false
 do_μthenreg = false 
-do_xgb = true 
+do_xgb = false 
 
 function create_hp_dict(model::Symbol)
     if model == :linear 
@@ -242,7 +242,8 @@ array_num = parse(Int, ARG)
             # end
 
             if do_impthenreg
-                for model in [:linear, :tree, :rf]
+                # for model in [:linear, :tree, :rf]
+                for model in [:xgboost]
                     println("Impute-then-regress methods...")
                     println("###############################")
                     d = create_hp_dict(model)
