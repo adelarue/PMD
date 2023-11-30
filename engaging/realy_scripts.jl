@@ -17,13 +17,13 @@ mkpath(savedir)
 do_benchmark = false
 do_tree = false
 do_rf_mia = false
-do_impthenreg = false
+do_impthenreg = true
 do_static = false
 do_affine = false
 affine_on_static_only = false #Should be set to false
 do_finite = false
 do_μthenreg = false 
-do_xgb = true 
+do_xgb = false 
 
 results_main = DataFrame(dataset=[], SNR=[], k=[], kMissing=[], splitnum=[], method=[],
                                 r2=[], osr2=[], r2list=[], osr2list=[], time=[], hp=[], score=[])
@@ -204,7 +204,8 @@ if  true #dname ∈ longtime_list #|| (dname == "ozone-level-detection-one" && k
         if do_impthenreg
             println("Impute-then-regress methods...")
             println("###############################")
-            for model in [:linear, :tree, :rf]
+            # for model in [:linear, :tree, :rf]
+            for model in [:xgboost]
                 d = create_hp_dict(model)
 
                 ## Method 1.1
