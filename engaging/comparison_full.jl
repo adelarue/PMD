@@ -31,7 +31,7 @@ model_for_y = try ARGS[3]=="1" ? :linear : (ARGS[3]=="2" ? :tree : :nn) catch; :
 savedir = string("../results/synthetic/", 
                 model_for_y,
                 relationship_xm_mar ? "_mar" : "_censoring",
-                "/xgb-itr/")
+                "/xgb/")
 mkpath(savedir)
 
 #Prediction methods
@@ -44,7 +44,7 @@ do_affine = false
 # affine_on_static_only = false #Should be set to false
 do_finite = false
 do_μthenreg = false 
-do_xgb = false 
+do_xgb = true 
 
 function create_hp_dict(model::Symbol)
     if model == :linear 
