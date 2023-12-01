@@ -299,10 +299,10 @@ function generate_y(data::DataFrame,
                                	x->x)) 		# activation function of output layer (identity)
     	Y = vec(nn(X'))
 	end
-
     #Add noise
-    noise = randn(nrow(newdata)); noise .*= norm(Y) / norm(noise) / SNR
+    noise = randn(nrow(newdata)); 
+	noise ./= norm(noise)
+	noise .*= norm(Y) / SNR
 
-    return Y .+ noise, k_non_missing+k_missing_in_signal, k_missing_in_signal
+	return Y .+ noise, k_non_missing+k_missing_in_signal, k_missing_in_signal
 end
-
