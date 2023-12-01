@@ -84,30 +84,38 @@ array_num = parse(Int, ARG)
     Random.seed!(565)
     X_full = PHD.generate_x(maxn+5000, p; rank=floor(Int, p/2))
         
-    @time Y, k, k_missing = PHD.generate_y(X_full, X_full,
-                    model = model_for_y,  
-                    k=ktotal, k_missing_in_signal=0, SNR=SNR, 
-                    mar=true)   
+    # @time Y, k, k_missing = PHD.generate_y(X_full, X_full,
+    #                 model = model_for_y,  
+    #                 k=ktotal, k_missing_in_signal=0, SNR=SNR, 
+    #                 mar=true)   
 
-    @show k, k_missing
+    # @show k, k_missing
 
     test_ind = BitArray(vec([zeros(n)' ones(5000)']))
 
-    @show Base.size(X_full), mean(Y)
+    # @show Base.size(X_full), mean(Y)
     
     for aux_num in 1:length(missingness_proba_list)
         missingness_proba = missingness_proba_list[aux_num]
         @show missingness_proba
         savedfiles = filter(t -> startswith(t, string("n_", n, "_p_", p, "_pmiss_", missingness_proba)), readdir(savedir))
         map!(t -> split(replace(t, ".csv" => ""), "_")[end], savedfiles, savedfiles)
-        
-        Random.seed!(565)
-        X_missing = PHD.generate_missing(X_full; 
-                    method = relationship_xm_mar ? :mar : :censoring, 
-                    p=missingness_proba, 
-                    kmissing=num_missing_feature)
 
-        for iter in setdiff(1:10, parse.(Int, savedfiles))    
+
+        for iter in setdiff(1:10, parse.(Int, savedfiles)) 
+            Random.seed!(565)
+            X_missing = PHD.generate_missing(X_full; 
+                        method = relationship_xm_mar ? :mar : :censoring, 
+                        p=missingness_proba, 
+                        kmissing=num_missing_feature)
+
+            Random.seed!(565+iter*3467)                
+            @time Y, k, k_missing = PHD.generate_y(X_full, X_full,
+                            model = model_for_y,  
+                            k=ktotal, k_missing_in_signal=0, SNR=SNR, 
+                            mar=true)   
+        
+            @show k, k_missing
         # for iter in 1:10
             Random.seed!(565+iter*7)
             # X_missing = PHD.generate_missing(X_full; 
