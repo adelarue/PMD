@@ -46,7 +46,7 @@ do_affine = false
 # affine_on_static_only = false #Should be set to false
 do_finite = false
 do_μthenreg = false 
-do_xgb = false 
+do_xgb = true 
 
 function create_hp_dict(model::Symbol)
     if model == :linear 
@@ -61,7 +61,7 @@ function create_hp_dict(model::Symbol)
         return Dict{Symbol,Vector}(:alpha => collect(0.1:0.1:1), :regtype => [:missing_weight], :missing_penalty => [1.0,2.0,4.0,6.0,8.0,12.0])
     elseif model == :xgboost
         # return Dict{Symbol,Vector}(:max_depth => collect(3:2:10), :n_estimators => collect(10:10:100))
-        return Dict{Symbol,Vector}(:max_depth => collect(1:2:11), :min_child_weight => collect(1:3:10), :gamma => collect(0.:0.1:0.2), :n_estimators => collect(25:25:200))
+        return Dict{Symbol,Vector}(:max_depth => collect(3:2:10), :min_child_weight => collect(1:1:6), :gamma => collect(0.:0.1:0.4), :n_estimators => collect(50:25:200))
     end
 end
 
@@ -83,7 +83,7 @@ array_num = parse(Int, ARG)
 
 
     # Create output
-    Random.seed!(549)
+    Random.seed!(565)
     X_full = PHD.generate_x(maxn+5000, p; rank=floor(Int, p/2))
     Xmatrix = Matrix(X_full)
     Xmatrix = 1 ./ (1 .+ exp.(-Xmatrix))
@@ -109,7 +109,7 @@ array_num = parse(Int, ARG)
         savedfiles = filter(t -> startswith(t, string("n_", n, "_p_", p, "_pmiss_", missingness_proba)), readdir(savedir))
         map!(t -> split(replace(t, ".csv" => ""), "_")[end], savedfiles, savedfiles)
         
-        Random.seed!(549)
+        Random.seed!(565)
         X_missing = PHD.generate_missing(X_full; 
                     method = relationship_xm_mar ? :mar : :censoring, 
                     p=missingness_proba, 
@@ -126,7 +126,7 @@ array_num = parse(Int, ARG)
 
         for iter in setdiff(1:10, parse.(Int, savedfiles))    
         # for iter in 1:10
-            Random.seed!(549+iter*7)
+            Random.seed!(565+iter*7)
             # X_missing = PHD.generate_missing(X_full; 
             #             method = relationship_xm_mar ? :mar : :censoring, 
             #             p=missingness_proba, 
