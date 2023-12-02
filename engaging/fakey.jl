@@ -137,7 +137,7 @@ for aux_num in 1:length(missingsignal_list)
                 filename = string(dname, "_SNR_", SNR, "_nmiss_", k_missingsignal, "_$iter.csv")
 
                 # Split train / test
-                Random.seed!(56802+767*mod(iter-1,5))
+                Random.seed!(56802+767*div(iter-1,5))
                 # test_ind = rand(nrow(X_missing)) .< test_prop ;
                 test_ind = PHD.split_dataset(X_missing, test_fraction = test_prop, random = true)
                 # if !random_split
