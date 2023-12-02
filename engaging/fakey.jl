@@ -23,25 +23,25 @@ ktotal = 10
 random_split = true
 relationship_yx_mar = try ARGS[2]=="1" catch; true end
 adversarial_missing = try ARGS[3]=="1" catch; false end
-model_for_y = :nn 
+model_for_y = :linear 
 
-savedir = string("../results/fakey/", 
+savedir = string("../results/aistats-rev/fakey/", 
                 model_for_y,
                 relationship_yx_mar ? "_mar" : "_nmar",
                 adversarial_missing ? "_adv" : "", 
-                "/xgb-itr/")
+                "/all/")
 mkpath(savedir)
 
 #Prediction methods
-do_benchmark = false
-do_tree = false
-do_rf_mia = false
+do_benchmark = true
+do_tree = true
+do_rf_mia = true
 do_impthenreg = true
-do_static = false
-do_affine = false
+do_static = true
+do_affine = true
 affine_on_static_only = false #Should be set to false
-do_finite = false
-do_μthenreg = false 
+do_finite = true
+do_μthenreg = true 
 do_xgb = true
 
 function create_hp_dict(model::Symbol)
@@ -109,30 +109,35 @@ for aux_num in 1:length(missingsignal_list)
             X_missing = PHD.optimize_missingness(X_missing, X_full)
         end
 
-        # Create output
-        Random.seed!(565)             
-        @time Y, k, k_missing = PHD.generate_y(X_full, X_missing,
-                        model = model_for_y,  
-                        k=ktotal, k_missing_in_signal=k_missingsignal, SNR=SNR, 
-                        canbemissing=canbemissing, mar=relationship_yx_mar)   
-        @show k, k_missing
-
         patidx, = PHD.missingness_pattern_id(X_missing)
 
         test_prop = .3
-        if k_missing == k_missingsignal #If not enough missing features to generate Y with k_missingsignal, abort (already done)
 
-            savedfiles = filter(t -> startswith(t, string(dname, "_SNR_", SNR, "_nmiss_", k_missingsignal)), readdir(savedir))
-            map!(t -> split(replace(t, ".csv" => ""), "_")[end], savedfiles, savedfiles)
-            for iter in setdiff(1:10, parse.(Int, savedfiles))    
+        
+        savedfiles = filter(t -> startswith(t, string(dname, "_SNR_", SNR, "_nmiss_", k_missingsignal)), readdir(savedir))
+        map!(t -> split(replace(t, ".csv" => ""), "_")[end], savedfiles, savedfiles)
+
+        for iter in setdiff(1:10, parse.(Int, savedfiles))    
+            @show iter
+
+            # Create output
+            Random.seed!(565+mod(iter-1,5)*47)             
+            @time Y, k, k_missing = PHD.generate_y(X_full, X_missing,
+                            model = model_for_y,  
+                            k=ktotal, k_missing_in_signal=k_missingsignal, SNR=SNR, 
+                            canbemissing=canbemissing, mar=relationship_yx_mar)   
+            @show k, k_missing
+
+
+             if k_missing == k_missingsignal #If not enough missing features to generate Y with k_missingsignal, abort (already done)
+
             # for iter in 1:10
-                @show iter
                 results_table = similar(results_main,0)
 
                 filename = string(dname, "_SNR_", SNR, "_nmiss_", k_missingsignal, "_$iter.csv")
 
                 # Split train / test
-                Random.seed!(56802+767*iter)
+                Random.seed!(56802+767*mod(iter-1,5))
                 # test_ind = rand(nrow(X_missing)) .< test_prop ;
                 test_ind = PHD.split_dataset(X_missing, test_fraction = test_prop, random = true)
                 # if !random_split
