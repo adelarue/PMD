@@ -28,10 +28,10 @@ relationship_xm_mar = try ARGS[2]=="1" catch; true end
 # adversarial_missing = try ARGS[3]=="1" catch; false end
 model_for_y = try ARGS[3]=="1" ? :linear : (ARGS[3]=="2" ? :tree : :nn) catch; :linear  end 
 
-savedir = string("../results/synthetic/", 
+savedir = string("../results/aistats-rev/synthetic/", 
                 model_for_y,
                 relationship_xm_mar ? "_mar" : "_censoring",
-                "/aistats-rev/")
+                "/all/")
 mkpath(savedir)
 
 #Prediction methods
@@ -39,11 +39,11 @@ do_benchmark = true
 do_tree = true
 do_rf_mia = true
 do_impthenreg = true
-do_static = false
-do_affine = false
-# affine_on_static_only = false #Should be set to false
-do_finite = false
-do_μthenreg = false 
+do_static = true
+do_affine = true
+affine_on_static_only = false #Should be set to false
+do_finite = true
+do_μthenreg = true 
 do_xgb = true 
 
 function create_hp_dict(model::Symbol)
