@@ -109,7 +109,7 @@ array_num = parse(Int, ARG)
                         p=missingness_proba, 
                         kmissing=num_missing_feature)
 
-            Random.seed!(565+iter*3467)                
+            Random.seed!(565+mod(iter-1,5)*3467)                
             @time Y, k, k_missing = PHD.generate_y(X_full, X_full,
                             model = model_for_y,  
                             k=ktotal, k_missing_in_signal=0, SNR=SNR, 
@@ -117,7 +117,7 @@ array_num = parse(Int, ARG)
         
             @show k, k_missing
         # for iter in 1:10
-            Random.seed!(565+iter*7)
+            Random.seed!(565+div(iter-1,5)*7)
             # X_missing = PHD.generate_missing(X_full; 
             #             method = relationship_xm_mar ? :mar : :censoring, 
             #             p=missingness_proba, 
