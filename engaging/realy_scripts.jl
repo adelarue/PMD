@@ -8,21 +8,21 @@ using Random, Statistics, CSV, DataFrames, LinearAlgebra
 dataset_list = [d for d in readdir("../datasets/") if !startswith(d, ".")]
 sort!(dataset_list)
 
-savedir = string("../results/", 
+savedir = string("../results/aistats-rev/", 
                 "/realy", 
-                "/xgb/")
+                "/all/")
 mkpath(savedir)
 
 #Prediction methods
-do_benchmark = false
-do_tree = false
-do_rf_mia = false
+do_benchmark = true
+do_tree = true
+do_rf_mia = true
 do_impthenreg = true
-do_static = false
-do_affine = false
+do_static = true
+do_affine = true
 affine_on_static_only = false #Should be set to false
-do_finite = false
-do_μthenreg = false 
+do_finite = true
+do_μthenreg = true 
 do_xgb = true 
 
 results_main = DataFrame(dataset=[], SNR=[], k=[], kMissing=[], splitnum=[], method=[],
