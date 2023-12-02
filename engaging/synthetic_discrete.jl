@@ -33,13 +33,13 @@ model_for_y = try ARGS[3]=="1" ? :linear : (ARGS[3]=="2" ? :tree : :nn) catch; :
 savedir = string("../results/synthetic_discrete/", 
                 model_for_y,
                 relationship_xm_mar ? "_mar" : "_censoring",
-                "/xgb-itr/")
+                "/aistats-rev/")
 mkpath(savedir)
 
 #Prediction methods
-do_benchmark = false
-do_tree = false
-do_rf_mia = false
+do_benchmark = true
+do_tree = true
+do_rf_mia = true
 do_impthenreg = true
 do_static = false
 do_affine = false
@@ -92,12 +92,12 @@ array_num = parse(Int, ARG)
 
     X_full = DataFrame(Xmatrix, :auto) #Binarize the features
 
-    @time Y, k, k_missing = PHD.generate_y(X_full, X_full,
-                    model = model_for_y,  
-                    k=ktotal, k_missing_in_signal=0, SNR=SNR, 
-                    mar=true)   
+    # @time Y, k, k_missing = PHD.generate_y(X_full, X_full,
+    #                 model = model_for_y,  
+    #                 k=ktotal, k_missing_in_signal=0, SNR=SNR, 
+    #                 mar=true)   
 
-    @show k, k_missing
+    # @show k, k_missing
 
     test_ind = BitArray(vec([zeros(n)' ones(5000)']))
 
@@ -114,7 +114,6 @@ array_num = parse(Int, ARG)
                     method = relationship_xm_mar ? :mar : :censoring, 
                     p=missingness_proba, 
                     kmissing=num_missing_feature)
-
         #Encode missingness as it is own category
         for c in names(X_missing)
             if any(ismissing.(X_missing[:,c]))
@@ -125,13 +124,16 @@ array_num = parse(Int, ARG)
         end
 
         for iter in setdiff(1:10, parse.(Int, savedfiles))    
-        # for iter in 1:10
-            Random.seed!(565+iter*7)
-            # X_missing = PHD.generate_missing(X_full; 
-            #             method = relationship_xm_mar ? :mar : :censoring, 
-            #             p=missingness_proba, 
-            #             kmissing=num_missing_feature)
-            
+            # for iter in 1:10
+            Random.seed!(565+mod(iter-1,5)*3467)                
+            @time Y, k, k_missing = PHD.generate_y(X_full, X_full,
+                            model = model_for_y,  
+                            k=ktotal, k_missing_in_signal=0, SNR=SNR, 
+                            mar=true)   
+        
+            @show k, k_missing
+
+            Random.seed!(565+div(iter-1,5)*7)
             selectobs = shuffle(1:Base.size(X_full, 1))[1:(5000+n)]
             global X_full = X_full[selectobs,:] 
             # X_full = X_full[selectobs,:] 
