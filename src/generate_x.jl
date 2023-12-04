@@ -10,7 +10,9 @@ function generate_x(n, d; rank::Int=4)
     Σ = B*B'
     Σ += Σ' ; Σ /= 2
     Σ += Matrix(max(eps(),eps()-2*eigmin(Σ))*I,d,d)
-
+    while !isposdef(Σ)
+        Σ += Matrix(eps()*I,d,d)
+    end
     μ = randn(d)
 
     return DataFrame(rand(MvNormal(μ, Σ), n)', :auto)

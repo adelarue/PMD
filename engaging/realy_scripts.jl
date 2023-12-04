@@ -1,3 +1,8 @@
+println(Sys.CPU_NAME)
+
+rm("/home/jpauph/.julia/logs/manifest_usage.toml", force=true)
+rm("/home/jpauph/.julia/logs/artifact_usage.toml", force=true)
+
 using Pkg
 Pkg.activate("..")
 
@@ -120,9 +125,8 @@ if  true #dname ∈ longtime_list #|| (dname == "ozone-level-detection-one" && k
     savedfiles = filter(t -> startswith(t, string(dname,"_real_Y_")), readdir(savedir))
     map!(t -> replace(replace(t, ".csv" => ""), string(dname,"_real_Y_") => ""), savedfiles, savedfiles)
     
-    # for iter in setdiff(1:10, parse.(Int, savedfiles))    
-    for iter in 1:10
-        # try
+    for iter in setdiff(1:10, parse.(Int, savedfiles))    
+    # for iter in 1:10
         @show iter
         results_table = similar(results_main,0)
 
@@ -388,9 +392,11 @@ if  true #dname ∈ longtime_list #|| (dname == "ozone-level-detection-one" && k
             end
         end
 
+        corefiles = filter(t -> startswith(t, "core."), readdir("/home/jpauph/Research/PHD/engaging/"))
+        for f in corefiles
+            rm("/home/jpauph/Research/PHD/engaging/"*f, force=true)
+        end
+
         CSV.write(savedir*filename, results_table)
-        # catch
-        #     ()
-        # end
     end
 end

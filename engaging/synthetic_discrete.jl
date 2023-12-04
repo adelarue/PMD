@@ -1,3 +1,8 @@
+println(Sys.CPU_NAME)
+
+rm("/home/jpauph/.julia/logs/manifest_usage.toml", force=true)
+rm("/home/jpauph/.julia/logs/artifact_usage.toml", force=true)
+
 using Pkg
 Pkg.activate("..")
 # Pkg.instantiate()
@@ -101,7 +106,7 @@ array_num = parse(Int, ARG)
 
     test_ind = BitArray(vec([zeros(n)' ones(5000)']))
 
-    @show Base.size(X_full), mean(Y)
+    # @show Base.size(X_full), mean(Y)
     
     for aux_num in 1:length(missingness_proba_list)
         missingness_proba = missingness_proba_list[aux_num]
@@ -469,9 +474,12 @@ array_num = parse(Int, ARG)
             #     end
             # end
 
+            corefiles = filter(t -> startswith(t, "core."), readdir("/home/jpauph/Research/PHD/engaging/"))
+            for f in corefiles
+                rm("/home/jpauph/Research/PHD/engaging/"*f, force=true)
+            end
+
             CSV.write(savedir*filename, results_table)
-
-
         end
     end 
 # end

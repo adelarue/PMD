@@ -1,5 +1,13 @@
+println(Sys.CPU_NAME)
+
+rm("/home/jpauph/.julia/logs/manifest_usage.toml", force=true)
+rm("/home/jpauph/.julia/logs/artifact_usage.toml", force=true)
+
 using Pkg
 Pkg.activate("..")
+
+# Pkg.update()
+# Pkg.precompile()
 
 # using Revise
 using PHD
@@ -18,7 +26,6 @@ p = 10
 SNR = 2
 ktotal = 5
 
-# missingness_proba_list = collect(0.1:0.1:0.9)
 missingness_proba_list = collect(0.1:0.1:0.8)
 
 num_missing_feature = p 
@@ -427,8 +434,12 @@ array_num = parse(Int, ARG)
                 end
             end
 
-            CSV.write(savedir*filename, results_table)
+            corefiles = filter(t -> startswith(t, "core."), readdir("/home/jpauph/Research/PHD/engaging/"))
+            for f in corefiles
+                rm("/home/jpauph/Research/PHD/engaging/"*f, force=true)
+            end
 
+            CSV.write(savedir*filename, results_table)
 
         end
     end 

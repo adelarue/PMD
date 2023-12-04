@@ -1,5 +1,13 @@
+println(Sys.CPU_NAME)
+
+rm("/home/jpauph/.julia/logs/manifest_usage.toml", force=true)
+rm("/home/jpauph/.julia/logs/artifact_usage.toml", force=true)
+
 using Pkg
 Pkg.activate("..")
+
+ENV["R_HOME"] = "/home/software/R/4.4.2/lib64/R"
+# Pkg.build("RCall")
 
 # using Revise
 using PHD
@@ -24,6 +32,7 @@ random_split = true
 relationship_yx_mar = try ARGS[2]=="1" catch; true end
 adversarial_missing = try ARGS[3]=="1" catch; false end
 model_for_y = :linear 
+# model_for_y = :nn 
 
 savedir = string("../results/aistats-rev/fakey/", 
                 model_for_y,
@@ -426,6 +435,11 @@ for aux_num in 1:length(missingsignal_list)
                                     δt, bestparams, score])
                         # CSV.write(savedir*filename, results_table)
                     end
+                end
+
+                corefiles = filter(t -> startswith(t, "core."), readdir("/home/jpauph/Research/PHD/engaging/"))
+                for f in corefiles
+                    rm("/home/jpauph/Research/PHD/engaging/"*f, force=true)
                 end
 
                 CSV.write(savedir*filename, results_table)
