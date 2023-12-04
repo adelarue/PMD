@@ -127,6 +127,8 @@ if  true #dname ∈ longtime_list #|| (dname == "ozone-level-detection-one" && k
     
     for iter in setdiff(1:10, parse.(Int, savedfiles))    
     # for iter in 1:10
+
+        # try
         @show iter
         results_table = similar(results_main,0)
 
@@ -398,5 +400,6 @@ if  true #dname ∈ longtime_list #|| (dname == "ozone-level-detection-one" && k
         end
 
         CSV.write(savedir*filename, results_table)
+
     end
 end

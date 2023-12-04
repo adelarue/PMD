@@ -107,7 +107,7 @@ array_num = parse(Int, ARG)
     test_ind = BitArray(vec([zeros(n)' ones(5000)']))
 
     # @show Base.size(X_full), mean(Y)
-    
+
     for aux_num in 1:length(missingness_proba_list)
         missingness_proba = missingness_proba_list[aux_num]
         @show missingness_proba
