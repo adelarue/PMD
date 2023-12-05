@@ -34,6 +34,7 @@ adversarial_missing = try ARGS[3]=="1" catch; false end
 model_for_y = :linear 
 # model_for_y = :nn 
 
+# savedir = string("../results/debug/fakey/", 
 savedir = string("../results/aistats-rev/fakey/", 
                 model_for_y,
                 relationship_yx_mar ? "_mar" : "_nmar",
