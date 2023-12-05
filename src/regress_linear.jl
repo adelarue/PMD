@@ -174,7 +174,7 @@ function regress_linear(Y::BitArray{1}, df::DataFrame;
 	coefficients = DataFrame()
 	
 	#PENALTY: Lasso 
-	if freq > 0.999 || freq < 0.111
+	if freq > 0.999 || freq < 0.001
 		coefficients[!,:Offset] = [safelog(mean(y) / (1-mean(y)))]
 	elseif all([var(X[:,j]) for j in 1:Base.size(X,2)] .< 1e-10)
 		coefficients[!,:Offset] = [safelog(mean(y) / (1-mean(y)))]
@@ -206,20 +206,23 @@ function regress_linear(Y::BitArray{1}, df::DataFrame;
 			p = mean(X[:,i] .== 0)
 			penalty_factor[i] += ( occursin("_missing", string(col)) ? missing_penalty : 1)*p
 		end
-		cv = glmnetcv(X, hcat(Float64.(.!y), Float64.(y)), GLMNet.Binomial(),
-						alpha=alpha, penalty_factor=penalty_factor, weights=w)
-		if length(cv.meanloss) > 0
-			for (i, col) in enumerate(cols)
-				coefficients[!,col] = [cv.path.betas[i, argmin(cv.meanloss)]]
+		try 
+			cv = glmnetcv(X, hcat(Float64.(.!y), Float64.(y)), GLMNet.Binomial(),
+							alpha=alpha, penalty_factor=penalty_factor, weights=w)
+			if length(cv.meanloss) > 0
+				for (i, col) in enumerate(cols)
+					coefficients[!,col] = [cv.path.betas[i, argmin(cv.meanloss)]]
+				end
+				coefficients[!,:Offset] = [cv.path.a0[argmin(cv.meanloss)]]
+			else
+				for col in cols
+					coefficients[!,col] = [0.]
+				end
+				coefficients[!,:Offset] = [log(mean(y) / (1-mean(y)))]
 			end
-			coefficients[!,:Offset] = [cv.path.a0[argmin(cv.meanloss)]]
-		else
-			for col in cols
-				coefficients[!,col] = [0.]
-			end
-			coefficients[!,:Offset] = [log(mean(y) / (1-mean(y)))]
+		catch
+			coefficients[!,:Offset] = [safelog(mean(y) / (1-mean(y)))]
 		end
-
 	#PENALTY: Generalized Lasso--Not useful
 	elseif regtype == :genlasso
 		coefficients = regress(1.0*Y, df; regtype=:genlasso, alpha=alpha, missing_penalty=missing_penalty)
