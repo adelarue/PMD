@@ -78,10 +78,12 @@ results_main = DataFrame(dataset=[], SNR=[], k=[], kMissing=[], splitnum=[], met
 # for ARG in ARGS
 ARG = ARGS[1]
 array_num = parse(Int, ARG)
-# d_num = mod(array_num, 71) + 1
-# aux_num = div(array_num,71) + 1
 
-d_num = array_num + 1
+d_num = mod(array_num, 71) + 1
+iter_do = div(array_num,71) + 1
+
+# d_num = array_num + 1
+
 for aux_num in 1:length(missingsignal_list)
 
     dname = dataset_list[d_num]#"dermatology" #"""thyroid-disease-thyroid-0387" #dataset_list[1]
@@ -127,7 +129,8 @@ for aux_num in 1:length(missingsignal_list)
         savedfiles = filter(t -> startswith(t, string(dname, "_SNR_", SNR, "_nmiss_", k_missingsignal)), readdir(savedir))
         map!(t -> split(replace(t, ".csv" => ""), "_")[end], savedfiles, savedfiles)
 
-        for iter in setdiff(1:10, parse.(Int, savedfiles))    
+        for iter in setdiff(iter_do:iter_do, parse.(Int, savedfiles))    
+        # for iter in setdiff(1:10, parse.(Int, savedfiles))    
             @show iter
 
             # Create output

@@ -15,20 +15,32 @@ sort!(dataset_list)
 
 savedir = string("../results/aistats-rev/", 
                 "/realy", 
-                "/all/")
+                "/itr/")
 mkpath(savedir)
 
+# #Prediction methods
+# do_benchmark = true
+# do_tree = true
+# do_rf_mia = true
+# do_impthenreg = true
+# do_static = true
+# do_affine = true
+# affine_on_static_only = false #Should be set to false
+# do_finite = true
+# do_μthenreg = true 
+# do_xgb = true 
+
 #Prediction methods
-do_benchmark = true
-do_tree = true
-do_rf_mia = true
+do_benchmark = false
+do_tree = false
+do_rf_mia = false
 do_impthenreg = true
-do_static = true
-do_affine = true
+do_static = false
+do_affine = false
 affine_on_static_only = false #Should be set to false
-do_finite = true
-do_μthenreg = true 
-do_xgb = true 
+do_finite = false
+do_μthenreg = false 
+do_xgb = false 
 
 results_main = DataFrame(dataset=[], SNR=[], k=[], kMissing=[], splitnum=[], method=[],
                                 r2=[], osr2=[], r2list=[], osr2list=[], time=[], hp=[], score=[])
@@ -57,9 +69,9 @@ k_missing = 1
 # for ARG in ARGS
 ARG = ARGS[1]
 array_num = parse(Int, ARG)
-d_num = mod(array_num, 71) + 1
-iter_do = div(array_num, 71) + 1
-# d_num = array_num + 1
+# d_num = mod(array_num, 71) + 1
+# iter_do = div(array_num, 71) + 1
+d_num = array_num + 1
 
 dname = dataset_list[d_num]#"dermatology" #"""thyroid-disease-thyroid-0387" #dataset_list[1]
 @show dname
@@ -126,8 +138,8 @@ if  true #dname ∈ longtime_list #|| (dname == "ozone-level-detection-one" && k
     map!(t -> replace(replace(t, ".csv" => ""), string(dname,"_real_Y_") => ""), savedfiles, savedfiles)
     
     # if iter ∉ parse.(Int, savedfiles)
-    # for iter in setdiff(1:10, parse.(Int, savedfiles))    
-    for iter in setdiff(iter_do:iter_do, parse.(Int, savedfiles))    
+    for iter in setdiff(1:10, parse.(Int, savedfiles))    
+    # for iter in setdiff(iter_do:iter_do, parse.(Int, savedfiles))    
 
     # for iter in 1:10
 
@@ -214,8 +226,8 @@ if  true #dname ∈ longtime_list #|| (dname == "ozone-level-detection-one" && k
         if do_impthenreg
             println("Impute-then-regress methods...")
             println("###############################")
-            # for model in [:linear, :tree, :rf]
-            for model in [:xgboost]
+            for model in [:linear, :tree, :rf]
+            # for model in [:xgboost]
                 d = create_hp_dict(model)
 
                 ## Method 1.1

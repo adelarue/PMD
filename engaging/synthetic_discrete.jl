@@ -38,20 +38,20 @@ model_for_y = try ARGS[3]=="1" ? :linear : (ARGS[3]=="2" ? :tree : :nn) catch; :
 savedir = string("../results/synthetic_discrete/", 
                 model_for_y,
                 relationship_xm_mar ? "_mar" : "_censoring",
-                "/aistats-rev/")
+                "/itr/")
 mkpath(savedir)
 
 #Prediction methods
-do_benchmark = true
-do_tree = true
-do_rf_mia = true
+do_benchmark = false
+do_tree = false
+do_rf_mia = false
 do_impthenreg = true
 do_static = false
 do_affine = false
 # affine_on_static_only = false #Should be set to false
 do_finite = false
 do_μthenreg = false 
-do_xgb = true 
+do_xgb = false 
 
 function create_hp_dict(model::Symbol)
     if model == :linear 
@@ -217,41 +217,41 @@ array_num = parse(Int, ARG)
                 # CSV.write(savedir*filename, results_table)
             end
 
-            # if do_tree
-            #     println("MIA-tree method...")
-            #     println("####################")
-            #     d = create_hp_dict(:tree)
+            if do_tree
+                println("MIA-tree method...")
+                println("####################")
+                d = create_hp_dict(:tree)
 
-            #     df = PHD.augment_MIA(X_missing)
-            #     df[!,:Test] = test_ind
-            #     start = time()
-            #     cartmodel, bestparams, score = PHD.regress_kcv(Y, df; model = :tree, parameter_dict=d, stratifiedid=patidx)
-            #     δt = (time() - start)
-            #     R2, OSR2 = PHD.evaluate(Y, df, cartmodel)
-            #     R2l, OSR2l = PHD.stratified_evaluate(Y, df, cartmodel, patidx, subsetpattern=subsetpattern)   
-            #     push!(results_table, [dname, SNR, k, missingness_proba, iter, "CART MIA", R2, OSR2, R2l, OSR2l, [], δt, bestparams, score])
-            #     # CSV.write(savedir*filename, results_table)
-            # end
+                df = PHD.augment_MIA(X_missing)
+                df[!,:Test] = test_ind
+                start = time()
+                cartmodel, bestparams, score = PHD.regress_kcv(Y, df; model = :tree, parameter_dict=d, stratifiedid=patidx)
+                δt = (time() - start)
+                R2, OSR2 = PHD.evaluate(Y, df, cartmodel)
+                R2l, OSR2l = PHD.stratified_evaluate(Y, df, cartmodel, patidx, subsetpattern=subsetpattern)   
+                push!(results_table, [dname, SNR, k, missingness_proba, iter, "CART MIA", R2, OSR2, R2l, OSR2l, [], δt, bestparams, score])
+                # CSV.write(savedir*filename, results_table)
+            end
             
-            # if do_rf_mia
-            #     println("MIA-RF method...")
-            #     println("####################")
-            #     d = create_hp_dict(:rf)
+            if do_rf_mia
+                println("MIA-RF method...")
+                println("####################")
+                d = create_hp_dict(:rf)
     
-            #     df = PHD.augment_MIA(X_missing)
-            #     df[!,:Test] = test_ind
-            #     start = time()
-            #     cartmodel, bestparams, score = PHD.regress_kcv(Y, df; model = :rf, parameter_dict=d, stratifiedid=patidx)
-            #     δt = (time() - start)
-            #     R2, OSR2 = PHD.evaluate(Y, df, cartmodel)
-            #     R2l, OSR2l = PHD.stratified_evaluate(Y, df, cartmodel, patidx)   
-            #     push!(results_table, [dname, SNR, k, missingness_proba, iter, "RF MIA", R2, OSR2, R2l, OSR2l, [], δt, bestparams, score])
-            #     # CSV.write(savedir*filename, results_table)
-            # end
+                df = PHD.augment_MIA(X_missing)
+                df[!,:Test] = test_ind
+                start = time()
+                cartmodel, bestparams, score = PHD.regress_kcv(Y, df; model = :rf, parameter_dict=d, stratifiedid=patidx)
+                δt = (time() - start)
+                R2, OSR2 = PHD.evaluate(Y, df, cartmodel)
+                R2l, OSR2l = PHD.stratified_evaluate(Y, df, cartmodel, patidx)   
+                push!(results_table, [dname, SNR, k, missingness_proba, iter, "RF MIA", R2, OSR2, R2l, OSR2l, [], δt, bestparams, score])
+                # CSV.write(savedir*filename, results_table)
+            end
 
             if do_impthenreg
-                # for model in [:linear, :tree, :rf]
-                for model in [:xgboost]
+                for model in [:linear, :tree, :rf]
+                # for model in [:xgboost, :linear, :tree, :rf]
                     println("Impute-then-regress methods...")
                     println("###############################")
                     d = create_hp_dict(model)
