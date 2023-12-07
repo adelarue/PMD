@@ -273,7 +273,7 @@ for aux_num in 1:length(missingsignal_list)
                         R2l, OSR2l = PHD.stratified_evaluate(Y, df, linear, patidx)   
                         push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 1 - $(model)", R2, OSR2, R2l, OSR2l, δt, bestparams, score])
                         # CSV.write(savedir*filename, results_table)
-        
+                        @show δt    
         
                         ## Method 1.2
                         df = deepcopy(X_missing)
@@ -297,7 +297,8 @@ for aux_num in 1:length(missingsignal_list)
                         R2l, OSR2l = PHD.stratified_evaluate(Y, df, linear, patidx)   
                         push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 2 - $(model)", R2, OSR2,  R2l, OSR2l, δt, bestparams, score])
                         # CSV.write(savedir*filename, results_table)
-        
+                        @show δt    
+
         
                         ## Method 1.3
                         df = deepcopy(X_missing)
@@ -320,7 +321,8 @@ for aux_num in 1:length(missingsignal_list)
                         R2l, OSR2l = PHD.stratified_evaluate(Y, df, linear, patidx)   
                         push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 3 - $(model)", R2, OSR2,  R2l, OSR2l, δt, bestparams, score])
                         # CSV.write(savedir*filename, results_table)
-        
+                        @show δt    
+
                         ## Method 1.4
                         start = time()
                         means_df = PHD.compute_mean(X_missing[.!test_ind,:])
@@ -335,7 +337,8 @@ for aux_num in 1:length(missingsignal_list)
                         R2l, OSR2l = PHD.stratified_evaluate(Y, df, linear, patidx)   
                         push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 4 - $(model)", R2, OSR2, R2l, OSR2l, δt, bestparams, score])
                         # CSV.write(savedir*filename, results_table)
-        
+                        @show δt    
+
                         ## Method 1.5 Mean and mode impute
                         start = time()
                         means_df = PHD.compute_mean(X_missing[.!test_ind,:])
@@ -353,6 +356,7 @@ for aux_num in 1:length(missingsignal_list)
                         R2l, OSR2l = PHD.stratified_evaluate(Y, df, linear, patidx)   
                         push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 5 - $(model)", R2, OSR2,  R2l, OSR2l, δt, bestparams, score])
                         # CSV.write(savedir*filename, results_table)
+                        @show δt    
                     end
                 end
  
@@ -430,7 +434,7 @@ for aux_num in 1:length(missingsignal_list)
                         df[!,:Test] = test_ind
 
                         start = time()
-                        (opt_imp_then_reg, μ), bestparams, score = PHD.regress_kcv(Y, df; model=:joint, parameter_dict=d, stratifiedid=patidx)
+                        @time (opt_imp_then_reg, μ), bestparams, score = PHD.regress_kcv(Y, df; model=:joint, parameter_dict=d, stratifiedid=patidx)
                         δt = (time() - start)
 
                         R2, OSR2 = PHD.evaluate(Y, PHD.mean_impute(df, μ), opt_imp_then_reg)
@@ -441,10 +445,10 @@ for aux_num in 1:length(missingsignal_list)
                     end
                 end
 
-                corefiles = filter(t -> startswith(t, "core."), readdir("/home/jpauph/Research/PHD/engaging/"))
-                for f in corefiles
-                    rm("/home/jpauph/Research/PHD/engaging/"*f, force=true)
-                end
+                # corefiles = filter(t -> startswith(t, "core."), readdir("/home/jpauph/Research/PHD/engaging/"))
+                # for f in corefiles
+                #     rm("/home/jpauph/Research/PHD/engaging/"*f, force=true)
+                # end
 
                 CSV.write(savedir*filename, results_table)
             end

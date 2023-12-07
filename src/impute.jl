@@ -52,7 +52,7 @@ end
 
 function mice_bruteforce(df::DataFrame; m_imputation=2, max_epoch=5)
 	st = @timed df_imputed = PHD.mice(df, m_imputation=m_imputation, max_epoch=max_epoch)
-	@show any([mean(ismissing.(df_imputed[:,k])) > 0 for k in names(df)])
+	# @show any([mean(ismissing.(df_imputed[:,k])) > 0 for k in names(df)])
 	if any([mean(ismissing.(df_imputed[:,k])) > 0 for k in names(df)]) #If some columns are still missing
 		# @show st.time
         df_imputed = PHD.mice(df_imputed, m_imputation=3, max_epoch= (st.time < 60) ? 30 : 10) #Reimpute with more effort
