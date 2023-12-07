@@ -29,10 +29,11 @@ function mice(df::DataFrame; m_imputation=2, max_epoch=5)
 
 	R"colnames <- names(train)"
 	R"names(train) <- make.names(colnames, unique=TRUE)"
+	R"pm <- mice::quickpred(as.data.frame(train))"
 	try
-		R"imputed = mice(as.data.frame(train), m=$m_imputation, maxit=$max_epoch, printFlag=F, seed=4326)"
+		R"imputed = mice(as.data.frame(train), predictorMatrix=pm, m=$m_imputation, maxit=$max_epoch, printFlag=F, seed=4326, remove_collinear=TRUE)"
 	catch
-		R"imputed = mice(as.data.frame(train), m=$m_imputation, maxit=$max_epoch, printFlag=F, seed=4326, method='cart')"
+		R"imputed = mice(as.data.frame(train), predictorMatrix=pm, m=$m_imputation, maxit=$max_epoch, printFlag=F, seed=4326, method='cart', remove_collinear=TRUE)"
 	end
 	R"imputedtrain = complete(imputed, action=1)"
 	R"names(imputedtrain) <- colnames"
@@ -50,9 +51,11 @@ function mice(df::DataFrame; m_imputation=2, max_epoch=5)
 end
 
 function mice_bruteforce(df::DataFrame; m_imputation=2, max_epoch=5)
-	df_imputed = PHD.mice(df, m_imputation=m_imputation, max_epoch=max_epoch)
+	st = @timed df_imputed = PHD.mice(df, m_imputation=m_imputation, max_epoch=max_epoch)
+	@show any([mean(ismissing.(df_imputed[:,k])) > 0 for k in names(df)])
 	if any([mean(ismissing.(df_imputed[:,k])) > 0 for k in names(df)]) #If some columns are still missing
-        df_imputed = PHD.mice(df_imputed, m_imputation=5, max_epoch=30) #Reimpute with more effort
+		@show st.time
+        df_imputed = PHD.mice(df_imputed, m_imputation=3, max_epoch= (st.time < 60) ? 30 : 10) #Reimpute with more effort
     end
     if any([mean(ismissing.(df_imputed[:,k])) > 0 for k in names(df)]) #If still some columns are still missing
         select!(df_imputed, Not([k for k in names(df) if mean(ismissing.(df_imputed[:,k])) > 0])) #Drop
