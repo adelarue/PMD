@@ -5,6 +5,9 @@
 
 ###################################
 using DecisionTree
+using Random 
+
+threadsafe_rng = Random.TaskLocalRNG()
 
 """
 	Fit a RF to the training data
@@ -16,7 +19,7 @@ function regress_rf(Y::Union{Vector{Float64},BitArray}, df::DataFrame;
 	trainingset = try findall(df[:, :Test] .== 0) catch ; collect(1:nrow(df)) end
 	X = Matrix{Float64}(df[trainingset, cols])
 	y = convert(Array{Float64}, Y[trainingset])
-	return DecisionTree.build_forest(y[:], X, min(max(nfeat,1), length(cols)), ntrees, psamples, maxdepth)
+	return DecisionTree.build_forest(y[:], X, min(max(nfeat,1), length(cols)), ntrees, psamples, maxdepth, rng=threadsafe_rng)
 end
 
 """

@@ -62,7 +62,7 @@ function create_hp_dict(model::Symbol)
     elseif model == :nn 
         return Dict{Symbol,Vector}(:hidden_nodes => collect(5:5:35))
     elseif model == :rf 
-        return Dict{Symbol,Vector}(:ntrees => collect(50:25:200), :maxdepth => collect(5:5:50))
+        return Dict{Symbol,Vector}(:ntrees => collect(50:25:200), :maxdepth => collect(5:10:50))
     elseif model == :adaptive 
         return Dict{Symbol,Vector}(:alpha => collect(0.1:0.1:1), :regtype => [:missing_weight], :missing_penalty => [1.0,2.0,4.0,6.0,8.0,12.0])
     elseif model == :xgboost
@@ -445,10 +445,10 @@ for aux_num in 1:length(missingsignal_list)
                     end
                 end
 
-                # corefiles = filter(t -> startswith(t, "core."), readdir("/home/jpauph/Research/PHD/engaging/"))
-                # for f in corefiles
-                #     rm("/home/jpauph/Research/PHD/engaging/"*f, force=true)
-                # end
+                corefiles = filter(t -> startswith(t, "core."), readdir("/home/jpauph/Research/PHD/engaging/"))
+                for f in corefiles
+                    rm("/home/jpauph/Research/PHD/engaging/"*f, force=true)
+                end
 
                 CSV.write(savedir*filename, results_table)
             end

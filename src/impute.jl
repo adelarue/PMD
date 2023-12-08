@@ -25,6 +25,7 @@ function mice(df::DataFrame; m_imputation=2, max_epoch=5)
 	aux = select(df, Not(:Id))
 	load_R_library("mice")
 	load_R_library("dplyr")
+	R"rm(list = ls())"
 	R"train = $aux"
 
 	R"colnames <- names(train)"
@@ -47,6 +48,8 @@ function mice(df::DataFrame; m_imputation=2, max_epoch=5)
 	# @rget imputedtest
 	# result[result.Test .== 0, setdiff(names(result), [:Test])] .= imputedtrain
 	# result[result.Test .== 1, setdiff(names(result), [:Test])] .= imputedtest
+	RCall.endEmbeddedR()
+
 	return imputedtrain
 end
 
