@@ -7,4 +7,4 @@
 #SBATCH --time=1-12:00
 #SBATCH --exclude=node1333
 
-srun julia fakey.jl $SLURM_ARRAY_TASK_ID 0 0
+srun julia --threads 1 fakey.jl $SLURM_ARRAY_TASK_ID 0 0
