@@ -32,9 +32,9 @@ function mice(df::DataFrame; m_imputation=2, max_epoch=5)
 	R"names(train) <- make.names(colnames, unique=TRUE)"
 	R"pm <- mice::quickpred(as.data.frame(train))"
 	try
-		R"imputed = mice(as.data.frame(train), predictorMatrix=pm, m=$m_imputation, maxit=$max_epoch, printFlag=F, seed=4326, remove_collinear=TRUE)"
+		R"imputed = mice(as.data.frame(train), pred=pm, m=$m_imputation, maxit=$max_epoch, printFlag=F, seed=4326, remove_collinear=FALSE)"
 	catch
-		R"imputed = mice(as.data.frame(train), predictorMatrix=pm, m=$m_imputation, maxit=$max_epoch, printFlag=F, seed=4326, method='cart', remove_collinear=TRUE)"
+		R"imputed = mice(as.data.frame(train), pred=pm, m=$m_imputation, maxit=$max_epoch, printFlag=F, seed=4326, method='cart', remove_collinear=FALSE)"
 	end
 	R"imputedtrain = complete(imputed, action=1)"
 	R"names(imputedtrain) <- colnames"
