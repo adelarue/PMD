@@ -29,8 +29,18 @@
 
 
 using ScikitLearn, PyCall
-@sk_import tree: DecisionTreeRegressor
-@sk_import tree: DecisionTreeClassifier
+# using PyCall
+# using ScikitLearn: @sk_import, fit!, predict, predict_proba
+
+const DecisionTreeRegressor = PyNULL()
+const DecisionTreeClassifier = PyNULL()
+
+function __init__()
+    @eval @sk_import tree: DecisionTreeRegressor
+	@eval @sk_import tree: DecisionTreeClassifier
+end
+
+
 
 """
 	Fit a DTree to the training data
@@ -42,9 +52,9 @@ function regress_tree(Y::Vector{Float64}, df::DataFrame; maxdepth::Int=5)
 	X = Matrix{Float64}(df[trainingset, cols])
 	y = convert(Array{Float64}, Y[trainingset])
 
-	model = DecisionTreeRegressor(max_depth=maxdepth)
+	@time model = DecisionTreeRegressor(max_depth=maxdepth)
 
-	ScikitLearn.fit!(model, X, y)
+	@time ScikitLearn.fit!(model, X, y)
 
 	return model
 end

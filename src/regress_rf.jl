@@ -32,9 +32,19 @@
 # 	# return try DecisionTree.apply_tree(model, X) catch ; DecisionTree.apply_tree_proba(model, X, ["1"])[:,1] end
 # end
 
-using ScikitLearn, PyCall
-@sk_import ensemble: RandomForestRegressor
-@sk_import ensemble: RandomForestClassifier
+using PyCall
+using ScikitLearn: @sk_import, fit!, predict, predict_proba
+# @sk_import ensemble: RandomForestRegressor
+# @sk_import ensemble: RandomForestClassifier
+
+const RandomForestRegressor = PyNULL()
+const RandomForestClassifier = PyNULL()
+
+function __init__()
+    @eval @sk_import ensemble: RandomForestRegressor
+	@eval @sk_import ensemble: RandomForestClassifier
+end
+
 
 """
 	Fit a RF to the training data
