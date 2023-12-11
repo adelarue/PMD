@@ -28,9 +28,19 @@
 # end
 
 
-using ScikitLearn, PyCall
-@sk_import tree: DecisionTreeRegressor
-@sk_import tree: DecisionTreeClassifier
+# using ScikitLearn, PyCall
+# # using PyCall
+# # using ScikitLearn: @sk_import, fit!, predict, predict_proba
+
+# const DecisionTreeRegressor = PyNULL()
+# const DecisionTreeClassifier = PyNULL()
+
+# function __init__()
+#     @eval @sk_import tree: DecisionTreeRegressor
+# 	@eval @sk_import tree: DecisionTreeClassifier
+# end
+
+
 
 """
 	Fit a DTree to the training data

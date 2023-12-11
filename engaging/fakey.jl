@@ -8,7 +8,8 @@ Pkg.activate("..")
 
 ENV["R_HOME"] = "/home/software/R/4.4.2/lib64/R"
 ENV["PYTHON"] = ""
-
+# @show haskey(ENV, "PYTHONFAULTHANDLER")
+# ENV["PYTHONFAULTHANDLER"] = ""
 # using Revise
 using PHD
 
@@ -58,7 +59,7 @@ function create_hp_dict(model::Symbol)
     if model == :linear 
         return Dict{Symbol,Vector}(:alpha => collect(0.1:0.1:1), :regtype => [:lasso])
     elseif model == :tree 
-        return Dict{Symbol,Vector}(:maxdepth => collect(0:2:16))
+        return Dict{Symbol,Vector}(:maxdepth => collect(2:2:16))
     elseif model == :nn 
         return Dict{Symbol,Vector}(:hidden_nodes => collect(5:5:35))
     elseif model == :rf 
