@@ -68,11 +68,11 @@ function regress_rf(Y::BitArray, df::DataFrame;
 	return model
 end
 
-"""
-	Get Random Forest predictions on dataset
-"""
-function predict(df::DataFrame, model::PyCall.PyObject)
-	cols = setdiff(Symbol.(names(df)), [:Id, :Test])
-	X = Matrix{Float64}(df[:, cols])
-	return (try ScikitLearn.predict_proba(model, X)[:,1] catch ; ScikitLearn.predict(model, X) end)
-end
+# """
+# 	Get Random Forest predictions on dataset
+# """
+# function predict(df::DataFrame, model::PyCall.PyObject)
+# 	cols = setdiff(Symbol.(names(df)), [:Id, :Test])
+# 	X = Matrix{Float64}(df[:, cols])
+# 	return (try ScikitLearn.predict_proba(model, X)[:,1] catch ; ScikitLearn.predict(model, X) end)
+# end
