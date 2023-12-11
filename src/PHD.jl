@@ -12,7 +12,9 @@ using Statistics, LinearAlgebra, Printf, Random
 using DataStructures, StatsBase, MLUtils
 using JuMP, Gurobi
 using Flux
-using DecisionTree
+using XGBoost
+using PyCall, ScikitLearn
+# using DecisionTree
 
 "Helper function to load R packages and install them if necessary"
 function load_R_library(name::AbstractString)
