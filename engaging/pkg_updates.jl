@@ -9,8 +9,23 @@ Pkg.activate("..")
 # # ENV["R_HOME"] = "/home/software/R/4.2.2/lib64/R/"
 # # Pkg.build("RCall")
 
+ENV["CONDA_JL_VERSION"]="3.9"
+ENV["R_HOME"] = "/home/software/R/4.2.2/lib64/R/"
+ENV["PYTHON"] = "/home/software/python/3.9.4/bin/python"
+ENV["PYTHON"] = ""
+
+Pkg.add("PyCall")
+Pkg.build("PyCall")
+Pkg.add("ScikitLearn")
+
+math = PyCall.pyimport("math")
+math.pi
+PyCall.pyimport("sklearn")
+
+@sk_import ensemble: RandomForestRegressor
+
 # Pkg.update()
-Pkg.precompile()
+# Pkg.precompile()
 # # Pkg.update()
 # # using PHD
 # # @show readdir("/home/software/")

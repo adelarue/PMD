@@ -53,7 +53,6 @@ function regress_rf(Y::Vector{Float64}, df::DataFrame;
 
 	return model
 end
-
 function regress_rf(Y::BitArray, df::DataFrame; 
 	maxdepth::Int=10, ntrees=10, nfeat::Int=round(Int, sqrt(Base.size(df,2))), psamples=1.)
 

@@ -7,7 +7,7 @@ using Pkg
 Pkg.activate("..")
 
 ENV["R_HOME"] = "/home/software/R/4.4.2/lib64/R"
-# Pkg.build("RCall")
+ENV["PYTHON"] = ""
 
 # using Revise
 using PHD
