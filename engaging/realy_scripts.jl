@@ -231,69 +231,85 @@ if  true #dname ∈ longtime_list #|| (dname == "ozone-level-detection-one" && k
                 d = create_hp_dict(model)
 
                 ## Method 1.1
-                start = time()
-                X_imputed = PHD.mice_bruteforce(X_missing);
-                δt = (time() - start)
+                try
+                    start = time()
+                    X_imputed = PHD.mice_bruteforce(X_missing);
+                    
+                    δt = (time() - start)
+                    df = deepcopy(X_imputed)
+                    df[!,:Test] = test_ind
 
-                df = deepcopy(X_imputed)
-                df[!,:Test] = test_ind
+                    start = time()
+                    linear, bestparams, score = PHD.regress_kcv(Y, df, model=model, parameter_dict=d, stratifiedid=patidx)
+                    δt += (time() - start)
 
-                start = time()
-                linear, bestparams, score = PHD.regress_kcv(Y, df, model=model, parameter_dict=d, stratifiedid=patidx)
-                δt += (time() - start)
-
-                R2, OSR2 = PHD.evaluate(Y, df, linear)
-                R2l, OSR2l = PHD.stratified_evaluate(Y, df, linear, patidx)   
-                push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 1 - $(model)", R2, OSR2, R2l, OSR2l, δt, bestparams, score])
-                # CSV.write(savedir*filename, results_table)
-
+                    R2, OSR2 = PHD.evaluate(Y, df, linear)
+                    R2l, OSR2l = PHD.stratified_evaluate(Y, df, linear, patidx)   
+                    push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 1 - $(model)", R2, OSR2, R2l, OSR2l, δt, bestparams, score])
+                    # CSV.write(savedir*filename, results_table)
+                catch e
+                    if isa(e, RCall.REvalError)
+                        push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 1 - $(model)", 0, 0, [0 for p in unique(patidx)], [0 for p in unique(patidx)], 0, Dict(), 0])
+                    end
+                end
 
                 ## Method 1.2
-                df = deepcopy(X_missing)
-                start = time()
-                X_train_imputed = PHD.mice_bruteforce(df[.!test_ind,:]);
-                δt = (time() - start)
+                try
+                    df = deepcopy(X_missing)
+                    start = time()
+                    X_train_imputed = PHD.mice_bruteforce(df[.!test_ind,:]);
+                    δt = (time() - start)
 
-                select!(df, names(X_train_imputed))
-                df[.!test_ind,:] .= X_train_imputed
-                start = time()
-                X_all_imputed = PHD.mice_bruteforce(df);
-                δt += (time() - start)
+                    select!(df, names(X_train_imputed))
+                    df[.!test_ind,:] .= X_train_imputed
+                    start = time()
+                    X_all_imputed = PHD.mice_bruteforce(df);
+                    δt += (time() - start)
 
-                df = deepcopy(X_all_imputed)
-                df[!,:Test] = test_ind
+                    df = deepcopy(X_all_imputed)
+                    df[!,:Test] = test_ind
 
-                start = time()
-                linear, bestparams, score = PHD.regress_kcv(Y, df, model=model, parameter_dict=d, stratifiedid=patidx)
-                δt += (time() - start)
-                R2, OSR2 = PHD.evaluate(Y, df, linear)
-                R2l, OSR2l = PHD.stratified_evaluate(Y, df, linear, patidx)   
-                push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 2 - $(model)", R2, OSR2,  R2l, OSR2l, δt, bestparams, score])
-                # CSV.write(savedir*filename, results_table)
-
+                    start = time()
+                    linear, bestparams, score = PHD.regress_kcv(Y, df, model=model, parameter_dict=d, stratifiedid=patidx)
+                    δt += (time() - start)
+                    R2, OSR2 = PHD.evaluate(Y, df, linear)
+                    R2l, OSR2l = PHD.stratified_evaluate(Y, df, linear, patidx)   
+                    push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 2 - $(model)", R2, OSR2,  R2l, OSR2l, δt, bestparams, score])
+                    # CSV.write(savedir*filename, results_table)
+                catch e
+                    if isa(e, RCall.REvalError)
+                        push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 2 - $(model)", 0, 0, [0 for p in unique(patidx)], [0 for p in unique(patidx)], 0, Dict(), 0])
+                    end
+                end
 
                 ## Method 1.3
-                df = deepcopy(X_missing)
-                start = time()
-                X_train_imputed = PHD.mice_bruteforce(df[.!test_ind,:]);
-                δt = (time() - start)
+                try
+                    df = deepcopy(X_missing)
+                    start = time()
+                    X_train_imputed = PHD.mice_bruteforce(df[.!test_ind,:]);
+                    δt = (time() - start)
 
-                start = time()
-                X_all_imputed = PHD.mice_bruteforce(df[:,names(X_train_imputed)]);
-                δt += (time() - start)
+                    start = time()
+                    X_all_imputed = PHD.mice_bruteforce(df[:,names(X_train_imputed)]);
+                    δt += (time() - start)
 
-                select!(df, names(X_train_imputed))
-                df[.!test_ind,:] .= X_train_imputed
-                df[test_ind,:] .= X_all_imputed[test_ind,:]
-                df[!,:Test] = test_ind
-                start = time()
-                linear, bestparams, score = PHD.regress_kcv(Y, df, model=model, parameter_dict=d, stratifiedid=patidx)
-                δt += (time() - start)
-                R2, OSR2 = PHD.evaluate(Y, df, linear)
-                R2l, OSR2l = PHD.stratified_evaluate(Y, df, linear, patidx)   
-                push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 3 - $(model)", R2, OSR2,  R2l, OSR2l, δt, bestparams, score])
-                # CSV.write(savedir*filename, results_table)
-
+                    select!(df, names(X_train_imputed))
+                    df[.!test_ind,:] .= X_train_imputed
+                    df[test_ind,:] .= X_all_imputed[test_ind,:]
+                    df[!,:Test] = test_ind
+                    start = time()
+                    linear, bestparams, score = PHD.regress_kcv(Y, df, model=model, parameter_dict=d, stratifiedid=patidx)
+                    δt += (time() - start)
+                    R2, OSR2 = PHD.evaluate(Y, df, linear)
+                    R2l, OSR2l = PHD.stratified_evaluate(Y, df, linear, patidx)   
+                    push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 3 - $(model)", R2, OSR2,  R2l, OSR2l, δt, bestparams, score])
+                    # CSV.write(savedir*filename, results_table)
+                catch e
+                    if isa(e, RCall.REvalError)
+                        push!(results_table, [dname, SNR, k, k_missing, iter, "Imp-then-Reg 3 - $(model)", 0, 0, [0 for p in unique(patidx)], [0 for p in unique(patidx)], 0, Dict(), 0])
+                    end
+                end
+                
                 ## Method 1.4
                 start = time()
                 means_df = PHD.compute_mean(X_missing[.!test_ind,:])
