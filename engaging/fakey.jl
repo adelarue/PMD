@@ -13,7 +13,7 @@ ENV["PYTHON"] = ""
 # using Revise
 using PHD
 
-using Random, Statistics, CSV, DataFrames, LinearAlgebra
+using Random, Statistics, CSV, DataFrames, LinearAlgebra, RCall
 
 dataset_list = [d for d in readdir("../datasets/") if !startswith(d, ".")]
 sort!(dataset_list)

@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH -a 24,44,44,49,49
+#SBATCH -a 16,26,36,38,41
 #SBATCH -J realy
 #SBATCH --cpus-per-task=1
 #SBATCH --mem-per-cpu=4GB

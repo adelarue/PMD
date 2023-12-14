@@ -8,39 +8,39 @@ Pkg.activate("..")
 
 using PHD
 
-using Random, Statistics, CSV, DataFrames, LinearAlgebra
+using Random, Statistics, CSV, DataFrames, LinearAlgebra, RCall
 
 dataset_list = [d for d in readdir("../datasets/") if !startswith(d, ".")]
 sort!(dataset_list)
 
 savedir = string("../results/aistats-rev/", 
                 "/realy", 
-                "/itr/")
+                "/all/")
 mkpath(savedir)
 
-# #Prediction methods
-# do_benchmark = true
-# do_tree = true
-# do_rf_mia = true
-# do_impthenreg = true
-# do_static = true
-# do_affine = true
-# affine_on_static_only = false #Should be set to false
-# do_finite = true
-# do_μthenreg = true 
-# do_xgb = true 
-
 #Prediction methods
-do_benchmark = false
-do_tree = false
-do_rf_mia = false
+do_benchmark = true
+do_tree = true
+do_rf_mia = true
 do_impthenreg = true
-do_static = false
-do_affine = false
+do_static = true
+do_affine = true
 affine_on_static_only = false #Should be set to false
-do_finite = false
-do_μthenreg = false 
-do_xgb = false 
+do_finite = true
+do_μthenreg = true 
+do_xgb = true 
+
+# #Prediction methods
+# do_benchmark = false
+# do_tree = false
+# do_rf_mia = false
+# do_impthenreg = true
+# do_static = false
+# do_affine = false
+# affine_on_static_only = false #Should be set to false
+# do_finite = false
+# do_μthenreg = false 
+# do_xgb = false 
 
 results_main = DataFrame(dataset=[], SNR=[], k=[], kMissing=[], splitnum=[], method=[],
                                 r2=[], osr2=[], r2list=[], osr2list=[], time=[], hp=[], score=[])
@@ -49,7 +49,7 @@ function create_hp_dict(model::Symbol)
     if model == :linear 
         return Dict{Symbol,Vector}(:alpha => collect(0.1:0.1:1), :regtype => [:lasso])
     elseif model == :tree 
-        return Dict{Symbol,Vector}(:maxdepth => collect(0:2:16))
+        return Dict{Symbol,Vector}(:maxdepth => collect(2:2:16))
     elseif model == :nn 
         return Dict{Symbol,Vector}(:hidden_nodes => collect(5:5:35))
     elseif model == :rf 
@@ -226,8 +226,8 @@ if  true #dname ∈ longtime_list #|| (dname == "ozone-level-detection-one" && k
         if do_impthenreg
             println("Impute-then-regress methods...")
             println("###############################")
-            for model in [:linear, :tree, :rf]
-            # for model in [:xgboost]
+            # for model in [:linear, :tree, :rf]
+            for model in [:xgboost]
                 d = create_hp_dict(model)
 
                 ## Method 1.1

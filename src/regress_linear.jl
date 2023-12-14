@@ -185,20 +185,23 @@ function regress_linear(Y::BitArray{1}, df::DataFrame;
 				penalty_factor[i] = missing_penalty
 			end
 		end
-		cv = glmnetcv(X, hcat(Float64.(.!y), Float64.(y)), GLMNet.Binomial(),
-						alpha=alpha, penalty_factor=penalty_factor, weights=w)
-		if length(cv.meanloss) > 0
-			for (i, col) in enumerate(cols)
-				coefficients[!,col] = [cv.path.betas[i, argmin(cv.meanloss)]]
+		try
+			cv = glmnetcv(X, hcat(Float64.(.!y), Float64.(y)), GLMNet.Binomial(),
+							alpha=alpha, penalty_factor=penalty_factor, weights=w)
+			if length(cv.meanloss) > 0
+				for (i, col) in enumerate(cols)
+					coefficients[!,col] = [cv.path.betas[i, argmin(cv.meanloss)]]
+				end
+				coefficients[!,:Offset] = [cv.path.a0[argmin(cv.meanloss)]]
+			else
+				for col in cols
+					coefficients[!,col] = [0.]
+				end
+				coefficients[!,:Offset] = [ log( mean(y) / (1-mean(y))) ]
 			end
-			coefficients[!,:Offset] = [cv.path.a0[argmin(cv.meanloss)]]
-		else
-			for col in cols
-				coefficients[!,col] = [0.]
-			end
-			coefficients[!,:Offset] = [ log( mean(y) / (1-mean(y))) ]
+		catch 
+			coefficients[!,:Offset] = [safelog(mean(y) / (1-mean(y)))]
 		end
-	
 	#PENALTY: Lasso scaled by fraction of missing
 	elseif regtype == :missing_weight
 		penalty_factor = ones(length(cols))
