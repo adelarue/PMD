@@ -50,7 +50,7 @@
 	Fit a RF to the training data
 """
 function regress_rf(Y::Vector{Float64}, df::DataFrame; 
-	maxdepth::Int=10, ntrees=10, nfeat::Int=round(Int, sqrt(Base.size(df,2))), psamples=1.)
+	maxdepth::Int=10, ntrees=10)
 
 	cols = setdiff(Symbol.(names(df)), [:Id, :Test])
 	trainingset = try findall(df[:, :Test] .== 0) catch ; collect(1:nrow(df)) end
@@ -64,7 +64,7 @@ function regress_rf(Y::Vector{Float64}, df::DataFrame;
 	return model
 end
 function regress_rf(Y::BitArray, df::DataFrame; 
-	maxdepth::Int=10, ntrees=10, nfeat::Int=round(Int, sqrt(Base.size(df,2))), psamples=1.)
+	maxdepth::Int=10, ntrees=10)
 
 	cols = setdiff(Symbol.(names(df)), [:Id, :Test])
 	trainingset = try findall(df[:, :Test] .== 0) catch ; collect(1:nrow(df)) end

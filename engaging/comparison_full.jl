@@ -53,20 +53,27 @@ do_finite = true
 do_μthenreg = true 
 do_xgb = true 
 
-function create_hp_dict(model::Symbol)
+function create_hp_dict(model::Symbol; small::Bool=false)
     if model == :linear 
         return Dict{Symbol,Vector}(:alpha => collect(0.1:0.1:1), :regtype => [:lasso])
     elseif model == :tree 
-        return Dict{Symbol,Vector}(:maxdepth => collect(0:2:16))
+        return Dict{Symbol,Vector}(:maxdepth => collect(2:2:16))
     elseif model == :nn 
         return Dict{Symbol,Vector}(:hidden_nodes => collect(5:5:35))
     elseif model == :rf 
-        return Dict{Symbol,Vector}(:ntrees => collect(50:25:200), :maxdepth => collect(5:5:50))
+        if small 
+            return Dict{Symbol,Vector}(:ntrees => collect(50:50:200), :maxdepth => collect(10:10:50))
+        else
+            return Dict{Symbol,Vector}(:ntrees => collect(50:25:200), :maxdepth => collect(5:5:50))
+        end
     elseif model == :adaptive 
         return Dict{Symbol,Vector}(:alpha => collect(0.1:0.1:1), :regtype => [:missing_weight], :missing_penalty => [1.0,2.0,4.0,6.0,8.0,12.0])
     elseif model == :xgboost
-        return Dict{Symbol,Vector}(:max_depth => collect(3:2:10), :min_child_weight => collect(1:1:6), :gamma => collect(0.:0.1:0.4), :n_estimators => collect(50:25:200))
-        # return Dict{Symbol,Vector}(:max_depth => collect(3:2:10), :n_estimators => collect(10:10:100))
+        if small
+            return Dict{Symbol,Vector}(:max_depth => collect(3:3:10), :min_child_weight => collect(1:2:6), :gamma => collect(0.:0.2:0.4), :n_estimators => collect(50:50:200))
+        else
+            return Dict{Symbol,Vector}(:max_depth => collect(3:2:10), :min_child_weight => collect(1:1:6), :gamma => collect(0.:0.1:0.4), :n_estimators => collect(50:25:200))
+        end
     end
 end
 
