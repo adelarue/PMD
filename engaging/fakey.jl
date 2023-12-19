@@ -71,11 +71,11 @@ function create_hp_dict(model::Symbol; small::Bool=false)
     elseif model == :adaptive 
         return Dict{Symbol,Vector}(:alpha => collect(0.1:0.1:1), :regtype => [:missing_weight], :missing_penalty => [1.0,2.0,4.0,6.0,8.0,12.0])
     elseif model == :xgboost
-        if small
+        # if small
             return Dict{Symbol,Vector}(:max_depth => collect(3:3:10), :min_child_weight => collect(1:2:6), :gamma => collect(0.:0.2:0.4), :n_estimators => collect(50:50:200))
-        else
-            return Dict{Symbol,Vector}(:max_depth => collect(3:2:10), :min_child_weight => collect(1:1:6), :gamma => collect(0.:0.1:0.4), :n_estimators => collect(50:25:200))
-        end
+        # else
+        #     return Dict{Symbol,Vector}(:max_depth => collect(3:2:10), :min_child_weight => collect(1:1:6), :gamma => collect(0.:0.1:0.4), :n_estimators => collect(50:25:200))
+        # end
     end
 end
 results_main = DataFrame(dataset=[], SNR=[], k=[], kMissing=[], splitnum=[], method=[],

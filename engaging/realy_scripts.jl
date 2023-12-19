@@ -53,19 +53,19 @@ function create_hp_dict(model::Symbol; small::Bool=false)
     elseif model == :nn 
         return Dict{Symbol,Vector}(:hidden_nodes => collect(5:5:35))
     elseif model == :rf 
-        if small 
+        # if small 
             return Dict{Symbol,Vector}(:ntrees => collect(50:50:200), :maxdepth => collect(10:10:50))
-        else
-            return Dict{Symbol,Vector}(:ntrees => collect(50:25:200), :maxdepth => collect(5:5:50))
-        end
+        # else
+        #     return Dict{Symbol,Vector}(:ntrees => collect(50:25:200), :maxdepth => collect(5:5:50))
+        # end
     elseif model == :adaptive 
         return Dict{Symbol,Vector}(:alpha => collect(0.1:0.1:1), :regtype => [:missing_weight], :missing_penalty => [1.0,2.0,4.0,6.0,8.0,12.0])
     elseif model == :xgboost
-        if small
+        # if small
             return Dict{Symbol,Vector}(:max_depth => collect(3:3:10), :min_child_weight => collect(1:2:6), :gamma => collect(0.:0.2:0.4), :n_estimators => collect(50:50:200))
-        else
-            return Dict{Symbol,Vector}(:max_depth => collect(3:2:10), :min_child_weight => collect(1:1:6), :gamma => collect(0.:0.1:0.4), :n_estimators => collect(50:25:200))
-        end
+        # else
+        #     return Dict{Symbol,Vector}(:max_depth => collect(3:2:10), :min_child_weight => collect(1:1:6), :gamma => collect(0.:0.1:0.4), :n_estimators => collect(50:25:200))
+        # end
     end
 end
 
@@ -76,9 +76,10 @@ k_missing = 1
 # for ARG in ARGS
 ARG = ARGS[1]
 array_num = parse(Int, ARG)
-# d_num = mod(array_num, 71) + 1
-# iter_do = div(array_num, 71) + 1
-d_num = array_num + 1
+
+d_num = mod(array_num, 71) + 1
+iter_do = div(array_num, 71) + 1
+# d_num = array_num + 1
 
 dname = dataset_list[d_num]#"dermatology" #"""thyroid-disease-thyroid-0387" #dataset_list[1]
 @show dname
@@ -145,8 +146,8 @@ if  true #dname ∈ longtime_list #|| (dname == "ozone-level-detection-one" && k
     map!(t -> replace(replace(t, ".csv" => ""), string(dname,"_real_Y_") => ""), savedfiles, savedfiles)
     
     # if iter ∉ parse.(Int, savedfiles)
-    for iter in setdiff(1:10, parse.(Int, savedfiles))    
-    # for iter in setdiff(iter_do:iter_do, parse.(Int, savedfiles))    
+    # for iter in setdiff(1:10, parse.(Int, savedfiles))    
+    for iter in setdiff(iter_do:iter_do, parse.(Int, savedfiles))    
 
     # for iter in 1:10
 
