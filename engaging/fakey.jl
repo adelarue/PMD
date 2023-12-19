@@ -35,23 +35,43 @@ adversarial_missing = try ARGS[3]=="1" catch; false end
 model_for_y = try Symbol(ARGS[4]) catch ; :linear end
 # model_for_y = :nn 
 
+# # savedir = string("../results/debug/fakey/", 
+# savedir = string("../results/aistats-rev/fakey/", 
+#                 model_for_y,
+#                 relationship_yx_mar ? "_mar" : "_nmar",
+#                 adversarial_missing ? "_adv" : "", 
+#                 "/all/")
+# mkpath(savedir)
+
+# #Prediction methods
+# do_benchmark = true
+# do_tree = true
+# do_rf_mia = true
+# do_impthenreg = true
+# do_static = true
+# do_affine = true
+# affine_on_static_only = false #Should be set to false
+# do_finite = true
+# do_μthenreg = true 
+# do_xgb = false
+
 # savedir = string("../results/debug/fakey/", 
 savedir = string("../results/aistats-rev/fakey/", 
                 model_for_y,
                 relationship_yx_mar ? "_mar" : "_nmar",
                 adversarial_missing ? "_adv" : "", 
-                "/all/")
+                "/itr/")
 mkpath(savedir)
 
 #Prediction methods
-do_benchmark = true
-do_tree = true
-do_rf_mia = true
+do_benchmark = false
+do_tree = false
+do_rf_mia = false
 do_impthenreg = true
-do_static = true
-do_affine = true
+do_static = false
+do_affine = false
 affine_on_static_only = false #Should be set to false
-do_finite = true
+do_finite = false
 do_μthenreg = true 
 do_xgb = false
 
@@ -87,10 +107,10 @@ results_main = DataFrame(dataset=[], SNR=[], k=[], kMissing=[], splitnum=[], met
 ARG = ARGS[1]
 array_num = parse(Int, ARG)
 
-d_num = mod(array_num, 71) + 1
-iter_do = div(array_num,71) + 1
+# d_num = mod(array_num, 71) + 1
+# iter_do = div(array_num,71) + 1
 
-# d_num = array_num + 1
+d_num = array_num + 1
 
 for aux_num in 1:length(missingsignal_list)
 
@@ -137,8 +157,8 @@ for aux_num in 1:length(missingsignal_list)
         savedfiles = filter(t -> startswith(t, string(dname, "_SNR_", SNR, "_nmiss_", k_missingsignal)), readdir(savedir))
         map!(t -> split(replace(t, ".csv" => ""), "_")[end], savedfiles, savedfiles)
 
-        for iter in setdiff(iter_do:iter_do, parse.(Int, savedfiles))    
-        # for iter in setdiff(1:10, parse.(Int, savedfiles))    
+        # for iter in setdiff(iter_do:iter_do, parse.(Int, savedfiles))    
+        for iter in setdiff(1:10, parse.(Int, savedfiles))    
             @show iter
 
             # Create output
@@ -261,8 +281,8 @@ for aux_num in 1:length(missingsignal_list)
                 if do_impthenreg
                     println("Impute-then-regress methods...")
                     println("###############################")
-                    # for model in [:linear, :tree, :rf]
-                    for model in [:xgboost]
+                    for model in [:linear, :tree, :rf]
+                    # for model in [:xgboost]
                         d = create_hp_dict(model)
         
                         ## Method 1.1
@@ -444,7 +464,8 @@ for aux_num in 1:length(missingsignal_list)
                 if do_μthenreg
                     println("Joint Impute-and-Regress methods...")
                     println("###################")
-                    for model in [:linear, :tree, :rf]
+                    for model in [:xgboost]
+                    # for model in [:linear, :tree, :rf]
                         d = create_hp_dict(model, small=true)
                         d[:model] = [model]
 

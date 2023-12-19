@@ -15,32 +15,32 @@ sort!(dataset_list)
 
 savedir = string("../results/aistats-rev/", 
                 "/realy", 
-                "/all/")
+                "/itr/")
 mkpath(savedir)
 
-#Prediction methods
-do_benchmark = true
-do_tree = true
-do_rf_mia = true
-do_impthenreg = true
-do_static = true
-do_affine = true
-affine_on_static_only = false #Should be set to false
-do_finite = true
-do_μthenreg = true 
-do_xgb = true 
-
 # #Prediction methods
-# do_benchmark = false
-# do_tree = false
-# do_rf_mia = false
+# do_benchmark = true
+# do_tree = true
+# do_rf_mia = true
 # do_impthenreg = true
-# do_static = false
-# do_affine = false
+# do_static = true
+# do_affine = true
 # affine_on_static_only = false #Should be set to false
-# do_finite = false
-# do_μthenreg = false 
-# do_xgb = false 
+# do_finite = true
+# do_μthenreg = true 
+# do_xgb = true 
+
+#Prediction methods
+do_benchmark = false
+do_tree = false
+do_rf_mia = false
+do_impthenreg = true
+do_static = false
+do_affine = false
+affine_on_static_only = false #Should be set to false
+do_finite = false
+do_μthenreg = false 
+do_xgb = false 
 
 results_main = DataFrame(dataset=[], SNR=[], k=[], kMissing=[], splitnum=[], method=[],
                                 r2=[], osr2=[], r2list=[], osr2list=[], time=[], hp=[], score=[])
@@ -234,8 +234,8 @@ if  true #dname ∈ longtime_list #|| (dname == "ozone-level-detection-one" && k
         if do_impthenreg
             println("Impute-then-regress methods...")
             println("###############################")
-            # for model in [:linear, :tree, :rf]
-            for model in [:xgboost]
+            for model in [:linear, :tree, :rf]
+            # for model in [:xgboost]
                 d = create_hp_dict(model)
 
                 ## Method 1.1
