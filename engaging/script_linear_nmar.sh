@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH -a 0-70
+#SBATCH -a 24,47,118,189,256,260,327,331,402,473,544,591,615,66
 #SBATCH -J lin_nmar
 #SBATCH --cpus-per-task=1
 #SBATCH --mem-per-cpu=4GB
