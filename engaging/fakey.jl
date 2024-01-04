@@ -55,7 +55,7 @@ do_finite = true
 do_μthenreg = true 
 do_xgb = true
 
-# # savedir = string("../results/debug/fakey/", 
+# savedir = string("../results/debug/fakey/", 
 # savedir = string("../results/aistats-rev/fakey/", 
 #                 model_for_y,
 #                 relationship_yx_mar ? "_mar" : "_nmar",
