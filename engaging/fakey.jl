@@ -75,25 +75,29 @@ do_xgb = true
 
 function create_hp_dict(model::Symbol; small::Bool=false)
     if model == :linear 
-        return Dict{Symbol,Vector}(:alpha => collect(0.1:0.1:1), :regtype => [:lasso])
+        if small
+            return Dict{Symbol,Vector}(:alpha => collect(0.1:0.3:1), :regtype => [:lasso])
+        else
+            return Dict{Symbol,Vector}(:alpha => collect(0.1:0.1:1), :regtype => [:lasso])
+        end
     elseif model == :tree 
         return Dict{Symbol,Vector}(:maxdepth => collect(2:2:16))
     elseif model == :nn 
         return Dict{Symbol,Vector}(:hidden_nodes => collect(5:5:35))
     elseif model == :rf 
-        # if small 
-        return Dict{Symbol,Vector}(:ntrees => collect(50:50:200), :maxdepth => collect(10:10:50))
-        # else
-        #     return Dict{Symbol,Vector}(:ntrees => collect(50:25:200), :maxdepth => collect(5:5:50))
-        # end
+        if small 
+            return Dict{Symbol,Vector}(:ntrees => collect(100:100:200), :maxdepth => collect(10:20:50))
+        else
+            return Dict{Symbol,Vector}(:ntrees => collect(50:50:200), :maxdepth => collect(10:10:50))
+        end
     elseif model == :adaptive 
         return Dict{Symbol,Vector}(:alpha => collect(0.1:0.1:1), :regtype => [:missing_weight], :missing_penalty => [1.0,2.0,4.0,6.0,8.0,12.0])
     elseif model == :xgboost
-        # if small
+        if small
+            return Dict{Symbol,Vector}(:max_depth => collect(3:5:10), :gamma => collect(0.:0.2:0.4), :n_estimators => collect(100:100:200))
+        else
             return Dict{Symbol,Vector}(:max_depth => collect(3:3:10), :min_child_weight => collect(1:2:6), :gamma => collect(0.:0.2:0.4), :n_estimators => collect(50:50:200))
-        # else
-        #     return Dict{Symbol,Vector}(:max_depth => collect(3:2:10), :min_child_weight => collect(1:1:6), :gamma => collect(0.:0.1:0.4), :n_estimators => collect(50:25:200))
-        # end
+        end
     end
 end
 results_main = DataFrame(dataset=[], SNR=[], k=[], kMissing=[], splitnum=[], method=[],
@@ -139,8 +143,11 @@ for aux_num in 1:length(missingsignal_list)
         select!(X_missing, keep_cols)
         canbemissing = [any(ismissing.(X_missing[:,j])) for j in names(X_missing)] #indicator of missing features
 
-        X_full = PHD.standardize_colnames(CSV.read("../datasets/"*dname*"/X_full.csv", DataFrame))[delete_obs,keep_cols] #ground truth df
+        # X_full = PHD.standardize_colnames(CSV.read("../datasets/"*dname*"/X_full.csv", DataFrame))[delete_obs,keep_cols] #ground truth df
+        # PHD.string_to_float_fix!(X_full)
+        X_full = PHD.standardize_colnames(CSV.read("../datasets/"*dname*"/X_full.csv", DataFrame))[delete_obs,:] #ground truth df
         PHD.string_to_float_fix!(X_full)
+        X_full = X_full[:,keep_cols]
 
         if adversarial_missing
             # optimize missingness pattern for outlier suppression
