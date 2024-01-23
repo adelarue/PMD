@@ -139,9 +139,12 @@ for aux_num in 1:length(missingsignal_list)
         select!(X_missing, keep_cols)
         canbemissing = [any(ismissing.(X_missing[:,j])) for j in names(X_missing)] #indicator of missing features
 
-        X_full = PHD.standardize_colnames(CSV.read("../datasets/"*dname*"/X_full.csv", DataFrame))[delete_obs,keep_cols] #ground truth df
+        # X_full = PHD.standardize_colnames(CSV.read("../datasets/"*dname*"/X_full.csv", DataFrame))[delete_obs,keep_cols] #ground truth df
+        # PHD.string_to_float_fix!(X_full)
+        X_full = PHD.standardize_colnames(CSV.read("../datasets/"*dname*"/X_full.csv", DataFrame))[delete_obs,:] #ground truth df
         PHD.string_to_float_fix!(X_full)
-
+        X_full = X_full[:,keep_cols]
+        
         if adversarial_missing
             # optimize missingness pattern for outlier suppression
             X_missing = PHD.optimize_missingness(X_missing, X_full)
