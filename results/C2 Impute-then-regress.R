@@ -62,6 +62,7 @@ synmean <- rbind(
 
 itr_df_save <- itr_df
 
+df %>% select(method) %>% unique() %>% View()
 
 itr_df <- rbind(itr_df_save, 
                 synmean[colnames(itr_df)] %>% filter(kMissing < 0.9)

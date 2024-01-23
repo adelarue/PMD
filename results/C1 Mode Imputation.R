@@ -13,7 +13,7 @@ df <- rbind(
   read_csv("realy/FINAL_results.csv") %>% mutate(kMissing=0)
 )
 
-
+df %>% select(method) %>% unique() %>% View()
 #Claim 1: Mode imputation is detrimental
 dataset_list1 <- read_csv("pattern_counts_allfeat.csv") %>% 
   mutate(p_miss_all = p_miss) %>%
