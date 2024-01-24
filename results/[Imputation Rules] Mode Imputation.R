@@ -2,15 +2,15 @@ setwd("~/Dropbox/Work/1 - Research/PHD/results/")
 source("setup_script.R")
 
 df <- rbind(
-  read_csv("fakey/linear_mar/FINAL_results.csv"),
-  read_csv("fakey/linear_nmar/FINAL_results.csv"),
-  read_csv("fakey/linear_mar_adv/FINAL_results.csv"),
+  read_csv("aistats-rev/fakey/linear_mar/FINAL_results.csv"),
+  read_csv("aistats-rev/fakey/linear_nmar/FINAL_results.csv"),
+  read_csv("aistats-rev/fakey/linear_mar_adv/FINAL_results.csv"),
   
-  read_csv("fakey/nn_mar/FINAL_results.csv"),
-  read_csv("fakey/nn_nmar/FINAL_results.csv"),
-  read_csv("fakey/nn_mar_adv/FINAL_results.csv"), 
+  read_csv("aistats-rev/fakey/nn_mar/FINAL_results.csv"),
+  read_csv("aistats-rev/fakey/nn_nmar/FINAL_results.csv"),
+  read_csv("aistats-rev/fakey/nn_mar_adv/FINAL_results.csv"), 
   
-  read_csv("realy/FINAL_results.csv") %>% mutate(kMissing=0)
+  read_csv("aistats-rev/realy/FINAL_results.csv") %>% mutate(kMissing=0)
 )
 
 df %>% select(method) %>% unique() %>% View()
@@ -52,10 +52,10 @@ mode_df %>%
   
 
 synmode <- rbind(
-  read_csv("synthetic_discrete/linear_mar/FINAL_results.csv"),
-  read_csv("synthetic_discrete/linear_censoring/FINAL_results.csv"),
-  read_csv("synthetic_discrete/nn_mar/FINAL_results.csv"),
-  read_csv("synthetic_discrete/nn_censoring/FINAL_results.csv")
+  read_csv("aistats-rev/synthetic_discrete/linear_mar/FINAL_results.csv"),
+  read_csv("aistats-rev/synthetic_discrete/linear_censoring/FINAL_results.csv"),
+  read_csv("aistats-rev/synthetic_discrete/nn_mar/FINAL_results.csv"),
+  read_csv("aistats-rev/synthetic_discrete/nn_censoring/FINAL_results.csv")
 ) %>% 
   mutate(p = 10, p_miss_all=10, p_miss_num=0) %>%
   rename(kMissing = pMissing) %>%
@@ -65,7 +65,7 @@ synmode <- rbind(
   select(-muvec) %>%
   filter(endsWith(method, "best")) %>%
   mutate(n = strtoi(gsub("_p_.*","", gsub("n_", "", dataset))) )%>%
-  filter(n <= 1000) %>%
+  filter(n > 20) %>%
   select(-n) %>%
   filter(kMissing < 0.9)
   
@@ -111,7 +111,7 @@ linearreg_analysis <- mode_df %>%
   select(Setting, coef, se, pvalue,r2)
 
 linearreg_analysis %>% View()
-write_csv(linearreg_analysis, "ModeImpute_RegAnalysis.csv")
+write_csv(linearreg_analysis, "../figures/imputation_rules/mode_impute/ModeImpute_RegAnalysis.csv")
 
 #Paired Wilcoxon and t-test
 mode_df_wide <- dcast( 
@@ -141,9 +141,9 @@ pairedtest_analysis <- merge(pairedtest_analysis,
 
 write_csv(pairedtest_analysis %>% 
             select(Y_setting, X_setting, delta_mean, ttest.pvalue, delta_median, wtest.pvalue) %>%
-            arrange(Y_setting,X_setting), "ModeImpute_TestAnalysis.csv")
+            arrange(Y_setting,X_setting), "../figures/imputation_rules/mode_impute/ModeImpute_TestAnalysis.csv")
 
 write_delim(pairedtest_analysis %>% 
             select(Y_setting, X_setting, delta_mean, ttest.pvalue, delta_median, wtest.pvalue) %>%
-            arrange(Y_setting,X_setting), "ModeImpute_TestAnalysis.txt", delim = " & ")
+            arrange(Y_setting,X_setting), "../figures/imputation_rules/mode_impute/ModeImpute_TestAnalysis.txt", delim = " & ")
 
