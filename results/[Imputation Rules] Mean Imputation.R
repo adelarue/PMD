@@ -2,15 +2,15 @@ setwd("~/Dropbox/Work/1 - Research/PHD/results/")
 source("setup_script.R")
 
 df <- rbind(
-  read_csv("fakey/linear_mar/FINAL_results.csv"),
-  read_csv("fakey/linear_nmar/FINAL_results.csv"),
-  read_csv("fakey/linear_mar_adv/FINAL_results.csv"),
+  read_csv("aistats-rev/fakey/linear_mar/FINAL_results.csv"),
+  read_csv("aistats-rev/fakey/linear_nmar/FINAL_results.csv"),
+  read_csv("aistats-rev/fakey/linear_mar_adv/FINAL_results.csv"),
   
-  read_csv("fakey/nn_mar/FINAL_results.csv"),
-  read_csv("fakey/nn_nmar/FINAL_results.csv"),
-  read_csv("fakey/nn_mar_adv/FINAL_results.csv"), 
+  read_csv("aistats-rev/fakey/nn_mar/FINAL_results.csv"),
+  read_csv("aistats-rev/fakey/nn_nmar/FINAL_results.csv"),
+  read_csv("aistats-rev/fakey/nn_mar_adv/FINAL_results.csv"), 
   
-  read_csv("realy/FINAL_results.csv") %>% mutate(kMissing=1)
+  read_csv("aistats-rev/realy/FINAL_results.csv") %>% mutate(kMissing=1)
 )
 
 dataset_list <- read_csv("pattern_counts_numonly.csv") %>% 
@@ -19,7 +19,7 @@ dataset_list <- read_csv("pattern_counts_numonly.csv") %>%
   select(dataset, p_miss)
 
 ################################
-##Claim 2: Mean impute not so bad
+##Claim 1: Mean impute not so bad
 itr_df <- merge(df, dataset_list, on='dataset') %>%
   filter(method_cat == "Imp-then-Reg") %>%
   filter(endsWith(method, "best")) %>%
@@ -29,7 +29,6 @@ itr_df <- merge(df, dataset_list, on='dataset') %>%
 itr_df <- itr_df %>% mutate(Setting = paste(X_setting, Y_setting, sep="_"))
 
 
-df %>% select(dataset) %>% unique() %>% nrow()
 itr_df %>% select(dataset) %>% unique() %>% nrow()
 
 itr_df %>% 
@@ -42,10 +41,10 @@ itr_df %>%
 
 
 synmean <- rbind(
-  read_csv("synthetic/linear_mar/FINAL_results.csv"),
-  read_csv("synthetic/linear_censoring/FINAL_results.csv"),
-  read_csv("synthetic/nn_mar/FINAL_results.csv"),
-  read_csv("synthetic/nn_censoring/FINAL_results.csv")
+  read_csv("aistats-rev/synthetic/linear_mar/FINAL_results.csv"),
+  read_csv("aistats-rev/synthetic/linear_censoring/FINAL_results.csv"),
+  read_csv("aistats-rev/synthetic/nn_mar/FINAL_results.csv"),
+  read_csv("aistats-rev/synthetic/nn_censoring/FINAL_results.csv")
 ) %>% 
   mutate(p_miss=10) %>%
   rename(kMissing = pMissing) %>%
@@ -61,8 +60,6 @@ synmean <- rbind(
   select(-n)
 
 itr_df_save <- itr_df
-
-df %>% select(method) %>% unique() %>% View()
 
 itr_df <- rbind(itr_df_save, 
                 synmean[colnames(itr_df)] %>% filter(kMissing < 0.9)
@@ -109,7 +106,7 @@ for (i in 1:3){
   write_csv(pairedtest_analysis %>% 
               select(Y_setting, X_setting, delta_mean, ttest.pvalue, delta_median, wtest.pvalue) %>%
               arrange(Y_setting,X_setting), 
-            paste("ImputeThenReg_",i,"vs4_TestAnalysis.csv", sep=""))
+            paste("../figures/imputation_rules/mean_impute/ImputeThenReg_",i,"vs4_TestAnalysis.csv", sep=""))
 }
 
 
@@ -145,7 +142,7 @@ for (i in 2:2){
   write_csv(pairedtest_analysis %>% 
               select(Y_setting, X_setting, kMissing, delta_mean, ttest.pvalue, delta_median, wtest.pvalue) %>%
               arrange(Y_setting,X_setting,kMissing), 
-            paste("ImputeThenReg_",i,"vs4_TestAnalysis_perMissingLevel.csv", sep=""))
+            paste("../figures/imputation_rules/mean_impute/ImputeThenReg_",i,"vs4_TestAnalysis_perMissingLevel.csv", sep=""))
 }
 
 
@@ -153,10 +150,10 @@ for (i in 2:2){
 ################################
 ##Claim 2: Implementation of mice-impute
 synmean <- rbind(
-  read_csv("synthetic/linear_mar/FINAL_results.csv"),
-  read_csv("synthetic/linear_censoring/FINAL_results.csv"),
-  read_csv("synthetic/nn_mar/FINAL_results.csv"),
-  read_csv("synthetic/nn_censoring/FINAL_results.csv")
+  read_csv("aistats-rev/synthetic/linear_mar/FINAL_results.csv"),
+  read_csv("aistats-rev/synthetic/linear_censoring/FINAL_results.csv"),
+  read_csv("aistats-rev/synthetic/nn_mar/FINAL_results.csv"),
+  read_csv("aistats-rev/synthetic/nn_censoring/FINAL_results.csv")
 ) %>% 
   mutate(p_miss=10) %>%
   rename(kMissing = pMissing) %>%
@@ -229,10 +226,12 @@ linearreg_analysis %>% View()
 write_csv(linearreg_analysis %>% 
             select(Y_setting, X_setting, coef1,se1,pvalue1, coef3,se3,pvalue3, r2) %>%
             arrange(Y_setting,X_setting), 
-          "ImputeThenReg_RegAnalysis.csv")
+          "../figures/imputation_rules/mean_impute/ImputeThenReg_RegAnalysis.csv")
 
 
-#Computational time
+
+
+#OLD -- Computational time
 library(ggplot2)
 library(stringr)
 
