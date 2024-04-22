@@ -7,4 +7,4 @@
 #SBATCH --time=0-12:00
 #SBATCH --exclude=node1111,node1333
 
-srun julia comparison_full.jl $SLURM_ARRAY_TASK_ID 1 1
+srun julia synthetic_discrete.jl $SLURM_ARRAY_TASK_ID 1 1

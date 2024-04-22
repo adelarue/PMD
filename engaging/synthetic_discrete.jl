@@ -35,10 +35,10 @@ relationship_xm_mar = try ARGS[2]=="1" catch; true end
 # adversarial_missing = try ARGS[3]=="1" catch; false end
 model_for_y = try ARGS[3]=="1" ? :linear : (ARGS[3]=="2" ? :tree : :nn) catch; :linear  end 
 
-savedir = string("../results/synthetic_discrete/", 
+savedir = string("../results/tmlr-rev/synthetic_discrete/", 
                 model_for_y,
                 relationship_xm_mar ? "_mar" : "_censoring",
-                "/itr/")
+                "/itr_nn/")
 mkpath(savedir)
 
 #Prediction methods
@@ -257,7 +257,8 @@ array_num = parse(Int, ARG)
             end
 
             if do_impthenreg
-                for model in [:linear, :tree, :rf]
+                for model in [:nn]
+                # for model in [:linear, :tree, :rf]
                 # for model in [:xgboost, :linear, :tree, :rf]
                     println("Impute-then-regress methods...")
                     println("###############################")
