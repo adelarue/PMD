@@ -35,23 +35,23 @@ relationship_xm_mar = try ARGS[2]=="1" catch; true end
 # adversarial_missing = try ARGS[3]=="1" catch; false end
 model_for_y = try ARGS[3]=="1" ? :linear : (ARGS[3]=="2" ? :tree : :nn) catch; :linear  end 
 
-savedir = string("../results/aistats-rev/synthetic/", 
+savedir = string("../results/tmlr-rev/synthetic/", 
                 model_for_y,
                 relationship_xm_mar ? "_mar" : "_censoring",
-                "/all/")
+                "/itr_nn/")
 mkpath(savedir)
 
 #Prediction methods
-do_benchmark = true
-do_tree = true
-do_rf_mia = true
+do_benchmark = false
+do_tree = false
+do_rf_mia = false
 do_impthenreg = true
-do_static = true
-do_affine = true
+do_static = false
+do_affine = false
 affine_on_static_only = false #Should be set to false
-do_finite = true
-do_μthenreg = true 
-do_xgb = true 
+do_finite = false
+do_μthenreg = false 
+do_xgb = false 
 
 function create_hp_dict(model::Symbol; small::Bool=false)
     if model == :linear 
@@ -245,8 +245,8 @@ array_num = parse(Int, ARG)
                 # CSV.write(savedir*filename, results_table)
             end
             if do_impthenreg
-                for model in [:xgboost, :linear, :tree, :rf]
-                # for model in [:xgboost]
+                # for model in [:xgboost, :linear, :tree, :rf]
+                for model in [:nn]
                     println("Impute-then-regress methods...")
                     println("###############################")
                     d = create_hp_dict(model)

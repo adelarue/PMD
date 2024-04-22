@@ -13,22 +13,22 @@ using Random, Statistics, CSV, DataFrames, LinearAlgebra, RCall
 dataset_list = [d for d in readdir("../datasets/") if !startswith(d, ".")]
 sort!(dataset_list)
 
-savedir = string("../results/aistats-rev/", 
+savedir = string("../results/tmlr-rev/", 
                 "/realy", 
-                "/all/")
+                "/itr_nn/")
 mkpath(savedir)
 
 #Prediction methods
-do_benchmark = true
-do_tree = true
-do_rf_mia = true
+do_benchmark = false
+do_tree = false
+do_rf_mia = false
 do_impthenreg = true
-do_static = true
-do_affine = true
+do_static = false
+do_affine = false
 affine_on_static_only = false #Should be set to false
-do_finite = true
-do_μthenreg = true 
-do_xgb = true 
+do_finite = false
+do_μthenreg = false 
+do_xgb = false 
 
 # #Prediction methods
 # do_benchmark = false
@@ -234,7 +234,8 @@ if  true #dname ∈ longtime_list #|| (dname == "ozone-level-detection-one" && k
             println("Impute-then-regress methods...")
             println("###############################")
             # for model in [:linear, :tree, :rf]
-            for model in [:xgboost]
+            # for model in [:xgboost]
+            for model in [:nn]
                 d = create_hp_dict(model)
 
                 ## Method 1.1
