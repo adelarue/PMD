@@ -5,6 +5,7 @@ rm("/home/jpauph/.julia/logs/artifact_usage.toml", force=true)
 
 using Pkg
 Pkg.activate("..")
+Pkg.upgrade("Flux")
 
 using PHD
 
