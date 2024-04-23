@@ -111,7 +111,7 @@ array_num = parse(Int, ARG)
 
     # @show Base.size(X_full), mean(Y)
     
-    for aux_num in [7] #1:length(missingness_proba_list)
+    for aux_num in 1:length(missingness_proba_list)
         missingness_proba = missingness_proba_list[aux_num]
         @show missingness_proba
         savedfiles = filter(t -> startswith(t, string("n_", n, "_p_", p, "_pmiss_", missingness_proba)), readdir(savedir))
