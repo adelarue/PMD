@@ -5,7 +5,7 @@ rm("/home/jpauph/.julia/logs/artifact_usage.toml", force=true)
 
 using Pkg
 Pkg.activate("..")
-Pkg.update("Flux")
+# Pkg.update("Flux")
 
 ENV["R_HOME"] = "/home/software/R/4.4.2/lib64/R"
 

@@ -6,7 +6,7 @@ rm("/home/jpauph/.julia/logs/artifact_usage.toml", force=true)
 using Pkg
 Pkg.activate("..")
 # Pkg.instantiate()
-Pkg.update("Flux")
+# Pkg.update("Flux")
 
 # using Revise
 using PHD
