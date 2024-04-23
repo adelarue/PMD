@@ -99,7 +99,6 @@ function regress_nn(Y::BitArray, df::DataFrame;
 		end
 	end
 	# Flux.@epochs maxepochs Flux.train!(loss, ps, data, opt, cb=throttled_cb)
-	 println()
 	return m
 end
 
