@@ -2,12 +2,13 @@
 @show Symbol(ARGS[1])
 # # println(Sys.CPU_NAME)
 
-# using Pkg
-# ENV["R_HOME"] = "/home/software/R/4.2.2/lib64/R/"
+using Pkg
+ENV["R_HOME"] = "/home/software/R/4.2.2/lib64/R/"
 # # # @show get(ENV, "R_HOME", "")
 # # # Pkg.build("RCall")
 
-# Pkg.activate("..")
+Pkg.activate("..")
+Pkg.update()
 # # # ENV["R_HOME"] = "/home/software/R/4.2.2/lib64/R/"
 # # # Pkg.build("RCall")
 
