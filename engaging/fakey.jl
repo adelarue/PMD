@@ -7,8 +7,9 @@ using Pkg
 Pkg.activate("..")
 # Pkg.update("Flux")
 
-ENV["R_HOME"] = "/home/software/R/4.4.2/lib64/R"
-ENV["PYTHON"] = ""
+# ENV["R_HOME"] = "/home/software/R/4.4.2/lib64/R"
+# ENV["PYTHON"] = ""
+
 # @show haskey(ENV, "PYTHONFAULTHANDLER")
 # ENV["PYTHONFAULTHANDLER"] = ""
 # using Revise

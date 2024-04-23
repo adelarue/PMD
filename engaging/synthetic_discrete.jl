@@ -5,10 +5,10 @@ rm("/home/jpauph/.julia/logs/artifact_usage.toml", force=true)
 
 using Pkg
 Pkg.activate("..")
-# Pkg.instantiate()
-# Pkg.update("Flux")
 
-# using Revise
+# ENV["R_HOME"] = "/home/software/R/4.4.2/lib64/R/"
+# ENV["PYTHON"] = ""
+
 using PHD
 
 using Random, Statistics, CSV, DataFrames, LinearAlgebra

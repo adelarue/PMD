@@ -5,11 +5,14 @@ rm("/home/jpauph/.julia/logs/artifact_usage.toml", force=true)
 
 using Pkg
 Pkg.activate("..")
-# Pkg.update("Flux")
+
+# ENV["R_HOME"] = "/home/software/R/4.4.2/lib64/R/"
+# ENV["PYTHON"] = ""
 
 using PHD
 
 using Random, Statistics, CSV, DataFrames, LinearAlgebra, RCall
+
 
 dataset_list = [d for d in readdir("../datasets/") if !startswith(d, ".")]
 sort!(dataset_list)
