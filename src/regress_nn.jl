@@ -15,8 +15,8 @@ function regress_nn(Y::Array{Float64}, df::DataFrame;
 	cols = setdiff(Symbol.(names(df)), [:Id, :Test])
 	trainingset = try findall(df[:, :Test] .== 0) catch ; collect(1:nrow(df)) end
 	# X = convert(Matrix, df[df[!, :Test] .== 0, cols])
-	X = Matrix{Float64}(df[trainingset, cols])
-	y = convert(Array{Float64}, Y[trainingset])
+	X = Matrix{Float32}(df[trainingset, cols])
+	y = convert(Array{Float32}, Y[trainingset])
 	
 	data = Flux.Data.DataLoader((X', y'), batchsize=min(batchsize,length(trainingset)), shuffle=true);
 	# Defining our model, optimization algorithm and loss function
@@ -62,8 +62,8 @@ function regress_nn(Y::BitArray, df::DataFrame;
 	cols = setdiff(Symbol.(names(df)), [:Id, :Test])
 	trainingset = try findall(df[:, :Test] .== 0) catch ; collect(1:nrow(df)) end
 	# X = convert(Matrix, df[df[!, :Test] .== 0, cols])
-	X = Matrix{Float64}(df[trainingset, cols])
-	y = convert(Array{Float64}, Y[trainingset])
+	X = Matrix{Float32}(df[trainingset, cols])
+	y = convert(Array{Float32}, Y[trainingset])
 
 	data = Flux.Data.DataLoader((X', y'), batchsize=min(batchsize,length(trainingset)), shuffle=true);
 	
