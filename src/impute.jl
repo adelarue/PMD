@@ -32,25 +32,31 @@ function mice(df::DataFrame; m_imputation=2, max_epoch=5)
 	R"names(train) <- make.names(colnames, unique=TRUE)"
 	R"pm <- mice::quickpred(as.data.frame(train))"
 	try
-		R"imputed = mice(as.data.frame(train), pred=pm, m=$m_imputation, maxit=$max_epoch, printFlag=F, seed=4326, remove_collinear=FALSE)"
-	catch
-		R"imputed = mice(as.data.frame(train), pred=pm, m=$m_imputation, maxit=$max_epoch, printFlag=F, seed=4326, method='cart', remove_collinear=FALSE)"
-	end
-	R"imputedtrain = complete(imputed, action=1)"
-	R"names(imputedtrain) <- colnames"
-	@rget imputedtrain
-	imputedtrain[!,:Id] = df[:,:Id]
-	# R"trainplus = select(as.data.frame(df), -c(Test))"
-	# # for some reason, sometimes columns are lists
-	# R"trainplus = t(apply(trainplus, 1, unlist))"
-	# R"imputedplus = mice(as.data.frame(trainplus), m=1, printFlag=F)"
-	# R"imputedtest = select(subset(mutate(complete(imputedplus, action=1), Test=df$Test), Test==1), -Test)"
-	# @rget imputedtest
-	# result[result.Test .== 0, setdiff(names(result), [:Test])] .= imputedtrain
-	# result[result.Test .== 1, setdiff(names(result), [:Test])] .= imputedtest
-	RCall.endEmbeddedR()
+		try
+			R"imputed = mice(as.data.frame(train), pred=pm, m=$m_imputation, maxit=$max_epoch, printFlag=F, seed=4326, remove_collinear=FALSE)"
+		catch
+			R"imputed = mice(as.data.frame(train), pred=pm, m=$m_imputation, maxit=$max_epoch, printFlag=F, seed=4326, method='cart', remove_collinear=FALSE)"
+		end
+		R"imputedtrain = complete(imputed, action=1)"
+		R"names(imputedtrain) <- colnames"
+		@rget imputedtrain
+		imputedtrain[!,:Id] = df[:,:Id]
+		# R"trainplus = select(as.data.frame(df), -c(Test))"
+		# # for some reason, sometimes columns are lists
+		# R"trainplus = t(apply(trainplus, 1, unlist))"
+		# R"imputedplus = mice(as.data.frame(trainplus), m=1, printFlag=F)"
+		# R"imputedtest = select(subset(mutate(complete(imputedplus, action=1), Test=df$Test), Test==1), -Test)"
+		# @rget imputedtest
+		# result[result.Test .== 0, setdiff(names(result), [:Test])] .= imputedtrain
+		# result[result.Test .== 1, setdiff(names(result), [:Test])] .= imputedtest
+		RCall.endEmbeddedR()
 
-	return imputedtrain
+		return imputedtrain
+	catch
+		println("Warning -- mice error. Imputing with means instead")
+		means_df = PHD.compute_mean(aux)
+		return PHD.mean_impute(df, means_df)
+	end					
 end
 
 function mice_bruteforce(df::DataFrame; m_imputation=2, max_epoch=5)

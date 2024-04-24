@@ -443,10 +443,10 @@ array_num = parse(Int, ARG)
                 end
             end
 
-            corefiles = filter(t -> startswith(t, "core."), readdir("/home/jpauph/Research/PHD/engaging/"))
-            for f in corefiles
-                rm("/home/jpauph/Research/PHD/engaging/"*f, force=true)
-            end
+            # corefiles = filter(t -> startswith(t, "core."), readdir("/home/jpauph/Research/PHD/engaging/"))
+            # for f in corefiles
+            #     rm("/home/jpauph/Research/PHD/engaging/"*f, force=true)
+            # end
 
             CSV.write(savedir*filename, results_table)
         end
