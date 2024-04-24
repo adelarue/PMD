@@ -152,6 +152,16 @@ array_num = parse(Int, ARG)
             X_full[!,:Id] .= collect(1:nrow(X_full))
             X_missing[!,:Id] .= collect(1:nrow(X_missing))
 
+            for n in names(X_missing)
+                for i in 1:nrow(X_missing)
+                    if ismissing(X_missing[i,n])
+                        ()
+                    elseif isnan(X_missing[i,n])
+                        X_missing[i,n] = missing
+                    end
+                end
+            end
+            
             canbemissing = [j for j in names(X_missing) if any(ismissing.(X_missing[:,j]))] #indicator of missing features
             patidx, = PHD.missingness_pattern_id(X_missing)
             subsetpattern = unique(patidx[1:n])
