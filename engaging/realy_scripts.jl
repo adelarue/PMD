@@ -81,9 +81,9 @@ k_missing = 1
 ARG = ARGS[1]
 array_num = parse(Int, ARG)
 
-# d_num = mod(array_num, 71) + 1
-# iter_do = div(array_num, 71) + 1
-d_num = array_num + 1
+d_num = mod(array_num, 71) + 1
+iter_do = div(array_num, 71) + 1
+# d_num = array_num + 1
 
 dname = dataset_list[d_num]#"dermatology" #"""thyroid-disease-thyroid-0387" #dataset_list[1]
 @show dname
@@ -150,8 +150,8 @@ if  true #dname ∈ longtime_list #|| (dname == "ozone-level-detection-one" && k
     map!(t -> replace(replace(t, ".csv" => ""), string(dname,"_real_Y_") => ""), savedfiles, savedfiles)
     
     # if iter ∉ parse.(Int, savedfiles)
-    for iter in setdiff(1:10, parse.(Int, savedfiles))    
-    # for iter in setdiff(iter_do:iter_do, parse.(Int, savedfiles))   
+    # for iter in setdiff(1:10, parse.(Int, savedfiles))    
+    for iter in setdiff(iter_do:iter_do, parse.(Int, savedfiles))   
     # for iter in 1:10
 
         # try
