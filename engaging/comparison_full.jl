@@ -118,7 +118,7 @@ array_num = parse(Int, ARG)
         map!(t -> split(replace(t, ".csv" => ""), "_")[end], savedfiles, savedfiles)
 
 
-        for iter in 1:10 #setdiff(1:10, parse.(Int, savedfiles)) 
+        for iter in setdiff(1:10, parse.(Int, savedfiles)) 
             Random.seed!(565)
             X_missing = PHD.generate_missing(X_full; 
                         method = relationship_xm_mar ? :mar : :censoring, 
