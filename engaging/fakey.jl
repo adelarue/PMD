@@ -106,6 +106,7 @@ function create_hp_dict(model::Symbol; small::Bool=false)
         return Dict{Symbol,Vector}(:maxdepth => collect(2:2:16))
     elseif model == :nn 
         return Dict{Symbol,Vector}(:hidden_nodes => collect(5:5:35))
+        return Dict{Symbol,Vector}(:hidden_nodes => collect(15:5:35), :maxepochs => [500])
     elseif model == :rf 
         if small 
             return Dict{Symbol,Vector}(:ntrees => collect(100:100:200), :maxdepth => collect(10:20:50))

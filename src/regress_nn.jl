@@ -108,6 +108,6 @@ end
 function predict(df::DataFrame, model::Chain)
 	cols = setdiff(Symbol.(names(df)), [:Id, :Test])
 	# X = convert(Matrix, df[:, cols])'
-	X = Matrix(df[:, cols])'
+	X = Matrix{Float32}(df[:, cols])'
 	return model(X)'
 end

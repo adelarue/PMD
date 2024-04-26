@@ -100,7 +100,7 @@ function regress_cv(Y, data::DataFrame;
 	elseif model == :rf
 		keys(parameter_dict) ⊆ [:maxdepth, :nfeat, :ntrees, :psamples]
 	elseif model == :nn 
-		keys(parameter_dict) ⊆ [:hidden_nodes]
+		keys(parameter_dict) ⊆ [:hidden_nodes,:maxepochs]
 	elseif model == :greedy
 		keys(parameter_dict) ⊆ [:maxdepth, :tolerance, :minbucket]
 	# elseif model == :joint
