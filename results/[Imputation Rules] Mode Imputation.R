@@ -2,18 +2,19 @@ setwd("~/Dropbox/Work/1 - Research/PHD/results/")
 source("setup_script.R")
 
 df <- rbind(
-  read_csv("aistats-rev/fakey/linear_mar/FINAL_results.csv"),
-  read_csv("aistats-rev/fakey/linear_nmar/FINAL_results.csv"),
-  read_csv("aistats-rev/fakey/linear_mar_adv/FINAL_results.csv"),
+  # read_csv("aistats-rev/fakey/linear_mar/FINAL_results.csv"),
+  read_csv("aistats-rev/fakey/linear_nmar/FINAL_results2.csv") #,
+  # read_csv("aistats-rev/fakey/linear_mar_adv/FINAL_results.csv"),
   
-  read_csv("aistats-rev/fakey/nn_mar/FINAL_results.csv"),
-  read_csv("aistats-rev/fakey/nn_nmar/FINAL_results.csv"),
-  read_csv("aistats-rev/fakey/nn_mar_adv/FINAL_results.csv"), 
+  # read_csv("aistats-rev/fakey/nn_mar/FINAL_results.csv"),
+  # read_csv("aistats-rev/fakey/nn_nmar/FINAL_results.csv"),
+  # read_csv("aistats-rev/fakey/nn_mar_adv/FINAL_results.csv"), 
   
-  read_csv("aistats-rev/realy/FINAL_results.csv") %>% mutate(kMissing=0)
+  # read_csv("aistats-rev/realy/FINAL_results.csv") %>% mutate(kMissing=0)
 )
 
-df %>% select(method) %>% unique() %>% View()
+#df %>% select(method) %>% unique() %>% View()
+
 #Claim 1: Mode imputation is detrimental
 dataset_list1 <- read_csv("pattern_counts_allfeat.csv") %>% 
   mutate(p_miss_all = p_miss) %>%
@@ -22,7 +23,7 @@ dataset_list2 <- read_csv("pattern_counts_numonly.csv") %>%
   mutate(p_miss_num = p_miss) %>%
   select(Name, p_miss_num)  
 dataset_list <- merge(dataset_list1, dataset_list2, "Name") %>%
-  filter(p_miss_all > p_miss_num) %>%
+  filter(p_miss_all > p_miss_num) %>% #Keep datasets where some discrete/categorical features are missing
   rename(dataset=Name)
 
 mode_df <- merge(df, dataset_list, on='dataset') %>%
@@ -35,6 +36,13 @@ mode_df <- merge(df, dataset_list, on='dataset') %>%
   filter(keep >= 1) %>%
   mutate(clusterid = paste(dataset,kMissing))
 
+# merge(df, dataset_list, on='dataset') %>%
+#   mutate(keep = (method == "Imp-then-Reg 4 - best") + (method == "Imp-then-Reg 5 - best") ) %>%
+#   filter(keep >= 1) %>%
+#   mutate(clusterid = paste(dataset,kMissing)) %>%
+#   View()
+
+
 mode_df <- mode_df %>% mutate(Setting = paste(X_setting, Y_setting, sep="_"))
 
 
@@ -42,13 +50,13 @@ df %>% select(dataset) %>% unique() %>% nrow()
 mode_df %>% select(dataset) %>% unique() %>% nrow()
 
 
-mode_df %>% 
-  group_by(Setting) %>% 
-  dplyr::summarize(count_dataset = length(unique(dataset)), 
-                   count_k = length(unique(kMissing)), 
-                   count_method = length(unique(method))
-                   ) %>% 
-  View()
+# mode_df %>% 
+#   group_by(Setting) %>% 
+#   dplyr::summarize(count_dataset = length(unique(dataset)), 
+#                    count_k = length(unique(kMissing)), 
+#                    count_method = length(unique(method))
+#                    ) %>% 
+#   View()
   
 
 synmode <- rbind(
@@ -73,13 +81,13 @@ synmode <- rbind(
 
 mode_df <- rbind(mode_df, synmode[colnames(mode_df)])
 
-mode_df %>% 
-  group_by(Setting) %>% 
-  dplyr::summarize(count_dataset = length(unique(dataset)), 
-                   count_k = length(unique(kMissing)), 
-                   count_method = length(unique(method)),
-                   count_obs = length(dataset)) %>% 
-  View()
+# mode_df %>% 
+#   group_by(Setting) %>% 
+#   dplyr::summarize(count_dataset = length(unique(dataset)), 
+#                    count_k = length(unique(kMissing)), 
+#                    count_method = length(unique(method)),
+#                    count_obs = length(dataset)) %>% 
+#   View()
 
 #Linear model: control for dataset and proportion of missing --> Get adjusted R2
 #Linear model: control for dataset and proportion of missing + cluster SD --> Get coeff estimates + SE + p-values
@@ -121,6 +129,7 @@ mode_df_wide <- dcast(
   Setting+dataset+splitnum+kMissing ~ treatment, 
   fun.aggregate = mean) 
 
+mode_df_wide %>% View()
 
 pairedtest_analysis <-mode_df_wide %>% 
   nest(data = -Setting) %>% 
@@ -133,11 +142,14 @@ pairedtest_analysis <-mode_df_wide %>%
   ) %>% 
   unnest(c(delta_mean,ttest.pvalue,delta_median,wtest.pvalue)) %>%
   select(Setting, delta_mean,ttest.pvalue, delta_median,wtest.pvalue)
+pairedtest_analysis %>% View()
 
 pairedtest_analysis <- merge(pairedtest_analysis, 
      mode_df %>% select(Setting, X_setting, Y_setting) %>% unique(), 
      all.X = T,
      by = 'Setting')
+     
+pairedtest_analysis %>% View()
 
 write_csv(pairedtest_analysis %>% 
             select(Y_setting, X_setting, delta_mean, ttest.pvalue, delta_median, wtest.pvalue) %>%
@@ -147,3 +159,7 @@ write_delim(pairedtest_analysis %>%
             select(Y_setting, X_setting, delta_mean, ttest.pvalue, delta_median, wtest.pvalue) %>%
             arrange(Y_setting,X_setting), "../figures/imputation_rules/mode_impute/ModeImpute_TestAnalysis.txt", delim = " & ")
 
+pairedtest_analysis %>% 
+  select(Y_setting, X_setting, delta_mean, ttest.pvalue, delta_median, wtest.pvalue) %>%
+  arrange(Y_setting,X_setting) %>%
+  View()

@@ -106,7 +106,7 @@ function create_hp_dict(model::Symbol; small::Bool=false)
         return Dict{Symbol,Vector}(:maxdepth => collect(2:2:16))
     elseif model == :nn 
         return Dict{Symbol,Vector}(:hidden_nodes => collect(5:5:35))
-        return Dict{Symbol,Vector}(:hidden_nodes => collect(15:5:35), :maxepochs => [500])
+        # return Dict{Symbol,Vector}(:hidden_nodes => collect(15:5:35), :maxepochs => [500])
     elseif model == :rf 
         if small 
             return Dict{Symbol,Vector}(:ntrees => collect(100:100:200), :maxdepth => collect(10:20:50))
@@ -132,10 +132,10 @@ results_main = DataFrame(dataset=[], SNR=[], k=[], kMissing=[], splitnum=[], met
 ARG = ARGS[1]
 array_num = parse(Int, ARG)
 
-d_num = mod(array_num, 71) + 1
-iter_do = div(array_num,71) + 1
+# d_num = mod(array_num, 71) + 1
+# iter_do = div(array_num,71) + 1
 
-# d_num = array_num + 1
+d_num = array_num + 1
 
 for aux_num in 1:length(missingsignal_list)
 
@@ -185,8 +185,8 @@ for aux_num in 1:length(missingsignal_list)
         savedfiles = filter(t -> startswith(t, string(dname, "_SNR_", SNR, "_nmiss_", k_missingsignal)), readdir(savedir))
         map!(t -> split(replace(t, ".csv" => ""), "_")[end], savedfiles, savedfiles)
 
-        for iter in setdiff(iter_do:iter_do, parse.(Int, savedfiles))    
-        # for iter in setdiff(1:10, parse.(Int, savedfiles))    
+        # for iter in setdiff(iter_do:iter_do, parse.(Int, savedfiles))    
+        for iter in setdiff(1:10, parse.(Int, savedfiles))    
             @show iter
 
             # Create output
