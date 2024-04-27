@@ -140,6 +140,10 @@ itr_df_wide <- dcast( itr_df %>%
                       Setting+dataset+splitnum+kMissing ~ treatment, 
                       fun.aggregate = mean) 
 
+itr_df_wide %>% filter(Setting == "real_X_mar_adv_syn_Y_linear") %>% 
+  mutate(d = `1` - `0`) %>%
+  View()
+
 pairedtest_analysis <-itr_df_wide %>% 
   nest(data = -Setting) %>% 
   mutate(ttest.res = map(data, perform_ttest),
