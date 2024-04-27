@@ -42,10 +42,11 @@ function regress_nn(Y::Array{Float64}, df::DataFrame;
 				n_noimprov = 0
 			end
 
-			stop_if = (n_noimprov > 2) || (abs(mse_old - mse_new) < 1e-3*mse_old) #No improvement for 30 iterations (3 batches of 10) OR less than 0.1% improvement
+			stop_if = (n_noimprov > 1) || (abs(mse_old - mse_new) < 1e-3*mse_old) #No improvement for 20 iterations (2 batches of 10) OR less than 0.1% improvement
 			
 			mse_old = mse_new
 			if stop_if || time() - start_time > timeLimit
+				@show epoch, n_noimprov, mse_old, mse_new
 				break
 			end
 		end

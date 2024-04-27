@@ -151,8 +151,8 @@ if  true #dname ∈ longtime_list #|| (dname == "ozone-level-detection-one" && k
     
     # if iter ∉ parse.(Int, savedfiles)
     # for iter in setdiff(1:10, parse.(Int, savedfiles))    
-    for iter in setdiff(iter_do:iter_do, parse.(Int, savedfiles))   
-    # for iter in 1:10
+    # for iter in setdiff(iter_do:iter_do, parse.(Int, savedfiles))   
+    for iter in 8:8
 
         # try
         @show iter
