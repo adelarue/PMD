@@ -150,9 +150,9 @@ if  true #dname ∈ longtime_list #|| (dname == "ozone-level-detection-one" && k
     map!(t -> replace(replace(t, ".csv" => ""), string(dname,"_real_Y_") => ""), savedfiles, savedfiles)
     
     # if iter ∉ parse.(Int, savedfiles)
-    # for iter in setdiff(1:10, parse.(Int, savedfiles))    
+    for iter in setdiff(1:10, parse.(Int, savedfiles))    
     # for iter in setdiff(iter_do:iter_do, parse.(Int, savedfiles))   
-    for iter in 8:8
+    # for iter in 8:8
 
         # try
         @show iter

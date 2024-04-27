@@ -186,7 +186,8 @@ for aux_num in 1:length(missingsignal_list)
         map!(t -> split(replace(t, ".csv" => ""), "_")[end], savedfiles, savedfiles)
 
         # for iter in setdiff(iter_do:iter_do, parse.(Int, savedfiles))    
-        for iter in setdiff(1:10, parse.(Int, savedfiles))    
+        # for iter in setdiff(1:10, parse.(Int, savedfiles))    
+        for iter in 8:8
             @show iter
 
             # Create output
