@@ -182,3 +182,7 @@ pairedtest_analysis %>%
   select(Y_setting, X_setting,  ncomp, delta_mean, ttest.pvalue.star, ttest.pvalue, delta_median, wtest.pvalue.star, wtest.pvalue) %>%
   arrange(-ncomp,Y_setting,X_setting) %>%
   View()
+
+itr_df_wide %>% filter(Setting == "real_X_nmar_syn_Y_linear") %>% 
+  mutate(d = `1` - `0`) %>%
+  View()

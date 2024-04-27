@@ -187,7 +187,7 @@ for aux_num in 1:length(missingsignal_list)
 
         # for iter in setdiff(iter_do:iter_do, parse.(Int, savedfiles))    
         # for iter in setdiff(1:10, parse.(Int, savedfiles))    
-        for iter in 8:8
+        for iter in 1:10
             @show iter
 
             # Create output
