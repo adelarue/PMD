@@ -76,6 +76,19 @@ itr_df %>%
 #Paired t- and Wilson-tests V4 vs Vx
 method0 = "Imp-then-Reg" #Same as "Imp-then-Reg 4"
 
+# Define a function to convert p-values to stars
+p_to_stars <- function(p){
+  if (p < 1e-20) {
+    return("***")
+  } else if (p < 1e-10) {
+    return("**")
+  } else if (p < 1e-5) {
+    return("*")
+  } else {
+    return(as.character(round(p, digits = 3)))
+  }
+}
+
 for (i in 1:3){
   method1 = paste("Imp-then-Reg", i, "- best")
   
@@ -93,10 +106,15 @@ for (i in 1:3){
            ttest.pvalue = map(ttest.res, function(x) {signif(x$p.value, digits=2) }),
            wtest.res = map(data, perform_wtest),
            delta_median = map(wtest.res, function(x) {round((x$estimate), digits=4) }),
-           wtest.pvalue = map(wtest.res, function(x) {signif(x$p.value, digits=2) })
+           wtest.pvalue = map(wtest.res, function(x) {signif(x$p.value, digits=2) }),
+           ncomp = map(data, nrow)
     ) %>% 
-    unnest(c(delta_mean,ttest.pvalue,delta_median,wtest.pvalue)) %>%
-    select(Setting, delta_mean,ttest.pvalue, delta_median,wtest.pvalue)
+    unnest(c(delta_mean,ttest.pvalue,delta_median,wtest.pvalue,ncomp)) %>%
+    select(Setting, ncomp, delta_mean,ttest.pvalue, delta_median,wtest.pvalue)
+  
+  pairedtest_analysis <- pairedtest_analysis %>%
+    mutate( ttest.pvalue.star = map(ttest.pvalue, p_to_stars),
+            wtest.pvalue.star = map(wtest.pvalue, p_to_stars))
   
   pairedtest_analysis <- merge(pairedtest_analysis, 
                                itr_df %>% select(Setting, X_setting, Y_setting) %>% unique(), 
@@ -104,11 +122,50 @@ for (i in 1:3){
                                by = 'Setting')
   
   write_csv(pairedtest_analysis %>% 
-              select(Y_setting, X_setting, delta_mean, ttest.pvalue, delta_median, wtest.pvalue) %>%
-              arrange(Y_setting,X_setting), 
+              select(Y_setting, X_setting, ncomp, delta_mean, ttest.pvalue.star, ttest.pvalue, delta_median, wtest.pvalue.star, wtest.pvalue) %>%
+              arrange(-ncomp,Y_setting,X_setting), 
             paste("../figures/imputation_rules/mean_impute/ImputeThenReg_",i,"vs4_TestAnalysis.csv", sep=""))
 }
 
+
+###
+
+i <- 2
+method1 = paste("Imp-then-Reg", i, "- best")
+
+itr_df_wide <- dcast( itr_df %>% 
+                        mutate(treatment = 1*(method==method1), control=1*(method==method0)) %>%
+                        filter(treatment+control > 0) %>%
+                        select(Setting,dataset,kMissing,splitnum,treatment,osr2), 
+                      Setting+dataset+splitnum+kMissing ~ treatment, 
+                      fun.aggregate = mean) 
+
+pairedtest_analysis <-itr_df_wide %>% 
+  nest(data = -Setting) %>% 
+  mutate(ttest.res = map(data, perform_ttest),
+         delta_mean = map(ttest.res, function(x) {round((x$estimate), digits=4) }),
+         ttest.pvalue = map(ttest.res, function(x) {signif(x$p.value, digits=2) }),
+         wtest.res = map(data, perform_wtest),
+         delta_median = map(wtest.res, function(x) {round((x$estimate), digits=4) }),
+         wtest.pvalue = map(wtest.res, function(x) {signif(x$p.value, digits=2) }),
+         ncomp = map(data, nrow)
+  ) %>% 
+  unnest(c(delta_mean,ttest.pvalue,delta_median,wtest.pvalue,ncomp)) %>%
+  select(Setting, ncomp, delta_mean,ttest.pvalue, delta_median,wtest.pvalue)
+
+pairedtest_analysis <- pairedtest_analysis %>%
+  mutate( ttest.pvalue.star = map(ttest.pvalue, p_to_stars),
+          wtest.pvalue.star = map(wtest.pvalue, p_to_stars))
+
+merge(pairedtest_analysis, 
+      itr_df %>% select(Setting, X_setting, Y_setting) %>% unique(), 
+      all.X = T,
+      by = 'Setting') %>%
+  select(Y_setting, X_setting, ncomp, delta_mean, ttest.pvalue.star, ttest.pvalue, delta_median, wtest.pvalue.star, wtest.pvalue) %>%
+  arrange(-ncomp,Y_setting,X_setting) %>%
+  View()
+
+###
 
 
 itr_df <- itr_df %>% mutate(Setting = paste(X_setting, Y_setting, kMissing, sep="_"))
@@ -129,10 +186,11 @@ for (i in 2:2){
            ttest.pvalue = map(ttest.res, function(x) {signif(x$p.value, digits=2) }),
            wtest.res = map(data, perform_wtest),
            delta_median = map(wtest.res, function(x) {round((x$estimate), digits=4) }),
-           wtest.pvalue = map(wtest.res, function(x) {signif(x$p.value, digits=2) })
+           wtest.pvalue = map(wtest.res, function(x) {signif(x$p.value, digits=2) }),
+           ncomp = map(data, nrow)
     ) %>% 
-    unnest(c(delta_mean,ttest.pvalue,delta_median,wtest.pvalue)) %>%
-    select(Setting, delta_mean,ttest.pvalue, delta_median,wtest.pvalue)
+    unnest(c(delta_mean,ttest.pvalue,delta_median,wtest.pvalue,ncomp)) %>%
+    select(Setting,ncomp,delta_mean,ttest.pvalue, delta_median,wtest.pvalue)
   
   pairedtest_analysis <- merge(pairedtest_analysis, 
                                itr_df %>% select(Setting, X_setting, Y_setting, kMissing) %>% unique(), 
@@ -140,8 +198,8 @@ for (i in 2:2){
                                by = 'Setting')
   
   write_csv(pairedtest_analysis %>% 
-              select(Y_setting, X_setting, kMissing, delta_mean, ttest.pvalue, delta_median, wtest.pvalue) %>%
-              arrange(Y_setting,X_setting,kMissing), 
+              select(Y_setting, X_setting, kMissing, ncomp, delta_mean, ttest.pvalue, delta_median, wtest.pvalue) %>%
+              arrange(-ncomp,Y_setting,X_setting,kMissing), 
             paste("../figures/imputation_rules/mean_impute/ImputeThenReg_",i,"vs4_TestAnalysis_perMissingLevel.csv", sep=""))
 }
 

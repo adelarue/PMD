@@ -2,15 +2,15 @@ setwd("~/Dropbox/Work/1 - Research/PHD/results/")
 source("setup_script.R")
 
 df <- rbind(
-  # read_csv("aistats-rev/fakey/linear_mar/FINAL_results.csv"),
-  read_csv("aistats-rev/fakey/linear_nmar/FINAL_results2.csv") #,
-  # read_csv("aistats-rev/fakey/linear_mar_adv/FINAL_results.csv"),
+  read_csv("aistats-rev/fakey/linear_mar/FINAL_results.csv"),
+  read_csv("aistats-rev/fakey/linear_nmar/FINAL_results.csv"),
+  read_csv("aistats-rev/fakey/linear_mar_adv/FINAL_results.csv"),
   
-  # read_csv("aistats-rev/fakey/nn_mar/FINAL_results.csv"),
-  # read_csv("aistats-rev/fakey/nn_nmar/FINAL_results.csv"),
-  # read_csv("aistats-rev/fakey/nn_mar_adv/FINAL_results.csv"), 
+  read_csv("aistats-rev/fakey/nn_mar/FINAL_results.csv"),
+  read_csv("aistats-rev/fakey/nn_nmar/FINAL_results.csv"),
+  read_csv("aistats-rev/fakey/nn_mar_adv/FINAL_results.csv"), 
   
-  # read_csv("aistats-rev/realy/FINAL_results.csv") %>% mutate(kMissing=0)
+  read_csv("aistats-rev/realy/FINAL_results.csv") %>% mutate(kMissing=0)
 )
 
 #df %>% select(method) %>% unique() %>% View()
@@ -129,8 +129,6 @@ mode_df_wide <- dcast(
   Setting+dataset+splitnum+kMissing ~ treatment, 
   fun.aggregate = mean) 
 
-mode_df_wide %>% View()
-
 pairedtest_analysis <-mode_df_wide %>% 
   nest(data = -Setting) %>% 
   mutate(ttest.res = map(data, perform_ttest),
@@ -139,27 +137,48 @@ pairedtest_analysis <-mode_df_wide %>%
          wtest.res = map(data, perform_wtest),
          delta_median = map(wtest.res, function(x) {round((x$estimate), digits=4) }),
          wtest.pvalue = map(wtest.res, function(x) {signif(x$p.value, digits=2) }),
+         ncomp = map(data, nrow)
   ) %>% 
-  unnest(c(delta_mean,ttest.pvalue,delta_median,wtest.pvalue)) %>%
-  select(Setting, delta_mean,ttest.pvalue, delta_median,wtest.pvalue)
-pairedtest_analysis %>% View()
+  unnest(c(delta_mean,ttest.pvalue,delta_median,wtest.pvalue,ncomp)) %>%
+  select(Setting, delta_mean,ttest.pvalue, delta_median,wtest.pvalue,ncomp)
+
+#pairedtest_analysis %>% View()
 
 pairedtest_analysis <- merge(pairedtest_analysis, 
      mode_df %>% select(Setting, X_setting, Y_setting) %>% unique(), 
      all.X = T,
      by = 'Setting')
-     
-pairedtest_analysis %>% View()
+
+#pairedtest_analysis %>% View()
+
+# Define a function to convert p-values to stars
+p_to_stars <- function(p){
+  if (p < 1e-20) {
+    return("***")
+  } else if (p < 1e-10) {
+    return("**")
+  } else if (p < 1e-5) {
+    return("*")
+  } else {
+    return(as.character(round(p, digits = 3)))
+  }
+}
+pairedtest_analysis <- pairedtest_analysis %>%
+    mutate( ttest.pvalue.star = map(ttest.pvalue, p_to_stars),
+            wtest.pvalue.star = map(wtest.pvalue, p_to_stars))
 
 write_csv(pairedtest_analysis %>% 
-            select(Y_setting, X_setting, delta_mean, ttest.pvalue, delta_median, wtest.pvalue) %>%
-            arrange(Y_setting,X_setting), "../figures/imputation_rules/mode_impute/ModeImpute_TestAnalysis.csv")
+            select(Y_setting, X_setting, ncomp, delta_mean, ttest.pvalue.star, ttest.pvalue, delta_median, wtest.pvalue.star, wtest.pvalue) %>%
+            arrange(-ncomp,Y_setting,X_setting), 
+            "../figures/imputation_rules/mode_impute/ModeImpute_TestAnalysis.csv"
+          )
 
 write_delim(pairedtest_analysis %>% 
-            select(Y_setting, X_setting, delta_mean, ttest.pvalue, delta_median, wtest.pvalue) %>%
-            arrange(Y_setting,X_setting), "../figures/imputation_rules/mode_impute/ModeImpute_TestAnalysis.txt", delim = " & ")
+            select(Y_setting, X_setting, ncomp, delta_mean, ttest.pvalue.star, ttest.pvalue, delta_median, wtest.pvalue.star, wtest.pvalue) %>%
+            arrange(-ncomp,Y_setting,X_setting), "../figures/imputation_rules/mode_impute/ModeImpute_TestAnalysis.txt", delim = " & "
+            )
 
 pairedtest_analysis %>% 
-  select(Y_setting, X_setting, delta_mean, ttest.pvalue, delta_median, wtest.pvalue) %>%
-  arrange(Y_setting,X_setting) %>%
+  select(Y_setting, X_setting,  ncomp, delta_mean, ttest.pvalue.star, ttest.pvalue, delta_median, wtest.pvalue.star, wtest.pvalue) %>%
+  arrange(-ncomp,Y_setting,X_setting) %>%
   View()
