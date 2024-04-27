@@ -42,8 +42,8 @@ function regress_nn(Y::Array{Float64}, df::DataFrame;
 				n_noimprov = 0
 			end
 
-			stop_if = (n_noimprov > 1) || (abs(mse_old - mse_new) < 1e-3*mse_old) #No improvement for 20 iterations (2 batches of 10) OR less than 0.1% improvement
-			@show epoch, n_noimprov, mse_old, mse_new, stop_if
+			stop_if = (n_noimprov > 3) || (abs(mse_old - mse_new) < 1e-4*mse_old) #No improvement for 20 iterations (2 batches of 10) OR less than 0.01% improvement
+			# @show epoch, n_noimprov, mse_old, mse_new, stop_if
 
 			mse_old = mse_new
 			if stop_if || time() - start_time > timeLimit
@@ -51,7 +51,7 @@ function regress_nn(Y::Array{Float64}, df::DataFrame;
 			end
 		end
 	end
-	@show maxepochs, n_noimprov, mse_old
+	# @show maxepochs, n_noimprov, mse_old
 	# Flux.@epochs maxepochs Flux.train!(loss, ps, data, opt, cb=throttled_cb)
 	
 	return m
