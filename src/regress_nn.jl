@@ -51,6 +51,7 @@ function regress_nn(Y::Array{Float64}, df::DataFrame;
 			end
 		end
 	end
+	@show epoch, n_noimprov, mse_old, mse_new
 	# Flux.@epochs maxepochs Flux.train!(loss, ps, data, opt, cb=throttled_cb)
 	
 	return m
