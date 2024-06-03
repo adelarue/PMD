@@ -1,20 +1,11 @@
-# PHD
-Predictions with Hidden Data
+# PMD
+Prediction with Missing Data
 
-## Quick start
+This repository contains the code associated with the following research papers:
 
-Take a look at the example notebooks.
+- D Bertsimas, A Delarue, J Pauphilet. Simple Imputation Rules for Prediction with Missing Data: Theoretical Guarantees vs. Empirical Performance. Forthcoming in _Transactions on Machine Learning Research_ (2024). [arXiv](https://arxiv.org/abs/2104.03158)
+- D Bertsimas, A Delarue, J Pauphilet. Adaptive Optimization for Prediction with Missing Data. [arXiv](https://arxiv.org/abs/2402.01543)
 
-Note: to avoid pushing metadata to Github, try to save a "clean" notebook with all outputs cleared.
+## How to read
 
-## Creating datasets
-
-Run `julia create_sleep_datasets.jl` to create some data files in the `datasets/` folder. For now, parameters can only be modified directly in the source file.
-
-Conventions: all datasets must have a column called `Test` which is 1 if the row belongs to the test set and 0 if it belongs to the training set. Additionally, all datasets must denote the dependent variable as `Y`.
-
-## Imputation and regression
-
-- `impute.jl` defines functions to impute missing values using MICE, and to impute missing values with zeros.
-- `regress.jl` defines functions to perform linear regression and evaluate fit quality.
-- `augment.jl` defines functions to add missingness-related features to the data.
+The scripts used to generate plots and other empirical results in the paper is in the `engaging` folder. The `src` folder houses the actual implemented methods to pull/generate data as well as implement and evaluate prediction methodologies.
