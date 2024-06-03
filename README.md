@@ -8,4 +8,4 @@ This repository contains the code associated with the following research papers:
 
 ## How to read
 
-The scripts used to generate plots and other empirical results in the paper is in the `engaging` folder. The `src` folder houses the actual implemented methods to pull/generate data as well as implement and evaluate prediction methodologies.
+The scripts used to generate plots and other empirical results in both papers are in the `engaging` folder. The `src` folder houses the actual implemented methods to pull/generate data as well as implement and evaluate prediction methodologies.
